@@ -19,7 +19,9 @@
   <main role="main">
     <section id="login">
       <form id="login-form">
+        <label for="login-email">Email:</label>
         <input type="text" id="login-email">
+        <label for="login-password">Password:</label>
         <input type="password" id="login-password">
       </form>
       <button id="login-submit">Submit</button>
@@ -27,9 +29,13 @@
     </section>
     <section id="register">
       <form id="register-form">
+        <label for="register-email">Email:</label>
         <input type="text" id="register-email">
+        <label for="register-name">First Name:</label>
         <input type="text" id="register-name">
+        <label for="register-password">Password:</label>
         <input type="password" id="register-password">
+        <label for="register-password-confirm">Confirm Password:</label>
         <input type="password" id="register-password-confirm">
       </form>
       <button id="register-submit">Submit</button>
@@ -38,14 +44,16 @@
       <section id="create-channel-popup">
         <section class="modal-content">
           <form id="create-channel-form">
-            <input type="text" name="channelName"/> 
-            <input type="text" name="channelDescription"/>
+            <label for="form-channel-name">Channel Name:</label>
+            <input type="text" id="form-channel-name"/> 
+            <label for="form-channel-description">Channel Description:</label>
+            <input type="text" id="form-channel-description"/>
             <fieldset>
               <legend>Private or public server?</legend>
-              <input type="radio" name="isPrivate" value="private" checked/>
-              <label for="privateChannel">Private</label>
-              <input type="radio" name="isPrivate" value="public"/>
-              <label for="publicChannel">Public</label>
+              <input type="radio" name="channel-private" id="isPrivate" value="private" checked/>
+              <label for="isPrivate">Private</label>
+              <input type="radio" name="channel-private" id="isPublic" value="public"/>
+              <label for="isPublic">Public</label>
             </fieldset>
           </form>
           <button id="create-channel-confirm-button">Create Channel</button>
@@ -55,12 +63,12 @@
       <section id="sidebar">
         <section id="private-channels">
           <h1>Private Channels</h1>
-          <ul id="private-channels-list">
+          <ul id="private-channels-list" class="channel-list">
           </ul>
         </section>
         <section id="public-channels">
           <h1>Public Channels</h1>
-          <ul id="public-channels-list">
+          <ul id="public-channels-list" class="channel-list">
           </ul>
         <section id="create-channel">
           <button id="create-channel-button">Create a Channel</button>
@@ -68,6 +76,26 @@
         </section>
       </section>
       <section id="channel-view">
+        <section id="channel-header">
+          <h1 id="channel-name">Placeholder Name</h1>
+          <p id="channel-description">Placeholder Description</p>
+          <p id="channel-creation-time">Placeholder Creation Time</p>
+          <p id="channel-creator">Placeholder Creator</p>
+          <section id="channel-settings-popup">
+            <section class="modal-content">
+              <form id="channel-settings-form">
+                <label for="edit-channel-name">Channel Name:</label>
+                <input type="text" id="edit-channel-name">
+                <label for="edit-channel-description">Channel Description:</label>
+                <input type="text" id="edit-channel-description">
+              </form>
+              <button id="channel-settings-save">Save</button>
+              <button id="channel-settings-close">Close</button>
+              </form>
+            </section>
+          </section>
+        </section>
+        <section id="channel-body"></section>
       </section>
       <button id="logout">Logout</button>
     </section>

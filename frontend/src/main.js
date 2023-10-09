@@ -1,5 +1,5 @@
 import { BACKEND_PORT } from './config.js';
-import { fileToDataUrl, apiCall, isValueInDict, removeChildrenNodes } from './helpers.js';
+import { fileToDataUrl, apiCall, isValueInArray, removeChildrenNodes, getToken, getUserId, getIndexInArray } from './helpers.js';
 
 // HTML elements
 const loginSection = document.getElementById("login");
@@ -14,6 +14,8 @@ const createChannelButton = document.getElementById("create-channel-button");
 const createChannelConfirmButton = document.getElementById("create-channel-confirm-button");
 const createChannelCancelButton = document.getElementById("create-channel-cancel-button");
 const logoutButton = document.getElementById("logout");
+const channelSettingsSaveButton = document.getElementById("channel-settings-save");
+const channelSettingsCloseButton = document.getElementById("channel-settings-close");
 
 const loginForm = document.getElementById("login-form");
 const registerForm = document.getElementById("register-form");
@@ -35,8 +37,10 @@ registerSection.style.display = "none";
 mainSection.style.display = "none"
 
 // Channel data
+const allChannels = [];
 const publicChannels = [];
 const privateChannels = [];
+let currentChannel = null;
 
 loginSubmitButton.addEventListener('click', () => {
     if (loginEmailInput.value.length < 1) { 
@@ -79,7 +83,13 @@ createChannelButton.addEventListener('click', () => {
 })
 
 createChannelConfirmButton.addEventListener('click', () => {
-    createChannelPopupSection.style.display = "block";
+    const channelName = document.getElementById("form-channel-name").value;
+    const channelDescription = document.getElementById("form-channel-description").value;
+    const isPrivate = document.getElementById("isPrivate").checked;
+    createChannel(getToken(), channelName, isPrivate, channelDescription);
+    loadSidebarSection();
+    createChannelPopupSection.style.display = "none";
+    createChannelForm.reset();
 })
 
 createChannelCancelButton.addEventListener('click', () => {
@@ -88,23 +98,9 @@ createChannelCancelButton.addEventListener('click', () => {
 
 })
 
-const getToken = () => {
-    return document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("access_token="))
-    ?.split("=")[1];
-}
-
-const getUserId = () => {
-    return document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("user_id="))
-    ?.split("=")[1];
-}
-
 const loadMainSection = () => {
-    loadSidebarSection();
-    loadChannelViewSection();
+    loadSidebarSection()
+    .then(() => { loadChannelViewSection(); });
 
     loginSection.style.display = "none";
     registerSection.style.display = "none";
@@ -113,36 +109,165 @@ const loadMainSection = () => {
 }
 
 const loadSidebarSection = () => {
-    getChannels(getToken())
+    const response = getChannels(getToken())
     .then((data) => {
         if (data !== false) {
+            allChannels.length = 0;
             publicChannels.length = 0;
             privateChannels.length = 0;
             data.channels.forEach((channel) => {
-                if (channel.private && isValueInDict(channel.members, getUserId())) {
-                    privateChannels.push(channel);
+                if (isValueInArray(channel.members, getUserId())) {
+                    channel["userIsMember"] = true;
                 } else {
+                    channel["userIsMember"] = false;
+                }
+
+                allChannels.push(channel);
+
+                if (channel.private && channel["userIsMember"]) {
+                    privateChannels.push(channel);
+                } else if (!channel.private) {
                     publicChannels.push(channel)
                 }
-            })
+            }) 
         }
 
+        // Set currentChannel to first private channel, else first public channel
+        // TODO: Will error of no channels exist serverside
+        if (currentChannel === null && privateChannels.length > 0) {
+            currentChannel = privateChannels[0];
+        } else if (currentChannel === null) {
+            currentChannel = publicChannels[0];
+        } else {
+            currentChannel = allChannels[getIndexInArray(currentChannel.id, allChannels)];
+        }
+
+        // Remove server buttons and regenerate list
         removeChildrenNodes(privateChannelsList);
         removeChildrenNodes(publicChannelsList);
         generateChannelButtons(privateChannels, true);
         generateChannelButtons(publicChannels, false); 
+
+        return true;
     });
+
+    return response;
 }
 
 const loadChannelViewSection = () => {
+    loadChannelHeader();
 }
+
+const loadChannelHeader = () => {
+    // Remove old buttons if they still exist
+    if (document.getElementById("leave-channel")) {
+        document.getElementById("leave-channel").remove();   
+    }
+    
+    if (document.getElementById("join-channel")) {
+        document.getElementById("join-channel").remove();
+    }
+    
+    if (document.getElementById("channel-settings")) {
+        console.log("here");
+        document.getElementById("channel-settings").remove();
+    }
+
+    if (currentChannel.userIsMember) {
+        loadMemberChannelHeader();
+    } else {
+        loadNonMemberChannelHeader();
+    } 
+}
+
+const loadMemberChannelHeader = () => {
+    const channelHeader = document.getElementById("channel-header");
+    const channelName = document.getElementById("channel-name");
+    const channelDescription = document.getElementById("channel-description");
+    const channelCreationTime = document.getElementById("channel-creation-time");
+    const channelCreator = document.getElementById("channel-creator");
+    const channelSettingsButton = document.getElementById("channel-settings");
+
+    getChannel(getToken(), currentChannel.id)
+    .then((response) => {
+        channelName.textContent = response.name;
+        channelDescription.textContent = response.description;
+        channelCreationTime.textContent = response.createdAt.split("T")[0];
+        channelCreator.textContent = response.creator;
+
+        // Create channel settings button
+        const channelSettingsButton = document.createElement("button");
+        channelSettingsButton.id = "channel-settings";
+        channelSettingsButton.append(document.createTextNode("Channel Settings"));
+        channelHeader.appendChild(channelSettingsButton);
+
+        channelSettingsButton.addEventListener('click', () => {
+            document.getElementById("channel-settings-popup").style.display = "block";
+            document.getElementById("edit-channel-name").value = response.name;
+            document.getElementById("edit-channel-description").value = response.description;
+        });
+
+        // Create leave channel button
+        const leaveChannelButton = document.createElement("button");
+        leaveChannelButton.id = "leave-channel";
+        leaveChannelButton.append(document.createTextNode("Leave Channel"));
+        channelHeader.appendChild(leaveChannelButton);
+
+        leaveChannelButton.addEventListener('click', () => {
+            leaveChannel(getToken(), currentChannel.id)
+            .then((response) => { 
+                document.getElementById("leave-channel").remove();
+                loadMainSection();
+            });
+        })
+    
+        leaveChannelButton.style.display = "block";
+    });
+}
+
+const loadNonMemberChannelHeader = () => {
+    const channelHeader = document.getElementById("channel-header");
+    const channelName = document.getElementById("channel-name");
+    const channelDescription = document.getElementById("channel-description");
+    const channelCreationTime = document.getElementById("channel-creation-time");
+    const channelCreator = document.getElementById("channel-creator");
+
+    channelName.textContent = currentChannel.name;
+    channelDescription.textContent = "";
+    channelCreationTime.textContent = "";
+    channelCreator.textContent = "";
+
+    // Create join channel button
+    const joinChannelButton = document.createElement("button");
+    joinChannelButton.id = "join-channel";
+    joinChannelButton.append(document.createTextNode("Join Channel"))
+    channelHeader.appendChild(joinChannelButton);
+
+    joinChannelButton.addEventListener('click', () => {
+        joinChannel(getToken(), currentChannel.id)
+        .then((response) => {
+            document.getElementById("join-channel").remove();
+            loadMainSection();
+        });
+    })
+
+    joinChannelButton.style.display = "block"; 
+}
+
 
 const generateChannelButtons = (channels, isPrivate) => {
     channels.forEach((channel) => {
         const li = document.createElement("li");
         const button = document.createElement("button");
+        button.classList.add("channel-button");
+        button.id = channel.id;
         const buttonName = document.createTextNode(`${channel.name}`);
 
+        button.addEventListener('click', () => {
+            currentChannel = allChannels[getIndexInArray(channel.id, allChannels)];
+            loadMainSection();
+        })
+        
         button.appendChild(buttonName);
         li.appendChild(button);
         if (isPrivate) {
@@ -151,8 +276,30 @@ const generateChannelButtons = (channels, isPrivate) => {
             publicChannelsList.appendChild(li);
         }
         
+        // Colour if currently selected channel
+        if (currentChannel !== null && currentChannel.id === channel.id) {
+            button.style.backgroundColor = "blue";
+        }
     });
 }
+
+channelSettingsCloseButton.addEventListener('click', () => {
+    document.getElementById("channel-settings-popup").style.display = "none";
+    document.getElementById("channel-settings-form").reset();
+})
+
+channelSettingsSaveButton.addEventListener('click', () => {
+    const newName = document.getElementById("edit-channel-name").value;
+    const newDescription = document.getElementById("edit-channel-description").value;
+    updateChannel(getToken(), currentChannel.id, newName, newDescription)
+    .then((response) => {
+        document.getElementById("channel-settings-popup").style.display = "none";
+        document.getElementById("channel-settings-form").reset();
+        loadMainSection();
+    });
+})
+
+
 
 /*
 ===============================
@@ -216,50 +363,43 @@ const getChannels = (token) => {
 }
 
 const createChannel = (token, name, isPrivate, description) => {
+    if (description === "") {
+        description = "A Slackr Channel";
+    }
+
     let success = apiCall("POST", "channel", { name: name, private: isPrivate, description: description }, token)
-    .then((response) => {return response})
-    .then((success) => {
-        console.log(success);
-    });
+    .then((response) => {return response});
+    return success;
 }
 
 const getChannel = (token, channelId) => {
-    let success = apiCall("GET", `channel/${channelId}`, undefined)
-    .then((response) => {return response})
-    .then((success) => {
-        console.log(success);
-    });
+    let success = apiCall("GET", `channel/${channelId}`, undefined, token)
+    .then((response) => {return response});
+    return success;
 }
 
 const updateChannel = (token, channelId, name, description) => {
     let success = apiCall("PUT", `channel/${channelId}`, { name: name, description: description }, token)
-    .then((response) => {return response})
-    .then((success) => {
-        console.log(success);
-    });
+    .then((response) => {return response});
+    return success;
 }
 
 const joinChannel = (token, channelId) => {
     let success = apiCall("POST", `channel/${channelId}/join`, {}, token)
-    .then((response) => {return response})
-    .then((success) => {
-        console.log(success);
-    });
+    .then((response) => {return response});
+    return success;
 }
 
 const leaveChannel = (token, channelId) => {
-    let success = apiCall("POST", `channel/${channelId}/join`, {}, token)
-    .then((response) => {return response})
-    .then((success) => {
-        console.log(success);
-    });
+    let success = apiCall("POST", `channel/${channelId}/leave`, {}, token)
+    .then((response) => {return response});
+    return success;
 }
 
 const inviteChannel = (token, channelId, userId) => {
     let success = apiCall("POST", `channel/${channelId}/join`, {userId: userId}, token)
     .then((response) => {return response})
     .then((success) => {
-        console.log(success);
     });
 }
 
@@ -273,7 +413,6 @@ const getUsers = (token) => {
     let success = apiCall("GET", "user", undefined)
     .then((response) => {return response})
     .then((success) => {
-        console.log(success);
     });
 }
 
@@ -288,7 +427,6 @@ const updateProfile = (token, email, password, name, bio, image) => {
     }, token)
     .then((response) => {return response})
     .then((success) => {
-        console.log(success);
     });
 }
 
@@ -296,7 +434,6 @@ const getUserDetails = (token, userId) => {
     let success = apiCall("GET", `user/${userId}`, undefined, token)
     .then((response) => {return response})
     .then((success) => {
-        console.log(success);
     });
 }
 
@@ -310,7 +447,6 @@ const getMessages = (token, channelId, start) => {
     let success = apiCall("GET", `message/${channelId}?${start}`, undefined, token)
     .then((response) => {return response})
     .then((success) => {
-        console.log(success);
     });
 }
 
@@ -318,7 +454,6 @@ const sendMessage = (token, channelId) => {
     let success = apiCall("POST", `message/${channelId}`, {}, token)
     .then((response) => {return response})
     .then((success) => {
-        console.log(success);
     });
 }
 
@@ -326,7 +461,6 @@ const updateMessage = (token, channelId, messageId, message, image) => {
     let success = apiCall("PUT", `message/${channelId}/${messageId}`, { message: message, image: image }, token)
     .then((response) => {return response})
     .then((success) => {
-        console.log(success);
     });
 }
 
@@ -334,7 +468,6 @@ const deleteMessage = (token, channelId, messageId) => {
     let success = apiCall("DELETE", `message/${channelId}/${messageId}`, {}, token)
     .then((response) => {return response})
     .then((success) => {
-        console.log(success);
     });
 }
 
@@ -342,7 +475,6 @@ const pinMessage = (token, channelId, messageId) => {
     let success = apiCall("POST", `message/${channelId}/${messageId}`, {}, token)
     .then((response) => {return response})
     .then((success) => {
-        console.log(success);
     });
 }
 
@@ -350,7 +482,6 @@ const unpinMessage = (token, channelId, messageId) => {
     let success = apiCall("POST", `message/${channelId}/${messageId}`, {}, token)
     .then((response) => {return response})
     .then((success) => {
-        console.log(success);
     });
 }
 
@@ -358,7 +489,6 @@ const reactMessage = (token, channelId, messageId, react) => {
     let success = apiCall("POST", `message/${channelId}/${messageId}`, { react: react }, token)
     .then((response) => {return response})
     .then((success) => {
-        console.log(success);
     });
 }
 
@@ -366,6 +496,5 @@ const unreactMessage = (token, channelId, messageId, react) => {
     let success = apiCall("POST", `message/${channelId}/${messageId}`, { react: react }, token)
     .then((response) => {return response})
     .then((success) => {
-        console.log(success);
     });
 }

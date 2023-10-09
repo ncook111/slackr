@@ -58,6 +58,300 @@
     }
   },
   "channels": {
+    "111505": {
+      "name": "2",
+      "creator": 16914,
+      "private": true,
+      "description": "2",
+      "createdAt": "2023-10-09T09:03:27.621Z",
+      "members": [],
+      "messages": []
+    },
+    "130856": {
+      "name": "11",
+      "creator": 16914,
+      "private": true,
+      "description": "11",
+      "createdAt": "2023-10-09T08:46:18.932Z",
+      "members": [],
+      "messages": []
+    },
+    "136875": {
+      "name": "123",
+      "creator": 16914,
+      "private": true,
+      "description": "456",
+      "createdAt": "2023-10-09T06:14:19.749Z",
+      "members": [],
+      "messages": []
+    },
+    "173880": {
+      "name": "1",
+      "creator": 16914,
+      "private": true,
+      "description": "1",
+      "createdAt": "2023-10-09T09:03:21.436Z",
+      "members": [],
+      "messages": []
+    },
+    "185508": {
+      "name": "12345",
+      "creator": 16914,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-09T11:38:52.070Z",
+      "members": [],
+      "messages": []
+    },
+    "212259": {
+      "name": "New Server",
+      "creator": 16914,
+      "private": true,
+      "description": "The Best Server",
+      "createdAt": "2023-10-09T05:53:53.305Z",
+      "members": [],
+      "messages": []
+    },
+    "290753": {
+      "name": "123452",
+      "creator": 16914,
+      "private": false,
+      "description": "A Slackr Channel12",
+      "createdAt": "2023-10-09T06:07:00.909Z",
+      "members": [
+        16914
+      ],
+      "messages": []
+    },
+    "294042": {
+      "name": {},
+      "creator": 16914,
+      "private": false,
+      "description": {},
+      "createdAt": "2023-10-09T05:47:57.964Z",
+      "members": [],
+      "messages": []
+    },
+    "300160": {
+      "name": "yayaya",
+      "creator": 16914,
+      "private": false,
+      "description": "ya",
+      "createdAt": "2023-10-09T06:33:52.611Z",
+      "members": [
+        16914
+      ],
+      "messages": []
+    },
+    "357273": {
+      "name": "test",
+      "creator": 16914,
+      "private": true,
+      "description": "1",
+      "createdAt": "2023-10-09T05:58:53.121Z",
+      "members": [],
+      "messages": []
+    },
+    "376012": {
+      "name": "11",
+      "creator": 16914,
+      "private": true,
+      "description": "11",
+      "createdAt": "2023-10-09T08:43:12.292Z",
+      "members": [],
+      "messages": []
+    },
+    "379342": {
+      "name": "Best Server",
+      "creator": 16914,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-09T06:07:12.669Z",
+      "members": [],
+      "messages": []
+    },
+    "391330": {
+      "name": "12",
+      "creator": 16914,
+      "private": true,
+      "description": "12",
+      "createdAt": "2023-10-09T10:06:00.766Z",
+      "members": [],
+      "messages": []
+    },
+    "417827": {
+      "name": "1",
+      "creator": 16914,
+      "private": true,
+      "description": "1",
+      "createdAt": "2023-10-09T10:50:17.354Z",
+      "members": [],
+      "messages": []
+    },
+    "428308": {
+      "name": {},
+      "creator": 16914,
+      "private": false,
+      "description": {},
+      "createdAt": "2023-10-09T05:44:30.167Z",
+      "members": [
+        16914
+      ],
+      "messages": []
+    },
+    "454491": {
+      "name": "1",
+      "creator": 16914,
+      "private": true,
+      "description": "1",
+      "createdAt": "2023-10-09T05:52:40.419Z",
+      "members": [],
+      "messages": []
+    },
+    "457492": {
+      "name": "aa",
+      "creator": 16914,
+      "private": true,
+      "description": "12",
+      "createdAt": "2023-10-09T06:07:18.352Z",
+      "members": [],
+      "messages": []
+    },
+    "461771": {
+      "name": {},
+      "creator": 16914,
+      "private": false,
+      "description": {},
+      "createdAt": "2023-10-09T05:51:30.527Z",
+      "members": [],
+      "messages": []
+    },
+    "473879": {
+      "name": "pp",
+      "creator": 16914,
+      "private": true,
+      "description": "pp",
+      "createdAt": "2023-10-09T06:12:10.670Z",
+      "members": [],
+      "messages": []
+    },
+    "475823": {
+      "name": "1",
+      "creator": 16914,
+      "private": true,
+      "description": "1",
+      "createdAt": "2023-10-09T10:24:25.931Z",
+      "members": [],
+      "messages": []
+    },
+    "566062": {
+      "name": "1234",
+      "creator": 16914,
+      "private": true,
+      "description": "1235",
+      "createdAt": "2023-10-09T11:10:01.641Z",
+      "members": [],
+      "messages": []
+    },
+    "572501": {
+      "name": "123",
+      "creator": 16914,
+      "private": true,
+      "description": "123",
+      "createdAt": "2023-10-09T11:28:13.717Z",
+      "members": [],
+      "messages": []
+    },
+    "582263": {
+      "name": "plz",
+      "creator": 16914,
+      "private": true,
+      "description": "plz1",
+      "createdAt": "2023-10-09T05:55:15.072Z",
+      "members": [],
+      "messages": []
+    },
+    "587004": {
+      "name": "test",
+      "creator": 16914,
+      "private": true,
+      "description": "1",
+      "createdAt": "2023-10-09T05:58:56.916Z",
+      "members": [],
+      "messages": []
+    },
+    "621978": {
+      "name": "11",
+      "creator": 16914,
+      "private": true,
+      "description": "11",
+      "createdAt": "2023-10-09T08:46:15.280Z",
+      "members": [],
+      "messages": []
+    },
+    "646611": {
+      "name": "5",
+      "creator": 16914,
+      "private": true,
+      "description": "5",
+      "createdAt": "2023-10-09T05:54:26.333Z",
+      "members": [],
+      "messages": []
+    },
+    "661238": {
+      "name": "12",
+      "creator": 16914,
+      "private": true,
+      "description": "12",
+      "createdAt": "2023-10-09T08:45:58.938Z",
+      "members": [],
+      "messages": []
+    },
+    "694141": {
+      "name": "1456",
+      "creator": 16914,
+      "private": true,
+      "description": "4532e",
+      "createdAt": "2023-10-09T09:04:10.702Z",
+      "members": [],
+      "messages": []
+    },
+    "715277": {
+      "name": "uhhhhh",
+      "creator": 16914,
+      "private": true,
+      "description": "testing",
+      "createdAt": "2023-10-09T06:33:47.772Z",
+      "members": [],
+      "messages": []
+    },
+    "755686": {
+      "name": "1",
+      "creator": 16914,
+      "private": true,
+      "description": "1",
+      "createdAt": "2023-10-09T10:29:06.687Z",
+      "members": [],
+      "messages": []
+    },
+    "800978": {
+      "name": {},
+      "creator": 16914,
+      "private": false,
+      "description": {},
+      "createdAt": "2023-10-09T05:50:09.227Z",
+      "members": [],
+      "messages": []
+    },
+    "809594": {
+      "name": "test",
+      "creator": 16914,
+      "private": true,
+      "description": "1",
+      "createdAt": "2023-10-09T05:58:50.043Z",
+      "members": [],
+      "messages": []
+    },
     "813580": {
       "name": "public channel",
       "creator": 15272,
@@ -66,7 +360,8 @@
       "createdAt": "2021-09-13T08:00:03.220Z",
       "members": [
         15272,
-        56422
+        56422,
+        16914
       ],
       "messages": [
         {
@@ -490,6 +785,71 @@
           "reacts": []
         }
       ]
+    },
+    "814545": {
+      "name": "123",
+      "creator": 16914,
+      "private": false,
+      "description": "123",
+      "createdAt": "2023-10-09T06:00:54.967Z",
+      "members": [],
+      "messages": []
+    },
+    "867764": {
+      "name": "pp",
+      "creator": 16914,
+      "private": true,
+      "description": "pp",
+      "createdAt": "2023-10-09T05:56:45.946Z",
+      "members": [],
+      "messages": []
+    },
+    "870468": {
+      "name": "12",
+      "creator": 16914,
+      "private": true,
+      "description": "12",
+      "createdAt": "2023-10-09T08:46:28.980Z",
+      "members": [],
+      "messages": []
+    },
+    "880436": {
+      "name": "vv",
+      "creator": 16914,
+      "private": true,
+      "description": "vv",
+      "createdAt": "2023-10-09T06:11:05.048Z",
+      "members": [],
+      "messages": []
+    },
+    "903540": {
+      "name": "1",
+      "creator": 16914,
+      "private": true,
+      "description": "1",
+      "createdAt": "2023-10-09T06:10:07.649Z",
+      "members": [],
+      "messages": []
+    },
+    "937871": {
+      "name": "1",
+      "creator": 16914,
+      "private": true,
+      "description": "1",
+      "createdAt": "2023-10-09T10:26:01.417Z",
+      "members": [],
+      "messages": []
+    },
+    "984762": {
+      "name": "1",
+      "creator": 16914,
+      "private": true,
+      "description": "13",
+      "createdAt": "2023-10-09T12:24:05.181Z",
+      "members": [
+        16914
+      ],
+      "messages": []
     }
   },
   "nextMessageId": 43

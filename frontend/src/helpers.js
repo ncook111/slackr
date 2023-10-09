@@ -30,12 +30,22 @@ export function fileToDataUrl(file) {
     return dataUrlPromise;
 }
 
-export const isValueInDict = (dict, value) => {
-    dict.forEach((id) => {
-        if (id === value) { return true; }
-    });
-
+export const isValueInArray = (dict, value) => {
+    for (let i in dict) {
+        if (dict[i].toString() === value) { return true }
+    }
+    
     return false;
+}
+
+export const getIndexInArray = (id, array) => {
+    for (let i in array) {
+        if (id === array[i].id) {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 // https://www.javascripttutorial.net/dom/manipulating/remove-all-child-nodes/
@@ -94,3 +104,17 @@ export const apiCall = (method, path, body, token) => {
 
     return success;
 };
+
+export const getToken = () => {
+    return document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("access_token="))
+    ?.split("=")[1];
+}
+
+export const getUserId = () => {
+    return document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("user_id="))
+    ?.split("=")[1];
+}
