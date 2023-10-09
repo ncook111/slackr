@@ -29,3 +29,68 @@ export function fileToDataUrl(file) {
     reader.readAsDataURL(file);
     return dataUrlPromise;
 }
+
+export const isValueInDict = (dict, value) => {
+    dict.forEach((id) => {
+        if (id === value) { return true; }
+    });
+
+    return false;
+}
+
+// https://www.javascripttutorial.net/dom/manipulating/remove-all-child-nodes/
+export const removeChildrenNodes = (parent) => {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild)
+    }
+}
+
+export const apiCall = (method, path, body, token) => {
+    let header;
+
+    if (token !== undefined) {
+        header = {
+            'Content-type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    } else {
+        header = {
+            'Content-type': 'application/json',
+        }
+    }
+
+    let success;
+
+    if (body === undefined) {
+        success = fetch('http://localhost:5005/' + path, {
+            method: method,
+            headers: header,
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.error) {
+                    alert(data.error)
+                    return false;
+                } else {
+                    return data;
+                }
+            });
+    } else {
+        success = fetch('http://localhost:5005/' + path, {
+            method: method,
+            headers: header,
+            body: JSON.stringify(body)
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.error) {
+                    alert(data.error)
+                    return false;
+                } else {
+                    return data;
+                }
+            });
+    }
+
+    return success;
+};

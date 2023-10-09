@@ -17,7 +17,60 @@
     <h1>Slackr</h1>
   </header>
   <main role="main">
-    <!-- app goes here -->
+    <section id="login">
+      <form id="login-form">
+        <input type="text" id="login-email">
+        <input type="password" id="login-password">
+      </form>
+      <button id="login-submit">Submit</button>
+      <button id="create-account">Don't have an account? Register Now!</button>
+    </section>
+    <section id="register">
+      <form id="register-form">
+        <input type="text" id="register-email">
+        <input type="text" id="register-name">
+        <input type="password" id="register-password">
+        <input type="password" id="register-password-confirm">
+      </form>
+      <button id="register-submit">Submit</button>
+    </section>
+    <section id="main-section">
+      <section id="create-channel-popup">
+        <section class="modal-content">
+          <form id="create-channel-form">
+            <input type="text" name="channelName"/> 
+            <input type="text" name="channelDescription"/>
+            <fieldset>
+              <legend>Private or public server?</legend>
+              <input type="radio" name="isPrivate" value="private" checked/>
+              <label for="privateChannel">Private</label>
+              <input type="radio" name="isPrivate" value="public"/>
+              <label for="publicChannel">Public</label>
+            </fieldset>
+          </form>
+          <button id="create-channel-confirm-button">Create Channel</button>
+          <button id="create-channel-cancel-button">Cancel</button>
+        </section>
+      </section>
+      <section id="sidebar">
+        <section id="private-channels">
+          <h1>Private Channels</h1>
+          <ul id="private-channels-list">
+          </ul>
+        </section>
+        <section id="public-channels">
+          <h1>Public Channels</h1>
+          <ul id="public-channels-list">
+          </ul>
+        <section id="create-channel">
+          <button id="create-channel-button">Create a Channel</button>
+        </section>
+        </section>
+      </section>
+      <section id="channel-view">
+      </section>
+      <button id="logout">Logout</button>
+    </section>
   </main>
   <footer>
     <p>&copy; Slackr</p>
