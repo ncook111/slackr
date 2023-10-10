@@ -48,6 +48,56 @@ export const getIndexInArray = (id, array) => {
     return -1;
 }
 
+export const getHighestPriorityChannel = (channels) => {
+
+    // Prioritise private channel
+    for (let value of channels.values()) {
+        if (value.private && value.userIsMember) {
+            return value;
+        }
+    }
+
+    // Else choose public channel user is a member of
+    for (let value of channels.values()) {
+        if (!value.private && value.userIsMember) {
+            return value;
+        }
+    }
+
+    // Else choose first public channel
+    for (let value of channels.values()) {
+        if (!value.private) {
+            return value;
+        }
+    }
+}
+
+// Get all private channels user is a member of
+export const getPrivateChannels = (channels) => {
+    const privateChannels = new Map();
+
+    for (let key of channels.keys()) {
+        if (channels.get(key).private && channels.get(key).userIsMember) {
+            privateChannels.set(key, channels.get(key));
+        }
+    }
+
+    return privateChannels;
+}
+
+// Get all public channels
+export const getPublicChannels = (channels) => {
+    const publicChannels = new Map();
+
+    for (let key of channels.keys()) {
+        if (!channels.get(key).private) {
+            publicChannels.set(key, channels.get(key));
+        }
+    }
+
+    return publicChannels;
+}
+
 // https://www.javascripttutorial.net/dom/manipulating/remove-all-child-nodes/
 export const removeChildrenNodes = (parent) => {
     while (parent.firstChild) {

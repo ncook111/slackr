@@ -6,28 +6,26 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Slackr</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- You can add your styles and scripts here -->
   <link rel="stylesheet" type="text/css" media="screen" href="styles/provided.css" />
   <script type="module" src="src/helpers.js"></script>
 </head>
 
 <body>
-  <!-- This is an example app structure, you can modify this as much as you choose -->
   <header class="banner">
-    <h1>Slackr</h1>
+    <h1>Slack<i>r</i></h1>
   </header>
   <main role="main">
-    <section id="login">
+    <section id="login" class="form">
       <form id="login-form">
         <label for="login-email">Email:</label>
         <input type="text" id="login-email">
         <label for="login-password">Password:</label>
         <input type="password" id="login-password">
       </form>
-      <button id="login-submit">Submit</button>
-      <button id="create-account">Don't have an account? Register Now!</button>
+      <button id="login-submit" class="login-buttons">Submit</button>
+      <button id="create-account"><u>Don't have an account? Register Now!</u></button>
     </section>
-    <section id="register">
+    <section id="register" class="form">
       <form id="register-form">
         <label for="register-email">Email:</label>
         <input type="text" id="register-email">
@@ -38,7 +36,8 @@
         <label for="register-password-confirm">Confirm Password:</label>
         <input type="password" id="register-password-confirm">
       </form>
-      <button id="register-submit">Submit</button>
+      <button id="register-submit" class="login-buttons">Submit</button>
+      <button id="register-go-back" class="login-buttons">Go Back</button>
     </section>
     <section id="main-section">
       <section id="create-channel-popup">
@@ -63,16 +62,19 @@
       <section id="sidebar">
         <section id="private-channels">
           <h1>Private Channels</h1>
+          <hr>
           <ul id="private-channels-list" class="channel-list">
           </ul>
         </section>
         <section id="public-channels">
           <h1>Public Channels</h1>
+          <hr>
           <ul id="public-channels-list" class="channel-list">
           </ul>
-        <section id="create-channel">
-          <button id="create-channel-button">Create a Channel</button>
         </section>
+        <section id="sidebar-buttons">
+          <button id="create-channel-button">Create a Channel</button>
+          <button id="logout">Logout</button>
         </section>
       </section>
       <section id="channel-view">
@@ -95,9 +97,16 @@
             </section>
           </section>
         </section>
-        <section id="channel-body"></section>
+        <section id="channel-messages">
+          <ul id="message-list">
+          </ul>
+        </section>
+        <section id="message-text-box">
+          <input type="text" id="message-text">
+          <button id="message-send">Send</button>
+        </section>
+
       </section>
-      <button id="logout">Logout</button>
     </section>
   </main>
   <footer>

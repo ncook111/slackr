@@ -1,5 +1,5 @@
 import { BACKEND_PORT } from './config.js';
-import { fileToDataUrl, apiCall, isValueInArray, removeChildrenNodes, getToken, getUserId, getIndexInArray } from './helpers.js';
+import { fileToDataUrl, apiCall, isValueInArray, removeChildrenNodes, getToken, getUserId, getIndexInArray, getHighestPriorityChannel, getPrivateChannels, getPublicChannels } from './helpers.js';
 
 // HTML elements
 const loginSection = document.getElementById("login");
@@ -9,6 +9,7 @@ const sideBarSection = document.getElementById("sidebar");
 const createChannelPopupSection = document.getElementById("create-channel-popup");
 const loginSubmitButton = document.getElementById("login-submit");
 const registerSubmitButton = document.getElementById("register-submit");
+const registerGoBackButton = document.getElementById("register-go-back");
 const createAccountButton = document.getElementById("create-account");
 const createChannelButton = document.getElementById("create-channel-button");
 const createChannelConfirmButton = document.getElementById("create-channel-confirm-button");
@@ -37,9 +38,8 @@ registerSection.style.display = "none";
 mainSection.style.display = "none"
 
 // Channel data
-const allChannels = [];
-const publicChannels = [];
-const privateChannels = [];
+let channels = new Map();
+let messages = new Map();
 let currentChannel = null;
 
 loginSubmitButton.addEventListener('click', () => {
@@ -71,6 +71,12 @@ registerSubmitButton.addEventListener('click', () => {
     } else {
         register(registerEmailInput.value, registerPasswordInput.value, registerNameInput.value); 
     }
+});
+
+registerGoBackButton.addEventListener('click', () => {
+    loginSection.style.display = "block";
+    registerSection.style.display = "none";
+    registerForm.reset();
 })
 
 createAccountButton.addEventListener('click', () => {
@@ -86,17 +92,20 @@ createChannelConfirmButton.addEventListener('click', () => {
     const channelName = document.getElementById("form-channel-name").value;
     const channelDescription = document.getElementById("form-channel-description").value;
     const isPrivate = document.getElementById("isPrivate").checked;
-    createChannel(getToken(), channelName, isPrivate, channelDescription);
-    loadSidebarSection();
-    createChannelPopupSection.style.display = "none";
-    createChannelForm.reset();
-})
+    if (channelName.length >= 1) {
+        createChannel(getToken(), channelName, isPrivate, channelDescription);
+        loadSidebarSection();
+        createChannelPopupSection.style.display = "none";
+        createChannelForm.reset();
+    } else {
+        alert("Please enter a channel name");
+    }
+});
 
 createChannelCancelButton.addEventListener('click', () => {
     createChannelPopupSection.style.display = "none";
     createChannelForm.reset();
-
-})
+});
 
 const loadMainSection = () => {
     loadSidebarSection()
@@ -112,41 +121,33 @@ const loadSidebarSection = () => {
     const response = getChannels(getToken())
     .then((data) => {
         if (data !== false) {
-            allChannels.length = 0;
-            publicChannels.length = 0;
-            privateChannels.length = 0;
+            channels.clear();
             data.channels.forEach((channel) => {
                 if (isValueInArray(channel.members, getUserId())) {
                     channel["userIsMember"] = true;
+                    getMessages(getToken(), channel.id, 0)
+                    .then((response) => {
+                        messages.set(channel.id, response.messages);
+                    });
                 } else {
                     channel["userIsMember"] = false;
                 }
-
-                allChannels.push(channel);
-
-                if (channel.private && channel["userIsMember"]) {
-                    privateChannels.push(channel);
-                } else if (!channel.private) {
-                    publicChannels.push(channel)
-                }
-            }) 
+                channels.set(channel.id, channel);
+            }); 
         }
 
-        // Set currentChannel to first private channel, else first public channel
-        // TODO: Will error of no channels exist serverside
-        if (currentChannel === null && privateChannels.length > 0) {
-            currentChannel = privateChannels[0];
-        } else if (currentChannel === null) {
-            currentChannel = publicChannels[0];
+        // TODO: Will error if no channels exist serverside
+        if (currentChannel == null) {
+            currentChannel = getHighestPriorityChannel(channels);
         } else {
-            currentChannel = allChannels[getIndexInArray(currentChannel.id, allChannels)];
+            currentChannel = channels.get(currentChannel.id); // Update currentChannel info
         }
 
         // Remove server buttons and regenerate list
         removeChildrenNodes(privateChannelsList);
         removeChildrenNodes(publicChannelsList);
-        generateChannelButtons(privateChannels, true);
-        generateChannelButtons(publicChannels, false); 
+        generateChannelButtons(getPrivateChannels(channels), true);
+        generateChannelButtons(getPublicChannels(channels), false); 
 
         return true;
     });
@@ -156,9 +157,11 @@ const loadSidebarSection = () => {
 
 const loadChannelViewSection = () => {
     loadChannelHeader();
+    loadChannelMessages();
 }
 
 const loadChannelHeader = () => {
+
     // Remove old buttons if they still exist
     if (document.getElementById("leave-channel")) {
         document.getElementById("leave-channel").remove();   
@@ -169,10 +172,10 @@ const loadChannelHeader = () => {
     }
     
     if (document.getElementById("channel-settings")) {
-        console.log("here");
         document.getElementById("channel-settings").remove();
     }
 
+    
     if (currentChannel.userIsMember) {
         loadMemberChannelHeader();
     } else {
@@ -255,8 +258,8 @@ const loadNonMemberChannelHeader = () => {
 }
 
 
-const generateChannelButtons = (channels, isPrivate) => {
-    channels.forEach((channel) => {
+const generateChannelButtons = (chans, isPrivate) => {
+    chans.forEach((channel) => {
         const li = document.createElement("li");
         const button = document.createElement("button");
         button.classList.add("channel-button");
@@ -264,7 +267,7 @@ const generateChannelButtons = (channels, isPrivate) => {
         const buttonName = document.createTextNode(`${channel.name}`);
 
         button.addEventListener('click', () => {
-            currentChannel = allChannels[getIndexInArray(channel.id, allChannels)];
+            currentChannel = channels.get(channel.id);
             loadMainSection();
         })
         
@@ -291,15 +294,35 @@ channelSettingsCloseButton.addEventListener('click', () => {
 channelSettingsSaveButton.addEventListener('click', () => {
     const newName = document.getElementById("edit-channel-name").value;
     const newDescription = document.getElementById("edit-channel-description").value;
-    updateChannel(getToken(), currentChannel.id, newName, newDescription)
-    .then((response) => {
-        document.getElementById("channel-settings-popup").style.display = "none";
-        document.getElementById("channel-settings-form").reset();
-        loadMainSection();
-    });
-})
+    if (newName.length >= 1) {
+        updateChannel(getToken(), currentChannel.id, newName, newDescription)
+        .then((response) => {
+            document.getElementById("channel-settings-popup").style.display = "none";
+            document.getElementById("channel-settings-form").reset();
+            loadMainSection();
+        });
+    } else {
+        alert("Please enter a channel name");
+    }
+});
 
+const loadChannelMessages = () => {
+    const ul = document.getElementById("message-list");
+    while (ul.firstChild) {
+        ul.firstChild.remove()
+    }
 
+    if (messages.get(currentChannel.id)) {
+        messages.get(currentChannel.id).forEach((message) => {
+            const li = document.createElement("li");
+            li.appendChild(document.createTextNode(`${message.sender}: ${message.message}`));
+            ul.appendChild(li);
+            console.log(message);
+            
+        });
+    }
+
+}
 
 /*
 ===============================
@@ -444,10 +467,10 @@ const getUserDetails = (token, userId) => {
 */
 
 const getMessages = (token, channelId, start) => {
-    let success = apiCall("GET", `message/${channelId}?${start}`, undefined, token)
-    .then((response) => {return response})
-    .then((success) => {
-    });
+    let success = apiCall("GET", `message/${channelId}?start=${start}`, undefined, token)
+    .then((response) => {return response});
+
+    return success;
 }
 
 const sendMessage = (token, channelId) => {

@@ -113,7 +113,7 @@
       "messages": []
     },
     "290753": {
-      "name": "123452",
+      "name": "1234521",
       "creator": 16914,
       "private": false,
       "description": "A Slackr Channel12",
@@ -133,7 +133,7 @@
       "messages": []
     },
     "300160": {
-      "name": "yayaya",
+      "name": "yayaya1",
       "creator": 16914,
       "private": false,
       "description": "ya",
@@ -141,6 +141,15 @@
       "members": [
         16914
       ],
+      "messages": []
+    },
+    "355655": {
+      "name": "12",
+      "creator": 16914,
+      "private": true,
+      "description": "",
+      "createdAt": "2023-10-09T14:35:12.229Z",
+      "members": [],
       "messages": []
     },
     "357273": {
@@ -244,6 +253,15 @@
       "members": [],
       "messages": []
     },
+    "552296": {
+      "name": "1",
+      "creator": 16914,
+      "private": true,
+      "description": "1",
+      "createdAt": "2023-10-09T14:12:46.881Z",
+      "members": [],
+      "messages": []
+    },
     "566062": {
       "name": "1234",
       "creator": 16914,
@@ -280,6 +298,17 @@
       "members": [],
       "messages": []
     },
+    "620776": {
+      "name": "new",
+      "creator": 16914,
+      "private": false,
+      "description": "new",
+      "createdAt": "2023-10-10T04:56:55.452Z",
+      "members": [
+        16914
+      ],
+      "messages": []
+    },
     "621978": {
       "name": "11",
       "creator": 16914,
@@ -295,6 +324,24 @@
       "private": true,
       "description": "5",
       "createdAt": "2023-10-09T05:54:26.333Z",
+      "members": [],
+      "messages": []
+    },
+    "656639": {
+      "name": "",
+      "creator": 16914,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-09T14:35:14.454Z",
+      "members": [],
+      "messages": []
+    },
+    "659201": {
+      "name": "1111",
+      "creator": 16914,
+      "private": true,
+      "description": "111111",
+      "createdAt": "2023-10-10T04:56:50.052Z",
       "members": [],
       "messages": []
     },
@@ -846,9 +893,7 @@
       "private": true,
       "description": "13",
       "createdAt": "2023-10-09T12:24:05.181Z",
-      "members": [
-        16914
-      ],
+      "members": [],
       "messages": []
     }
   },
