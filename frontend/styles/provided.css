@@ -3,36 +3,16 @@
 html, body {
     margin: 0;
     padding: 0;
-    background-color: #fafafa;
+    background-color: #B9E7FF;
     width: 100vw;
     height: 100vh;
     font-family: -apple-system, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
-
-footer {
-    white-space: nowrap;
-    position: absolute;
-    top: 100%;
-    left: 100%;
-    transform: translate(-110%, -100%);
+    color: #707070;
 }
 
 input {
     display: block;
-}
-
-.banner {
-    display: flex;
-    justify-content: center;
-    align-content: center;
-    flex-direction: column;
-    text-align: center;
-    height: 10vh;
-}
-
-.banner h1 {
-    margin: 0;
-    padding: auto;
+    box-sizing: border-box;
 }
 
 .channel-list {
@@ -53,47 +33,87 @@ input {
 .form {
     display: block;
     position: absolute;
+    box-sizing: border-box;
     top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 250px;
+    transform: translate(0, -50%);
+    background-color: #95DBFF;
+    border-radius: 3rem;
+    width: 35vw;
+    height: 65vh;
+    margin-left: 10vw;
+}
+
+#login-form {
+    padding-top: 8vh;
+}
+
+#register-form {
+    padding-top: 3vh;
+}
+
+#logo-black {
+    display: block;
+    position: absolute;
+    box-sizing: border-box;
+    top: 50%;
+    left: 80%;
+    transform: translate(-80%, -50%);
+    height: 55vh;
 }
 
 #create-account {
+    display: block;
     background: none;
     border: none;
     width: auto;
     margin: 50px auto 0 auto;
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: #707070;
 }
 
 .login-buttons {
     display: block;
-    width: 150px;
-    height: 30px;
+    width: 250px;
+    height: 50px;
     margin: 20px auto 0 auto;
-}
-
-#create-account {
-    display: block; 
-}
-
-input {
-    box-sizing: border-box;
+    border: 0;
+    border-radius: 10px;
+    background-color: #838383;
+    color: white;
+    font-size: 1.5rem;
 }
 
 .form input {
-    width: 100%;
-    height: 30px;
+    width: 25vw;
+    height: 50px;
     border: none;
-    background-color: lightgrey;
-    margin-bottom: 10px;
+    background-color: white;
+    margin: 5px 5vw 40px 5vw;
     border-radius: 2rem;
     padding: 0 5% 0 5%;
+    font-size: 1.5rem;
+    color: #707070;
+}
+
+.form label {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-left: 6vw;
+
 }
 
 #main-section {
-    display: flex;
-    height: 90vh;
+    display: none;
+    height: 100vh;
+}
+
+#landing-section {
+    display: block;
+}
+
+#register {
+    display: none;
 }
 
 #sidebar {
@@ -162,7 +182,7 @@ input {
     flex: 0.05;
     border: none;
     border-radius: 2rem;
-    background: lightgrey;
+    background: white;
     margin: 1%;
     padding: auto 2% auto 2%;
 }
@@ -183,7 +203,9 @@ input {
     flex: 0.15;
     height: 70%;
     border: none;
-    background: white;
+    background: #838383;
+    color: white;
+    font-size: 1.5rem;
     border-radius: 2rem;
 }
 

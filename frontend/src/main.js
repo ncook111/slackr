@@ -4,6 +4,7 @@ import { fileToDataUrl, apiCall, isValueInArray, removeChildrenNodes, getToken, 
 // HTML elements
 const loginSection = document.getElementById("login");
 const registerSection = document.getElementById("register");
+const landingSection = document.getElementById("landing-section")
 const mainSection = document.getElementById("main-section");
 const sideBarSection = document.getElementById("sidebar");
 const createChannelPopupSection = document.getElementById("create-channel-popup");
@@ -33,7 +34,7 @@ const privateChannelsList = document.getElementById("private-channels-list");
 const publicChannelsList = document.getElementById("public-channels-list");
 
 // Default page rendering
-loginSection.style.display = "block";
+landingSection.style.display = "block"
 registerSection.style.display = "none";
 mainSection.style.display = "none"
 
@@ -111,8 +112,8 @@ const loadMainSection = () => {
     loadSidebarSection()
     .then(() => { loadChannelViewSection(); });
 
-    loginSection.style.display = "none";
-    registerSection.style.display = "none";
+    landingSection.style.display = "none";
+
     mainSection.style.display = "flex"
     createChannelPopupSection.style.display = "none"
 }
@@ -156,6 +157,8 @@ const loadSidebarSection = () => {
 }
 
 const loadChannelViewSection = () => {
+
+    // Need to be loaded sequentially so messages are added and removed correctly
     loadChannelHeader();
     loadChannelMessages();
 }
@@ -312,13 +315,12 @@ const loadChannelMessages = () => {
         ul.firstChild.remove()
     }
 
-    if (messages.get(currentChannel.id)) {
+    // TODO: Figure out why I cant clear messages
+    if (messages.get(currentChannel.id) && currentChannel.userIsMember) {
         messages.get(currentChannel.id).forEach((message) => {
             const li = document.createElement("li");
             li.appendChild(document.createTextNode(`${message.sender}: ${message.message}`));
-            ul.appendChild(li);
-            console.log(message);
-            
+            ul.appendChild(li);    
         });
     }
 
@@ -349,7 +351,7 @@ const logout = (token) => {
     .then((response) => { return response })
     .then((success) => {
         if (success) {
-            loginSection.style.display = "block";
+            landingSection.style.display = "block"
             registerSection.style.display = "none";
             mainSection.style.display = "none";
 

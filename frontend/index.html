@@ -11,33 +11,33 @@
 </head>
 
 <body>
-  <header class="banner">
-    <h1>Slack<i>r</i></h1>
-  </header>
   <main role="main">
-    <section id="login" class="form">
-      <form id="login-form">
-        <label for="login-email">Email:</label>
-        <input type="text" id="login-email">
-        <label for="login-password">Password:</label>
-        <input type="password" id="login-password">
-      </form>
-      <button id="login-submit" class="login-buttons">Submit</button>
-      <button id="create-account"><u>Don't have an account? Register Now!</u></button>
-    </section>
-    <section id="register" class="form">
-      <form id="register-form">
-        <label for="register-email">Email:</label>
-        <input type="text" id="register-email">
-        <label for="register-name">First Name:</label>
-        <input type="text" id="register-name">
-        <label for="register-password">Password:</label>
-        <input type="password" id="register-password">
-        <label for="register-password-confirm">Confirm Password:</label>
-        <input type="password" id="register-password-confirm">
-      </form>
-      <button id="register-submit" class="login-buttons">Submit</button>
-      <button id="register-go-back" class="login-buttons">Go Back</button>
+    <section id="landing-section">
+      <section id="login" class="form">
+        <form id="login-form">
+          <label for="login-email">Email:</label>
+          <input type="text" id="login-email">
+          <label for="login-password">Password:</label>
+          <input type="password" id="login-password">
+        </form>
+        <button id="login-submit" class="login-buttons">Login</button>
+        <button id="create-account"><u>Don't have an account? Register Now!</u></button>
+      </section>
+      <img id="logo-black" src="assets/logo-black.png" alt="Logo Black"/>
+      <section id="register" class="form">
+        <form id="register-form">
+          <label for="register-email">Email:</label>
+          <input type="text" id="register-email">
+          <label for="register-name">First Name:</label>
+          <input type="text" id="register-name">
+          <label for="register-password">Password:</label>
+          <input type="password" id="register-password">
+          <label for="register-password-confirm">Confirm Password:</label>
+          <input type="password" id="register-password-confirm">
+        </form>
+        <button id="register-submit" class="login-buttons">Submit</button>
+        <button id="register-go-back" class="login-buttons">Go Back</button>
+      </section>
     </section>
     <section id="main-section">
       <section id="create-channel-popup">
@@ -73,8 +73,8 @@
           </ul>
         </section>
         <section id="sidebar-buttons">
-          <button id="create-channel-button">Create a Channel</button>
           <button id="logout">Logout</button>
+          <button id="create-channel-button">Create a Channel</button>
         </section>
       </section>
       <section id="channel-view">
@@ -109,9 +109,6 @@
       </section>
     </section>
   </main>
-  <footer>
-    <p>&copy; Slackr</p>
-  </footer>
   <script type="module" src="src/main.js"></script>
 </body>
 

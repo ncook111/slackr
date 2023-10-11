@@ -14,7 +14,7 @@
       "password": "1",
       "bio": null,
       "image": null,
-      "sessionActive": false
+      "sessionActive": true
     },
     "56422": {
       "email": "sebastian@email.com",
@@ -296,6 +296,17 @@
       "description": "1",
       "createdAt": "2023-10-09T05:58:56.916Z",
       "members": [],
+      "messages": []
+    },
+    "598342": {
+      "name": "123456",
+      "creator": 16914,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-11T02:18:55.376Z",
+      "members": [
+        16914
+      ],
       "messages": []
     },
     "620776": {
