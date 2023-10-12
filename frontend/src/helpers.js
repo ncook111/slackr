@@ -168,3 +168,57 @@ export const getUserId = () => {
     .find((row) => row.startsWith("user_id="))
     ?.split("=")[1];
 }
+
+export const createDynamicProfilePic = (name) => {
+    const colours = ["#00aeef", "#F5C2FC", "#FCD8C2", "#C9FCC2", "#c66e6e", "#c6966e", "#6ec6ba"];
+
+    // Pick colour based off first letter of name
+    const colour = colours[name.charCodeAt(0) % colours.length];
+
+    const profile = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    profile.setAttribute('viewBox', '0 0 40 40');
+
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("id", "profile");
+    circle.setAttribute("cx", 20);
+    circle.setAttribute("cy", 20);
+    circle.setAttribute("r", 20);
+    circle.setAttribute("fill", `${colour}`);
+    circle.setAttribute("stroke","none");
+
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", "50%");
+    text.setAttribute("y", "57.5%");
+    text.setAttribute("dominant-baseline", "middle");
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("fill", "white");
+    text.setAttribute("font-size", "30px");
+    text.appendChild(document.createTextNode(name[0]));
+
+    profile.appendChild(circle);
+    profile.appendChild(text);
+
+    return profile;
+}
+
+export const timestampToDateTime = (timestamp) => {
+    const dt = {
+        year: timestamp.split('-')[0],
+        month: timestamp.split('-')[1],
+        day: timestamp.split('-')[2].split('T')[0],
+        hour: timestamp.split('T')[1].split(':')[0],
+        minute: timestamp.split('T')[1].split(':')[1],
+        second: timestamp.split('T')[1].split(':')[2],
+        period: null
+    }
+
+    if (parseInt(dt.hour) > 12) {
+        dt.hour = (parseInt(dt.hour) - 12).toString();
+        dt.period = "PM";
+    } else {
+        dt.hour = dt.hour.split("0")[1];
+        dt.period = "AM";
+    }
+
+    return dt;
+}

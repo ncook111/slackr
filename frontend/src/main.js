@@ -1,5 +1,5 @@
 import { BACKEND_PORT } from './config.js';
-import { fileToDataUrl, apiCall, isValueInArray, removeChildrenNodes, getToken, getUserId, getIndexInArray, getHighestPriorityChannel, getPrivateChannels, getPublicChannels } from './helpers.js';
+import { fileToDataUrl, apiCall, isValueInArray, removeChildrenNodes, getToken, getUserId, getIndexInArray, getHighestPriorityChannel, getPrivateChannels, getPublicChannels, createDynamicProfilePic, timestampToDateTime } from './helpers.js';
 
 // HTML elements
 const loginSection = document.getElementById("login");
@@ -38,10 +38,87 @@ landingSection.style.display = "block"
 registerSection.style.display = "none";
 mainSection.style.display = "none"
 
-// Channel data
-let channels = new Map();
-let messages = new Map();
+// Data
+const channels = new Map();
+const messages = new Map();
+const allUsers = new Map();
+const userDetails = new Map();
 let currentChannel = null;
+
+const populateChannelsMap = () => {
+    const response = getChannels(getToken())
+    .then((data) => {
+        if (data !== false) {
+            channels.clear();
+            userDetails.clear();
+            //messages.clear();
+            data.channels.forEach((channel) => {
+                if (isValueInArray(channel.members, getUserId())) {
+                    channel["userIsMember"] = true;
+
+                    // Populate userDetails with userid's of 
+                    // channels current user is a member of
+                    channel.members.forEach((user) => {
+                        userDetails.set(user, []);
+                    });
+                } else {
+                    channel["userIsMember"] = false;
+                }
+                channels.set(channel.id, channel);
+            }); 
+        }
+
+        // TODO: Will error if no channels exist serverside
+        if (currentChannel == null) {
+            currentChannel = getHighestPriorityChannel(channels);
+        } else {
+            currentChannel = channels.get(currentChannel.id); // Update currentChannel info
+        }
+
+        // Remove server buttons and regenerate list
+        removeChildrenNodes(privateChannelsList);
+        removeChildrenNodes(publicChannelsList);
+        generateChannelButtons(getPrivateChannels(channels), true);
+        generateChannelButtons(getPublicChannels(channels), false); 
+    });
+
+    return response;
+}
+
+const populateMessagesMap = () => {
+    channels.forEach((channel) => {
+        if (isValueInArray(channel.members, getUserId())) {
+
+            // TODO: Block continuation until for loop finished?? How??
+            getMessages(getToken(), channel.id, 0)
+            .then((response) => {
+                messages.set(channel.id, response.messages);
+            });
+        } else {
+
+            // Remove messages if now not a channel member
+            if (messages.has(channel.id)) {
+                messages.set(channel.id, []);
+            }
+        }
+    }); 
+}
+
+const populateUsersMap = () => {
+    const response = getUsers(getToken())
+    .then((users) => { 
+        users.users.forEach((user) => {
+            allUsers.set(user.id, user);
+        })
+    }).then(() => {
+        userDetails.keys().forEach((user) => {
+            getUserDetails(getToken(), user)
+            .then((details) => {
+                userDetails.set(user, details);
+            });
+        });
+    });
+}
 
 loginSubmitButton.addEventListener('click', () => {
     if (loginEmailInput.value.length < 1) { 
@@ -94,8 +171,8 @@ createChannelConfirmButton.addEventListener('click', () => {
     const channelDescription = document.getElementById("form-channel-description").value;
     const isPrivate = document.getElementById("isPrivate").checked;
     if (channelName.length >= 1) {
-        createChannel(getToken(), channelName, isPrivate, channelDescription);
-        loadSidebarSection();
+        createChannel(getToken(), channelName, isPrivate, channelDescription)
+        .then(() => { loadSidebarSection(); });
         createChannelPopupSection.style.display = "none";
         createChannelForm.reset();
     } else {
@@ -109,58 +186,44 @@ createChannelCancelButton.addEventListener('click', () => {
 });
 
 const loadMainSection = () => {
-    loadSidebarSection()
-    .then(() => { loadChannelViewSection(); });
+
+    // Sidebar
+    populateChannelsMap()
+    .then(() => {
+        populateChannelsMap();
+    }).then(() => {
+        populateMessagesMap();
+    }).then(() => {
+        populateUsersMap();
+    
+    // Channel Section
+    }).then(() => {
+        loadChannelHeader();
+    }).then(() => {
+        setTimeout(loadChannelMessages, 1000);
+    })
 
     landingSection.style.display = "none";
-
     mainSection.style.display = "flex"
     createChannelPopupSection.style.display = "none"
 }
 
 const loadSidebarSection = () => {
-    const response = getChannels(getToken())
-    .then((data) => {
-        if (data !== false) {
-            channels.clear();
-            data.channels.forEach((channel) => {
-                if (isValueInArray(channel.members, getUserId())) {
-                    channel["userIsMember"] = true;
-                    getMessages(getToken(), channel.id, 0)
-                    .then((response) => {
-                        messages.set(channel.id, response.messages);
-                    });
-                } else {
-                    channel["userIsMember"] = false;
-                }
-                channels.set(channel.id, channel);
-            }); 
-        }
-
-        // TODO: Will error if no channels exist serverside
-        if (currentChannel == null) {
-            currentChannel = getHighestPriorityChannel(channels);
-        } else {
-            currentChannel = channels.get(currentChannel.id); // Update currentChannel info
-        }
-
-        // Remove server buttons and regenerate list
-        removeChildrenNodes(privateChannelsList);
-        removeChildrenNodes(publicChannelsList);
-        generateChannelButtons(getPrivateChannels(channels), true);
-        generateChannelButtons(getPublicChannels(channels), false); 
-
-        return true;
+    populateChannelsMap()
+    .then(() => {
+        populateChannelsMap();
+    }).then(() => {
+        populateMessagesMap();
+    }).then(() => {
+        populateUsersMap();
     });
-
-    return response;
 }
 
 const loadChannelViewSection = () => {
-
-    // Need to be loaded sequentially so messages are added and removed correctly
-    loadChannelHeader();
-    loadChannelMessages();
+    loadChannelHeader()
+    .then(() => {
+        loadChannelMessages();
+    });
 }
 
 const loadChannelHeader = () => {
@@ -262,11 +325,13 @@ const loadNonMemberChannelHeader = () => {
 
 
 const generateChannelButtons = (chans, isPrivate) => {
-    chans.forEach((channel) => {
+    let i = 0;
+    chans.forEach((channel, id, map) => {
         const li = document.createElement("li");
+        li.id = "channel-list-element"
         const button = document.createElement("button");
         button.classList.add("channel-button");
-        button.id = channel.id;
+        button.id = id;
         const buttonName = document.createTextNode(`${channel.name}`);
 
         button.addEventListener('click', () => {
@@ -276,16 +341,28 @@ const generateChannelButtons = (chans, isPrivate) => {
         
         button.appendChild(buttonName);
         li.appendChild(button);
+
+        // Add hr inbetween buttons
+        const liHr = document.createElement("li");
+        liHr.id = "li-channel-button-divider"
+        const hr = document.createElement("hr");
+        hr.id = "channel-button-divider"
+        liHr.appendChild(hr);
+
         if (isPrivate) {
             privateChannelsList.appendChild(li);
+            if (i < map.size - 1) privateChannelsList.appendChild(liHr);
         } else {
             publicChannelsList.appendChild(li);
+            if (i < map.size - 1)  publicChannelsList.appendChild(liHr);
         }
         
         // Colour if currently selected channel
         if (currentChannel !== null && currentChannel.id === channel.id) {
-            button.style.backgroundColor = "blue";
+            button.style.backgroundColor = "lightgrey";
         }
+
+        i++;
     });
 }
 
@@ -316,14 +393,97 @@ const loadChannelMessages = () => {
     }
 
     // TODO: Figure out why I cant clear messages
-    if (messages.get(currentChannel.id) && currentChannel.userIsMember) {
+    if (messages.has(currentChannel.id) && currentChannel.userIsMember) {
         messages.get(currentChannel.id).forEach((message) => {
+            const sender = userDetails.get(message.sender).name;
             const li = document.createElement("li");
-            li.appendChild(document.createTextNode(`${message.sender}: ${message.message}`));
+            li.id = "message-box";
+
+            const profile = createDynamicProfilePic(sender)
+            profile.id = "message-profile";
+            li.appendChild(profile);
+
+            const messageElem = document.createElement("div");
+            messageElem.id = "message-message";
+
+            const messageHeader = document.createElement("div");
+            messageHeader.id = "message-header";
+
+            const messageSender = document.createElement("h1");
+            messageSender.id = "message-sender";
+            messageSender.appendChild(document.createTextNode(sender));
+            messageHeader.appendChild(messageSender);
+
+            const messageTimeSent = document.createElement("h1");
+            messageTimeSent.id = "message-time-sent";
+            const dt = timestampToDateTime(message.sentAt);
+
+            const formattedSentAt = `${dt.day}/${dt.month}, ${dt.hour}:${dt.minute} ${dt.period}`
+            messageTimeSent.appendChild(document.createTextNode(formattedSentAt));
+            messageHeader.appendChild(messageTimeSent);
+            
+            if (message.edited) {
+                const messageEdited = document.createElement("h1");
+                messageEdited.id = "message-edited";
+                messageEdited.appendChild(document.createTextNode(`(Edited)`));
+                messageHeader.appendChild(messageEdited);
+            }
+
+            const messageBody = document.createElement("p");
+            messageBody.id = "message-body";
+            messageBody.appendChild(document.createTextNode(`${message.message}`));
+            
+            const messageReactBox = loadMessageReacts(message.reacts);
+            messageBody.appendChild(messageReactBox);
+
+            messageElem.appendChild(messageHeader);
+            messageElem.appendChild(messageBody);
+            li.appendChild(messageElem);
             ul.appendChild(li);    
         });
     }
 
+}
+
+const loadMessageReacts = (reactions) => {
+    const reacts = new Map();
+    
+    reactions.forEach((reaction) => {
+        if (reacts.has(reaction.react)) {
+            const reactObj = reacts.get(reaction);
+            reactObj.count++;
+            reactObj.users.push(react.user);
+            reacts.set(reaction.react, reactObj);
+        } else {
+            const reactObj = {
+                react: reaction,
+                count: 1,
+                users: [reaction.user]
+            }
+        }
+    });
+
+    const messageReactBox = document.createElement("div");
+    messageReactBox.id = "message-react-box";
+
+    reacts.forEach((react) => {
+        const messageReact = document.createElement("div");
+        messageReact.id = "message-react-box";
+
+        const reaction = document.createElement("div");
+        reaction.id = "react";
+        reaction.appendChild(document.createTextNode(react.react));
+
+        const reactionCount = document.createElement("div");
+        reactionCount.id = "reaction-count"
+        reactionCount.appendChild(document.createTextNode(react.count));
+
+        messageReact.appendChild(reaction);
+        messageReact.appendChild(reactionCount);
+        messageReactionBox.appendChild(messageReact);
+    })
+
+    return messageReactBox;
 }
 
 /*
@@ -435,10 +595,10 @@ const inviteChannel = (token, channelId, userId) => {
 */
 
 const getUsers = (token) => {
-    let success = apiCall("GET", "user", undefined)
-    .then((response) => {return response})
-    .then((success) => {
-    });
+    let success = apiCall("GET", "user", undefined, token)
+    .then((response) => {return response});
+    
+    return success;
 }
 
 const updateProfile = (token, email, password, name, bio, image) => {
@@ -457,9 +617,9 @@ const updateProfile = (token, email, password, name, bio, image) => {
 
 const getUserDetails = (token, userId) => {
     let success = apiCall("GET", `user/${userId}`, undefined, token)
-    .then((response) => {return response})
-    .then((success) => {
-    });
+    .then((response) => {return response});
+
+    return success;
 }
 
 /*

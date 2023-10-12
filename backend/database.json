@@ -118,9 +118,7 @@
       "private": false,
       "description": "A Slackr Channel12",
       "createdAt": "2023-10-09T06:07:00.909Z",
-      "members": [
-        16914
-      ],
+      "members": [],
       "messages": []
     },
     "294042": {
@@ -138,9 +136,7 @@
       "private": false,
       "description": "ya",
       "createdAt": "2023-10-09T06:33:52.611Z",
-      "members": [
-        16914
-      ],
+      "members": [],
       "messages": []
     },
     "355655": {
@@ -203,9 +199,7 @@
       "private": false,
       "description": {},
       "createdAt": "2023-10-09T05:44:30.167Z",
-      "members": [
-        16914
-      ],
+      "members": [],
       "messages": []
     },
     "454491": {
@@ -250,6 +244,15 @@
       "private": true,
       "description": "1",
       "createdAt": "2023-10-09T10:24:25.931Z",
+      "members": [],
+      "messages": []
+    },
+    "487796": {
+      "name": "12341",
+      "creator": 16914,
+      "private": true,
+      "description": "adsf",
+      "createdAt": "2023-10-11T23:39:42.307Z",
       "members": [],
       "messages": []
     },
@@ -304,9 +307,7 @@
       "private": true,
       "description": "A Slackr Channel",
       "createdAt": "2023-10-11T02:18:55.376Z",
-      "members": [
-        16914
-      ],
+      "members": [],
       "messages": []
     },
     "620776": {
@@ -315,9 +316,7 @@
       "private": false,
       "description": "new",
       "createdAt": "2023-10-10T04:56:55.452Z",
-      "members": [
-        16914
-      ],
+      "members": [],
       "messages": []
     },
     "621978": {
