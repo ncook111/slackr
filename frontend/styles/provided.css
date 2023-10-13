@@ -243,11 +243,14 @@ input {
     color: #6ec6ba;
 }
 
-#message-box {
+#message-list-element {
     display: flex;
     align-items: center;
     margin: 20px 0;
 
+}
+
+.message-box {
 }
 
 #message-message {
@@ -257,7 +260,19 @@ input {
     border-radius: 10px;
 }
 
+.message-hover-box {
+    float: left;
+    position: relative;
+
+    width: 80px;
+    height: 30px;
+    background-color: white;
+    transform: translateY(-30px);
+    border-radius: 20px;
+}
+
 #message-header {
+    white-space: nowrap;
     margin-bottom: 5px;
 }
 
@@ -289,8 +304,35 @@ input {
     font-size: 1.1rem;
 }
 
-#message-react {
-    
+.message-react-box {
+    margin-top: 5px;
+}
+
+.blue-border {
+    border: 1px solid #42a3e0
+}
+
+.transparent-border {
+    border: 1px solid transparent;
+}
+
+.message-react {
+    display: inline-block;
+    background-color: rgb(240, 240, 240);
+    margin-right: 10px;
+    padding: 2px 5px;
+    border-radius: 10px;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.react {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.react-count {
+    display: inline-block;
 }
 
 #create-channel-popup {

@@ -392,19 +392,44 @@ const loadChannelMessages = () => {
         ul.firstChild.remove()
     }
 
+    console.log(messages);
+
     // TODO: Figure out why I cant clear messages
     if (messages.has(currentChannel.id) && currentChannel.userIsMember) {
         messages.get(currentChannel.id).forEach((message) => {
             const sender = userDetails.get(message.sender).name;
             const li = document.createElement("li");
-            li.id = "message-box";
+            li.id = "message-list-element";
 
             const profile = createDynamicProfilePic(sender)
             profile.id = "message-profile";
             li.appendChild(profile);
 
+            const messageBox = document.createElement("div");
+            messageBox.className = "message-box";
+
             const messageElem = document.createElement("div");
             messageElem.id = "message-message";
+
+            messageBox.addEventListener('mouseover', () => {
+                console.log("hover");
+                const hoverElem = document.createElement("div");
+                hoverElem.className = "message-hover-box";
+
+                if (!message.edited)
+                    messageBox.firstChild.firstChild.style.transform = "translateX(-70px)";
+
+                // Else hover box bigger so translate morer
+                messageBox.insertBefore(hoverElem, messageBox.firstChild);
+            });
+
+            messageBox.addEventListener('mouseout', () => {
+                if (!message.edited)
+                    messageBox.childNodes[1].firstChild.style.transform = "translateX(0px)";
+
+                // Else hover box bigger so translate morer
+                document.getElementsByClassName("message-hover-box")[0].remove();
+            })
 
             const messageHeader = document.createElement("div");
             messageHeader.id = "message-header";
@@ -433,54 +458,84 @@ const loadChannelMessages = () => {
             messageBody.id = "message-body";
             messageBody.appendChild(document.createTextNode(`${message.message}`));
             
-            const messageReactBox = loadMessageReacts(message.reacts);
+            const messageReactBox = loadMessageReacts(message.reacts, message.id);
             messageBody.appendChild(messageReactBox);
 
+            messageBox.appendChild(messageElem);
             messageElem.appendChild(messageHeader);
             messageElem.appendChild(messageBody);
-            li.appendChild(messageElem);
+            li.appendChild(messageBox);
             ul.appendChild(li);    
         });
     }
 
 }
 
-const loadMessageReacts = (reactions) => {
+const loadMessageReacts = (reactions, messageId) => {
     const reacts = new Map();
     
     reactions.forEach((reaction) => {
         if (reacts.has(reaction.react)) {
-            const reactObj = reacts.get(reaction);
+            const reactObj = reacts.get(reaction.react);
             reactObj.count++;
-            reactObj.users.push(react.user);
+            reactObj.users.push(reaction.user);
             reacts.set(reaction.react, reactObj);
         } else {
             const reactObj = {
-                react: reaction,
+                react: reaction.react,
                 count: 1,
                 users: [reaction.user]
             }
+
+            reacts.set(reaction.react, reactObj);
         }
     });
 
+
     const messageReactBox = document.createElement("div");
-    messageReactBox.id = "message-react-box";
+    messageReactBox.className = "message-react-box";
 
     reacts.forEach((react) => {
         const messageReact = document.createElement("div");
-        messageReact.id = "message-react-box";
+        messageReact.className = "message-react transparent-border";
+        messageReact.id = `${react.react}`
+
+        // Outline reaction if user has reacted with that reaction
+        if (react.users.includes(parseInt(getUserId()))) {
+            messageReact.classList.remove("transparent-border");
+            messageReact.classList.add("blue-border");
+        }
 
         const reaction = document.createElement("div");
-        reaction.id = "react";
+        reaction.className = "react";
         reaction.appendChild(document.createTextNode(react.react));
 
         const reactionCount = document.createElement("div");
-        reactionCount.id = "reaction-count"
+        reactionCount.className = "react-count"
         reactionCount.appendChild(document.createTextNode(react.count));
+
+        messageReact.addEventListener('click', () => {
+            console.log(messageReact.classList);
+            if (messageReact.classList.contains("transparent-border")) {
+                messageReact.classList.remove("transparent-border");
+                messageReact.classList.add("blue-border");
+                reactionCount.textContent = (parseInt(reactionCount.textContent) + 1).toString();
+                reactMessage(getToken(), currentChannel.id, messageId, reaction.textContent);
+            } else {
+                messageReact.classList.remove("blue-border");
+                messageReact.classList.add("transparent-border");
+                reactionCount.textContent = (parseInt(reactionCount.textContent) - 1).toString();
+                unreactMessage(getToken(), currentChannel.id, messageId, reaction.textContent);
+                
+                if ((parseInt(reactionCount.textContent)) === 0) {
+                    messageReact.remove();
+                }
+            }
+        })
 
         messageReact.appendChild(reaction);
         messageReact.appendChild(reactionCount);
-        messageReactionBox.appendChild(messageReact);
+        messageReactBox.appendChild(messageReact);
     })
 
     return messageReactBox;
@@ -657,29 +712,29 @@ const deleteMessage = (token, channelId, messageId) => {
 }
 
 const pinMessage = (token, channelId, messageId) => {
-    let success = apiCall("POST", `message/${channelId}/${messageId}`, {}, token)
+    let success = apiCall("POST", `message/pin${channelId}/${messageId}`, {}, token)
     .then((response) => {return response})
     .then((success) => {
     });
 }
 
 const unpinMessage = (token, channelId, messageId) => {
-    let success = apiCall("POST", `message/${channelId}/${messageId}`, {}, token)
-    .then((response) => {return response})
-    .then((success) => {
-    });
+    let success = apiCall("POST", `message/unpin${channelId}/${messageId}`, {}, token)
+    .then((response) => {return response});
+
+    return response;
 }
 
 const reactMessage = (token, channelId, messageId, react) => {
-    let success = apiCall("POST", `message/${channelId}/${messageId}`, { react: react }, token)
-    .then((response) => {return response})
-    .then((success) => {
-    });
+    let success = apiCall("POST", `message/react/${channelId}/${messageId}`, { react: react }, token)
+    .then((response) => {return response});
+    
+    return success;
 }
 
 const unreactMessage = (token, channelId, messageId, react) => {
-    let success = apiCall("POST", `message/${channelId}/${messageId}`, { react: react }, token)
-    .then((response) => {return response})
-    .then((success) => {
-    });
+    let success = apiCall("POST", `message/unreact/${channelId}/${messageId}`, { react: react }, token)
+    .then((response) => {return response});
+
+    return success;
 }

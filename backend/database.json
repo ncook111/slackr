@@ -669,7 +669,16 @@
           "edited": false,
           "editedAt": null,
           "pinned": false,
-          "reacts": []
+          "reacts": [
+            {
+              "user": 16914,
+              "react": "😀"
+            },
+            {
+              "user": 16914,
+              "react": "😇"
+            }
+          ]
         },
         {
           "id": 17,
