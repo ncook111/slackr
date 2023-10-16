@@ -16,6 +16,7 @@ const createChannelButton = document.getElementById("create-channel-button");
 const createChannelConfirmButton = document.getElementById("create-channel-confirm-button");
 const createChannelCancelButton = document.getElementById("create-channel-cancel-button");
 const logoutButton = document.getElementById("logout");
+const messageSendButton = document.getElementById("message-send");
 const channelSettingsSaveButton = document.getElementById("channel-settings-save");
 const channelSettingsCloseButton = document.getElementById("channel-settings-close");
 
@@ -184,6 +185,12 @@ createChannelCancelButton.addEventListener('click', () => {
     createChannelPopupSection.style.display = "none";
     createChannelForm.reset();
 });
+
+messageSendButton.addEventListener('click', () => {
+    const messageText = document.getElementById("message-text");
+    console.log(messageText.value);
+    sendMessage(getToken(), currentChannel.id, messageText.textContent);
+})
 
 const loadMainSection = () => {
 
@@ -394,7 +401,7 @@ const loadChannelMessages = () => {
 
     console.log(messages);
 
-    // TODO: Figure out why I cant clear messages
+    // Fix up this mess of code...
     if (messages.has(currentChannel.id) && currentChannel.userIsMember) {
         messages.get(currentChannel.id).forEach((message) => {
             const sender = userDetails.get(message.sender).name;
@@ -411,25 +418,45 @@ const loadChannelMessages = () => {
             const messageElem = document.createElement("div");
             messageElem.id = "message-message";
 
-            messageBox.addEventListener('mouseover', () => {
-                console.log("hover");
-                const hoverElem = document.createElement("div");
-                hoverElem.className = "message-hover-box";
+            const hoverElem = document.createElement("div");
+            hoverElem.className = "message-hover-box";
 
-                if (!message.edited)
-                    messageBox.firstChild.firstChild.style.transform = "translateX(-70px)";
+            const addReact = document.createElement("img");
+            addReact.className = "add-react-icon";
+            addReact.src = "assets/add-react.svg"
 
-                // Else hover box bigger so translate morer
-                messageBox.insertBefore(hoverElem, messageBox.firstChild);
+            const editButton = document.createElement("button");
+            editButton.textContent = "Edit";
+            editButton.className = "hover-button";
+
+            const pinButton = document.createElement("button");
+            pinButton.textContent = "Pin";
+            pinButton.className = "hover-button";
+
+            pinButton.addEventListener('click', () => {
+                if (pinButton.textContent === "Pin") {
+                    console.log("Pinned");
+                    pinMessage(getToken(), currentChannel.id, message.id);
+                    pinButton.textContent = "Unpin";
+                }
+                else {
+                    console.log("Unpinned");
+                    unpinMessage(getToken(), currentChannel.id, message.id);
+                    pinButton.textContent = "Pin";
+                }
             });
 
-            messageBox.addEventListener('mouseout', () => {
-                if (!message.edited)
-                    messageBox.childNodes[1].firstChild.style.transform = "translateX(0px)";
+            const vl = document.createElement("div");
+            vl.className = "vl";
+            
+            hoverElem.appendChild(addReact);
+            hoverElem.appendChild(vl);
+            hoverElem.appendChild(editButton);
+            hoverElem.appendChild(vl.cloneNode());
+            hoverElem.appendChild(pinButton);
 
-                // Else hover box bigger so translate morer
-                document.getElementsByClassName("message-hover-box")[0].remove();
-            })
+            messageBox.insertBefore(hoverElem, messageBox.firstChild);
+
 
             const messageHeader = document.createElement("div");
             messageHeader.id = "message-header";
@@ -458,6 +485,10 @@ const loadChannelMessages = () => {
             messageBody.id = "message-body";
             messageBody.appendChild(document.createTextNode(`${message.message}`));
             
+            editButton.addEventListener('click', () => {
+                updateMessage(getToken(), currentChannel.id, message.id, messageBody.textContent + "updated");
+            });
+
             const messageReactBox = loadMessageReacts(message.reacts, message.id);
             messageBody.appendChild(messageReactBox);
 
@@ -468,6 +499,11 @@ const loadChannelMessages = () => {
             ul.appendChild(li);    
         });
     }
+
+    // Set scroll position to bottom of messages section
+    // TODO: Must be a better way to do this
+    const messageSection = document.getElementById("channel-messages")
+    messageSection.scrollTop = messageSection.scrollHeight;
 
 }
 
@@ -690,11 +726,11 @@ const getMessages = (token, channelId, start) => {
     return success;
 }
 
-const sendMessage = (token, channelId) => {
-    let success = apiCall("POST", `message/${channelId}`, {}, token)
-    .then((response) => {return response})
-    .then((success) => {
-    });
+const sendMessage = (token, channelId, message) => {
+    let success = apiCall("POST", `message/${channelId}`, { message: message }, token)
+    .then((response) => {return response});
+
+    return success;
 }
 
 const updateMessage = (token, channelId, messageId, message, image) => {
@@ -712,17 +748,17 @@ const deleteMessage = (token, channelId, messageId) => {
 }
 
 const pinMessage = (token, channelId, messageId) => {
-    let success = apiCall("POST", `message/pin${channelId}/${messageId}`, {}, token)
-    .then((response) => {return response})
-    .then((success) => {
-    });
+    let success = apiCall("POST", `message/pin/${channelId}/${messageId}`, {}, token)
+    .then((response) => {return response});
+
+    return success;
 }
 
 const unpinMessage = (token, channelId, messageId) => {
-    let success = apiCall("POST", `message/unpin${channelId}/${messageId}`, {}, token)
+    let success = apiCall("POST", `message/unpin/${channelId}/${messageId}`, {}, token)
     .then((response) => {return response});
 
-    return response;
+    return success;
 }
 
 const reactMessage = (token, channelId, messageId, react) => {
