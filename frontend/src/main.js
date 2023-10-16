@@ -188,8 +188,9 @@ createChannelCancelButton.addEventListener('click', () => {
 
 messageSendButton.addEventListener('click', () => {
     const messageText = document.getElementById("message-text");
-    console.log(messageText.value);
-    sendMessage(getToken(), currentChannel.id, messageText.textContent);
+    sendMessage(getToken(), currentChannel.id, messageText.value);
+    messageText.value = "";
+    loadMainSection();
 })
 
 const loadMainSection = () => {
@@ -399,8 +400,6 @@ const loadChannelMessages = () => {
         ul.firstChild.remove()
     }
 
-    console.log(messages);
-
     // Fix up this mess of code...
     if (messages.has(currentChannel.id) && currentChannel.userIsMember) {
         messages.get(currentChannel.id).forEach((message) => {
@@ -418,45 +417,7 @@ const loadChannelMessages = () => {
             const messageElem = document.createElement("div");
             messageElem.id = "message-message";
 
-            const hoverElem = document.createElement("div");
-            hoverElem.className = "message-hover-box";
-
-            const addReact = document.createElement("img");
-            addReact.className = "add-react-icon";
-            addReact.src = "assets/add-react.svg"
-
-            const editButton = document.createElement("button");
-            editButton.textContent = "Edit";
-            editButton.className = "hover-button";
-
-            const pinButton = document.createElement("button");
-            pinButton.textContent = "Pin";
-            pinButton.className = "hover-button";
-
-            pinButton.addEventListener('click', () => {
-                if (pinButton.textContent === "Pin") {
-                    console.log("Pinned");
-                    pinMessage(getToken(), currentChannel.id, message.id);
-                    pinButton.textContent = "Unpin";
-                }
-                else {
-                    console.log("Unpinned");
-                    unpinMessage(getToken(), currentChannel.id, message.id);
-                    pinButton.textContent = "Pin";
-                }
-            });
-
-            const vl = document.createElement("div");
-            vl.className = "vl";
-            
-            hoverElem.appendChild(addReact);
-            hoverElem.appendChild(vl);
-            hoverElem.appendChild(editButton);
-            hoverElem.appendChild(vl.cloneNode());
-            hoverElem.appendChild(pinButton);
-
-            messageBox.insertBefore(hoverElem, messageBox.firstChild);
-
+            messageBox.insertBefore(createMessageHoverElement(message, messageElem), messageBox.firstChild);
 
             const messageHeader = document.createElement("div");
             messageHeader.id = "message-header";
@@ -482,29 +443,105 @@ const loadChannelMessages = () => {
             }
 
             const messageBody = document.createElement("p");
-            messageBody.id = "message-body";
+            messageBody.className = "message-body";
             messageBody.appendChild(document.createTextNode(`${message.message}`));
-            
-            editButton.addEventListener('click', () => {
-                updateMessage(getToken(), currentChannel.id, message.id, messageBody.textContent + "updated");
-            });
 
             const messageReactBox = loadMessageReacts(message.reacts, message.id);
-            messageBody.appendChild(messageReactBox);
 
             messageBox.appendChild(messageElem);
             messageElem.appendChild(messageHeader);
             messageElem.appendChild(messageBody);
+            messageElem.appendChild(messageReactBox);
             li.appendChild(messageBox);
-            ul.appendChild(li);    
+            ul.insertBefore(li, ul.firstChild); // Prepend
         });
     }
 
     // Set scroll position to bottom of messages section
-    // TODO: Must be a better way to do this
-    const messageSection = document.getElementById("channel-messages")
+    const messageSection = document.getElementById("channel-messages");
     messageSection.scrollTop = messageSection.scrollHeight;
+}
 
+const createMessageHoverElement = (message, messageElem) => {
+    const hoverElem = document.createElement("div");
+    hoverElem.className = "message-hover-box";
+
+    const addReact = document.createElement("img");
+    addReact.className = "add-react-icon";
+    addReact.src = "assets/add-react.svg"
+    hoverElem.appendChild(addReact);
+
+    const vl = document.createElement("div");
+    vl.className = "vl";
+    hoverElem.appendChild(vl);
+
+    if (message.sender === parseInt(getUserId())) {
+        const editButton = document.createElement("button");
+        editButton.textContent = "Edit";
+        editButton.className = "hover-button";
+        hoverElem.appendChild(editButton);
+        hoverElem.appendChild(vl.cloneNode());
+
+
+        // TODO: Implement
+        editButton.addEventListener('click', () => {
+            const body = messageElem.getElementsByClassName("message-body")[0];
+            const newBody = document.createElement("input");
+            newBody.className = "message-body";
+            newBody.value = body.textContent;
+            body.parentNode.replaceChild(newBody, body);
+        });
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.className = "hover-button";
+        hoverElem.appendChild(deleteButton);
+        hoverElem.appendChild(vl.cloneNode());
+
+        deleteButton.addEventListener('click', () => {
+            deleteMessage(getToken(), currentChannel.id, message.id);
+
+            // TODO: Fix this
+            loadMainSection();
+        });
+    }
+
+    const pinButton = document.createElement("button");
+
+    console.log(hoverElem.offsetWidth);
+
+    if (message.pinned) {
+        pinButton.textContent = "Unpin";
+        const pinIcon = document.createElement("img");
+        pinIcon.className = "pin-icon";
+        pinIcon.src = "assets/pin-icon.svg";
+        messageElem.appendChild(pinIcon);
+    } else {
+        pinButton.textContent = "Pin";
+    }
+
+    pinButton.className = "hover-button";
+
+    pinButton.addEventListener('click', () => {
+        if (pinButton.textContent === "Pin") {
+            pinMessage(getToken(), currentChannel.id, message.id);
+            pinButton.textContent = "Unpin";
+
+            const pinIcon = document.createElement("img");
+            pinIcon.className = "pin-icon";
+            pinIcon.src = "assets/pin-icon.svg";
+            messageElem.appendChild(pinIcon);
+        }
+        else {
+            unpinMessage(getToken(), currentChannel.id, message.id);
+            pinButton.textContent = "Pin";
+            messageElem.getElementsByClassName("pin-icon")[0].remove();
+        }
+    });
+
+    hoverElem.appendChild(pinButton);
+
+    return hoverElem;
 }
 
 const loadMessageReacts = (reactions, messageId) => {
@@ -551,7 +588,6 @@ const loadMessageReacts = (reactions, messageId) => {
         reactionCount.appendChild(document.createTextNode(react.count));
 
         messageReact.addEventListener('click', () => {
-            console.log(messageReact.classList);
             if (messageReact.classList.contains("transparent-border")) {
                 messageReact.classList.remove("transparent-border");
                 messageReact.classList.add("blue-border");
@@ -742,9 +778,9 @@ const updateMessage = (token, channelId, messageId, message, image) => {
 
 const deleteMessage = (token, channelId, messageId) => {
     let success = apiCall("DELETE", `message/${channelId}/${messageId}`, {}, token)
-    .then((response) => {return response})
-    .then((success) => {
-    });
+    .then((response) => {return response});
+
+    return success;
 }
 
 const pinMessage = (token, channelId, messageId) => {

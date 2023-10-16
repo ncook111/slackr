@@ -15,6 +15,10 @@ input {
     box-sizing: border-box;
 }
 
+button:hover {
+    opacity: 80%;
+}
+
 .channel-list {
     list-style-type: none;
     margin: 0;
@@ -198,8 +202,7 @@ input {
 
 #channel-messages::-webkit-scrollbar {
     display: none;
-  }
-
+}
 
 #message-text-box {
     display: flex;
@@ -263,6 +266,7 @@ input {
 }
 
 #message-message {
+    position: relative;
     background-color: white;
     padding: 10px;
     box-sizing: border-box;
@@ -271,7 +275,8 @@ input {
 
 .message-hover-box {
     position: relative;
-    width: 100px;
+    z-index: 1;
+    width: fit-content;
     height: 30px;
     background-color: white;
     border-radius: 20px;
@@ -291,16 +296,21 @@ input {
 
 .add-react-icon {
     width: 20px;
-    margin: 0px 5px;
+    margin: 0px 10px;
     transform: translateY(5px);
     opacity: 0.8;
+}
 
+.add-react-icon:hover {
+    opacity: 60%;
 }
 
 .hover-button {
+    margin: 0 5px;
     border: none;
     background-color: transparent;
     color: rgb(112, 112, 112);
+    font-size: 1rem;
 }
 
 #message-header {
@@ -329,7 +339,7 @@ input {
     font-weight: 300;
 }
 
-#message-body {
+.message-body {
     margin: 0;
     padding: 0;
     font-style: normal;
@@ -356,6 +366,18 @@ input {
     border-radius: 10px;
     white-space: nowrap;
     box-sizing: border-box;
+}
+
+.message-react:hover {
+    opacity: 60%;
+}
+
+.pin-icon {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    top: -15px;
+    right: -15px;
 }
 
 .react {
