@@ -189,12 +189,45 @@ button:hover {
 
 #channel-header {
     display: flex;
-    flex: 0.1;
-    border: 1px solid;
+    flex: 0.05;
+    border-bottom: 1px solid;
+    -webkit-box-shadow: 0 4px 6px -6px #222;
+    -moz-box-shadow: 0 4px 6px -6px #222;
+    box-shadow: 0 4px 6px -6px #222;
+}
+
+#channel-name {
+
+}
+
+#channel-description {
+
+}
+
+#channel-creation-time {
+
+}
+
+#channel-creator {
+
+}
+
+#channel-settings {
+
+}
+
+#leave-channel {
+    display: block;
+    border: 0;
+    height: 50px;
+    width: 50px;
+    background-image: url("../assets/down-arrow.svg");
+    background-color: transparent;
+    background-repeat: no-repeat;
 }
 
 #channel-messages {
-    flex: 0.85;
+    flex: 0.90;
     overflow: scroll;
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -267,6 +300,7 @@ button:hover {
 
 #message-message {
     position: relative;
+    width: fit-content;
     background-color: white;
     padding: 10px;
     box-sizing: border-box;
@@ -274,31 +308,50 @@ button:hover {
 }
 
 .message-hover-box {
+    display: inline-block;
     position: relative;
     z-index: 1;
     width: fit-content;
-    height: 30px;
+    height: 35px;
     background-color: white;
     border-radius: 20px;
     visibility: hidden;
     border-right: 1px solid rgba(200, 200, 200, 0.5);
     border-left: 1px solid rgb(200, 200, 200, 0.5);
     border-bottom: 1px solid rgb(200, 200, 200, 0.5);
-    transform: translateY(5px);
+    transform: translateY(2.5px);
+}
+
+.reaction-hover-box {
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    width: fit-content;
+    height: 35px;
+    background-color: white;
+    border-radius: 20px;
+    border-right: 1px solid rgba(200, 200, 200, 0.5);
+    border-left: 1px solid rgb(200, 200, 200, 0.5);
+    border-bottom: 1px solid rgb(200, 200, 200, 0.5);
+    padding: 0px 5px;
+    transform: translateY(2.5px);
 }
 
 .vl {
+
     display: inline-block;
     border-left: 1px solid #b8b8b8;
-    height: 20px;
+    height: 25px; 
+    margin: auto 0;
     transform: translateY(5px);
 }
 
 .add-react-icon {
+    display: inline-block;
     width: 20px;
-    margin: 0px 10px;
-    transform: translateY(5px);
+    margin: auto 10px;
     opacity: 0.8;
+    transform: translateY(2.5px);
 }
 
 .add-react-icon:hover {
@@ -306,11 +359,13 @@ button:hover {
 }
 
 .hover-button {
+    display: inline-block;
     margin: 0 5px;
     border: none;
     background-color: transparent;
     color: rgb(112, 112, 112);
-    font-size: 1rem;
+    font-size: 1.1rem;
+    line-height: 35px;
 }
 
 #message-header {
@@ -340,10 +395,27 @@ button:hover {
 }
 
 .message-body {
+    display: inline-block;
     margin: 0;
     padding: 0;
     font-style: normal;
     font-size: 1.1rem;
+}
+
+.message-body-edit {
+    display: inline-block;
+    font-style: normal;
+    font-size: 1.1rem;
+    border-radius: 2rem;
+    padding: 0 10px;
+    color: #707070;
+}
+
+.confirm-edit-message {
+    display: inline-block;
+    background: none;
+    border: none;
+    line-height: 1.1rem;
 }
 
 .message-react-box {
@@ -356,6 +428,19 @@ button:hover {
 
 .transparent-border {
     border: 1px solid transparent;
+}
+
+.react-button {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    line-height: 35px;
+    font-family: 'Noto Color Emoji', sans-serif;
+}
+
+.react-button:hover {
+    font-size: 1.5rem;
+    opacity: 100%;
 }
 
 .message-react {
@@ -383,6 +468,7 @@ button:hover {
 .react {
     display: inline-block;
     margin-right: 5px;
+    font-family: 'Noto Color Emoji', sans-serif;
 }
 
 .react-count {

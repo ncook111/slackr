@@ -105,56 +105,6 @@ export const removeChildrenNodes = (parent) => {
     }
 }
 
-export const apiCall = (method, path, body, token) => {
-    let header;
-
-    if (token !== undefined) {
-        header = {
-            'Content-type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
-    } else {
-        header = {
-            'Content-type': 'application/json',
-        }
-    }
-
-    let success;
-
-    if (body === undefined) {
-        success = fetch('http://localhost:5005/' + path, {
-            method: method,
-            headers: header,
-            })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.error) {
-                    alert(data.error)
-                    return false;
-                } else {
-                    return data;
-                }
-            });
-    } else {
-        success = fetch('http://localhost:5005/' + path, {
-            method: method,
-            headers: header,
-            body: JSON.stringify(body)
-            })
-              .then((response) => response.json())
-              .then((data) => {
-                if (data.error) {
-                    alert(data.error)
-                    return false;
-                } else {
-                    return data;
-                }
-            });
-    }
-
-    return success;
-};
-
 export const getToken = () => {
     return document.cookie
     .split("; ")
@@ -210,13 +160,19 @@ export const timestampToDateTime = (timestamp) => {
         minute: timestamp.split('T')[1].split(':')[1],
         second: timestamp.split('T')[1].split(':')[2],
         period: null
-    }
+    };
 
-    if (parseInt(dt.hour) > 12) {
+    if (parseInt(dt.hour) === 0) {
+        dt.hour = "12";
+        dt.period = "AM";
+    } else if (parseInt(dt.hour) > 12) {
         dt.hour = (parseInt(dt.hour) - 12).toString();
         dt.period = "PM";
-    } else {
+    } else if (parseInt(dt.hour) < 10) {
+        console.log(dt.hour);
         dt.hour = dt.hour.split("0")[1];
+        dt.period = "AM";
+    } else {
         dt.period = "AM";
     }
 

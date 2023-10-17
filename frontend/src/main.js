@@ -1,5 +1,11 @@
 import { BACKEND_PORT } from './config.js';
-import { fileToDataUrl, apiCall, isValueInArray, removeChildrenNodes, getToken, getUserId, getIndexInArray, getHighestPriorityChannel, getPrivateChannels, getPublicChannels, createDynamicProfilePic, timestampToDateTime } from './helpers.js';
+import { fileToDataUrl, isValueInArray, removeChildrenNodes, getToken, 
+         getUserId, getIndexInArray, getHighestPriorityChannel, getPrivateChannels, 
+         getPublicChannels, createDynamicProfilePic, timestampToDateTime } from './helpers.js';
+import { login, logout, register, getChannels, createChannel, getChannel, 
+         updateChannel, joinChannel, leaveChannel, inviteChannel, getUsers, 
+         updateProfile, getUserDetails, getMessages, sendMessage, updateMessage, 
+         deleteMessage, pinMessage, unpinMessage, reactMessage, unreactMessage, apiCall } from './api.js';
 
 // HTML elements
 const loginSection = document.getElementById("login");
@@ -110,16 +116,22 @@ const populateUsersMap = () => {
     .then((users) => { 
         users.users.forEach((user) => {
             allUsers.set(user.id, user);
-        })
-    }).then(() => {
-        userDetails.keys().forEach((user) => {
-            getUserDetails(getToken(), user)
+        });
+        
+        userDetails.forEach((user, value) => {
+            getUserDetails(getToken(), value)
             .then((details) => {
-                userDetails.set(user, details);
+                userDetails.set(value, details);
             });
         });
     });
 }
+
+/*
+===========================
+===== Event Listeners =====
+===========================
+*/
 
 loginSubmitButton.addEventListener('click', () => {
     if (loginEmailInput.value.length < 1) { 
@@ -127,13 +139,32 @@ loginSubmitButton.addEventListener('click', () => {
     } else if (loginPasswordInput.value.length < 1) { 
         alert("Please enter your password")
     } else {
-        login(loginEmailInput.value, loginPasswordInput.value);
+        login(loginEmailInput.value, loginPasswordInput.value)
+        .then((response) => {
+            if (response) {
+                document.cookie = `access_token=${response.token}`;
+                document.cookie = `user_id=${response.userId}`;
+                loginForm.reset();
+                registerForm.reset();
+                loadMainSection();
+            }
+        });
     }
 })
 
 logoutButton.addEventListener('click', () => {
     // https://developer.mozilla.org/en-US/docs/Web/API/document/cookie#example_2_get_a_sample_cookie_named_test2
-    logout(getToken());
+    logout(getToken())
+    .then((response) => {
+        if (response) {
+            landingSection.style.display = "block"
+            registerSection.style.display = "none";
+            mainSection.style.display = "none";
+    
+            // Remove user cookie
+            document.cookie = '';
+        }
+    });
 })
 
 registerSubmitButton.addEventListener('click', () => {
@@ -148,7 +179,16 @@ registerSubmitButton.addEventListener('click', () => {
     } else if (registerPasswordInput.value !== registerPasswordConfirmInput.value) {
         alert("Passwords do not match!")
     } else {
-        register(registerEmailInput.value, registerPasswordInput.value, registerNameInput.value); 
+        register(registerEmailInput.value, registerPasswordInput.value, registerNameInput.value)
+        .then((response) => {
+            if (response) {
+                document.cookie = `access_token=${response.token}`;
+                document.cookie = `user_id=${response.userId}`;
+                loginForm.reset();
+                registerForm.reset();
+                loadMainSection();
+            }
+        }); 
     }
 });
 
@@ -188,10 +228,34 @@ createChannelCancelButton.addEventListener('click', () => {
 
 messageSendButton.addEventListener('click', () => {
     const messageText = document.getElementById("message-text");
-    sendMessage(getToken(), currentChannel.id, messageText.value);
-    messageText.value = "";
-    loadMainSection();
-})
+
+    if (messageText.value !== "" ||
+        messageText.value.trim() !== "") {
+        sendMessage(getToken(), currentChannel.id, messageText.value);
+        messageText.value = "";
+        loadMainSection();
+    }
+});
+
+channelSettingsCloseButton.addEventListener('click', () => {
+    document.getElementById("channel-settings-popup").style.display = "none";
+    document.getElementById("channel-settings-form").reset();
+});
+
+channelSettingsSaveButton.addEventListener('click', () => {
+    const newName = document.getElementById("edit-channel-name").value;
+    const newDescription = document.getElementById("edit-channel-description").value;
+    if (newName.length >= 1) {
+        updateChannel(getToken(), currentChannel.id, newName, newDescription)
+        .then((response) => {
+            document.getElementById("channel-settings-popup").style.display = "none";
+            document.getElementById("channel-settings-form").reset();
+            loadMainSection();
+        });
+    } else {
+        alert("Please enter a channel name");
+    }
+});
 
 const loadMainSection = () => {
 
@@ -206,9 +270,9 @@ const loadMainSection = () => {
     
     // Channel Section
     }).then(() => {
-        loadChannelHeader();
+        setTimeout(loadChannelHeader(), 1000);
     }).then(() => {
-        setTimeout(loadChannelMessages, 1000);
+        setTimeout(loadChannelMessages, 500);
     })
 
     landingSection.style.display = "none";
@@ -269,8 +333,12 @@ const loadMemberChannelHeader = () => {
     .then((response) => {
         channelName.textContent = response.name;
         channelDescription.textContent = response.description;
-        channelCreationTime.textContent = response.createdAt.split("T")[0];
-        channelCreator.textContent = response.creator;
+
+        const dt = timestampToDateTime(response.createdAt);
+        channelCreationTime.textContent = `Created On: ${dt.day}/${dt.month}/${dt.year}`;
+        console.log(userDetails.get(response.creator));
+        console.log(response.creator);
+        channelCreator.textContent = `Created By: ${userDetails.get(response.creator).name}`;
 
         // Create channel settings button
         const channelSettingsButton = document.createElement("button");
@@ -287,7 +355,6 @@ const loadMemberChannelHeader = () => {
         // Create leave channel button
         const leaveChannelButton = document.createElement("button");
         leaveChannelButton.id = "leave-channel";
-        leaveChannelButton.append(document.createTextNode("Leave Channel"));
         channelHeader.appendChild(leaveChannelButton);
 
         leaveChannelButton.addEventListener('click', () => {
@@ -331,7 +398,6 @@ const loadNonMemberChannelHeader = () => {
     joinChannelButton.style.display = "block"; 
 }
 
-
 const generateChannelButtons = (chans, isPrivate) => {
     let i = 0;
     chans.forEach((channel, id, map) => {
@@ -374,26 +440,6 @@ const generateChannelButtons = (chans, isPrivate) => {
     });
 }
 
-channelSettingsCloseButton.addEventListener('click', () => {
-    document.getElementById("channel-settings-popup").style.display = "none";
-    document.getElementById("channel-settings-form").reset();
-})
-
-channelSettingsSaveButton.addEventListener('click', () => {
-    const newName = document.getElementById("edit-channel-name").value;
-    const newDescription = document.getElementById("edit-channel-description").value;
-    if (newName.length >= 1) {
-        updateChannel(getToken(), currentChannel.id, newName, newDescription)
-        .then((response) => {
-            document.getElementById("channel-settings-popup").style.display = "none";
-            document.getElementById("channel-settings-form").reset();
-            loadMainSection();
-        });
-    } else {
-        alert("Please enter a channel name");
-    }
-});
-
 const loadChannelMessages = () => {
     const ul = document.getElementById("message-list");
     while (ul.firstChild) {
@@ -417,7 +463,22 @@ const loadChannelMessages = () => {
             const messageElem = document.createElement("div");
             messageElem.id = "message-message";
 
-            messageBox.insertBefore(createMessageHoverElement(message, messageElem), messageBox.firstChild);
+            const messageHoverElement = createMessageHoverElement(message, messageElem);
+            const reactHoverBox = createReactHoverBox(message.id, messageHoverElement);
+
+            const addReact = messageHoverElement.getElementsByClassName("add-react-icon")[0];
+            addReact.addEventListener('click', () => {
+                messageHoverElement.style.display = "none";
+                reactHoverBox.style.display = "inline-block";
+            })
+
+            reactHoverBox.addEventListener('mouseleave', () => {
+                reactHoverBox.style.display = "none";
+                messageHoverElement.style.display = "inline-block";
+            });
+
+            messageBox.insertBefore(messageHoverElement, messageBox.firstChild);
+            messageBox.insertBefore(reactHoverBox, messageBox.firstChild);
 
             const messageHeader = document.createElement("div");
             messageHeader.id = "message-header";
@@ -476,39 +537,73 @@ const createMessageHoverElement = (message, messageElem) => {
     hoverElem.appendChild(vl);
 
     if (message.sender === parseInt(getUserId())) {
-        const editButton = document.createElement("button");
-        editButton.textContent = "Edit";
-        editButton.className = "hover-button";
-        hoverElem.appendChild(editButton);
-        hoverElem.appendChild(vl.cloneNode());
-
-
-        // TODO: Implement
-        editButton.addEventListener('click', () => {
-            const body = messageElem.getElementsByClassName("message-body")[0];
-            const newBody = document.createElement("input");
-            newBody.className = "message-body";
-            newBody.value = body.textContent;
-            body.parentNode.replaceChild(newBody, body);
-        });
-
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-        deleteButton.className = "hover-button";
-        hoverElem.appendChild(deleteButton);
-        hoverElem.appendChild(vl.cloneNode());
-
-        deleteButton.addEventListener('click', () => {
-            deleteMessage(getToken(), currentChannel.id, message.id);
-
-            // TODO: Fix this
-            loadMainSection();
-        });
+        createEditDeleteHoverButtons(message.id, hoverElem, vl);
     }
 
-    const pinButton = document.createElement("button");
+    createPinHoverButton(message, hoverElem, messageElem);
 
-    console.log(hoverElem.offsetWidth);
+    return hoverElem;
+}
+
+const createEditDeleteHoverButtons = (messageId, hoverElem, vl) => {
+    const editButton = document.createElement("button");
+    editButton.textContent = "Edit";
+    editButton.className = "hover-button";
+    hoverElem.appendChild(editButton);
+    hoverElem.appendChild(vl.cloneNode());
+
+
+    // TODO: Implement
+    editButton.addEventListener('click', () => {
+        const body = hoverElem.parentNode.getElementsByClassName("message-body")[0];
+
+        // Occurs when edit button pressed when already editing
+        // TODO: Should cancel the edit
+        if (body === undefined) {
+            return;
+        }
+        const newBody = document.createElement("input");
+        newBody.className = "message-body-edit";
+        newBody.value = body.textContent;
+        body.parentNode.replaceChild(newBody, body);
+
+        const confirmTickButton = document.createElement("button");
+        confirmTickButton.textContent = "✔️";
+        confirmTickButton.className = "confirm-edit-message"
+        newBody.after(confirmTickButton);
+
+        confirmTickButton.addEventListener('click', () => {
+
+            // Update if text changed
+            if (body.textContent !== newBody.value) {
+                updateMessage(getToken(), currentChannel.id, messageId, newBody.value);
+                body.textContent = newBody.value;
+                loadMainSection();
+            }
+
+            // Otherwise revert back to old body node
+            newBody.parentNode.replaceChild(body, newBody);
+            confirmTickButton.remove();
+        })
+
+    });
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    deleteButton.className = "hover-button";
+    hoverElem.appendChild(deleteButton);
+    hoverElem.appendChild(vl.cloneNode());
+
+    deleteButton.addEventListener('click', () => {
+        deleteMessage(getToken(), currentChannel.id, messageId);
+
+        // TODO: Fix this
+        loadMainSection();
+    });
+}
+
+const createPinHoverButton = (message, hoverElem, messageElem) => {
+    const pinButton = document.createElement("button");
 
     if (message.pinned) {
         pinButton.textContent = "Unpin";
@@ -540,8 +635,31 @@ const createMessageHoverElement = (message, messageElem) => {
     });
 
     hoverElem.appendChild(pinButton);
+}
 
-    return hoverElem;
+const createReactHoverBox = (messageId, messageHoverElement) => {
+    const reactHoverBox = document.createElement("div");
+    reactHoverBox.className = "reaction-hover-box";
+    reactHoverBox.style.display = "none";
+
+    const reactions = ["❤️", "😀", "😆", "👍", "👎"];
+
+    reactions.forEach((reaction) => {
+        const button = document.createElement("button");
+        button.className = "react-button";
+        button.textContent = reaction;
+
+        reactHoverBox.appendChild(button);
+
+        button.addEventListener('click', () => {
+            reactMessage(getToken(), currentChannel.id, messageId, reaction);
+            reactHoverBox.style.display = "none";
+            messageHoverElement.style.display = "inline-block";
+            loadMainSection();
+        });
+    });
+
+    return reactHoverBox;
 }
 
 const loadMessageReacts = (reactions, messageId) => {
@@ -603,7 +721,7 @@ const loadMessageReacts = (reactions, messageId) => {
                     messageReact.remove();
                 }
             }
-        })
+        });
 
         messageReact.appendChild(reaction);
         messageReact.appendChild(reactionCount);
@@ -611,202 +729,4 @@ const loadMessageReacts = (reactions, messageId) => {
     })
 
     return messageReactBox;
-}
-
-/*
-===============================
-======= Auth endpoints ========
-===============================
-*/
-
-const login = (email, password) => {
-    let success = apiCall("POST", "auth/login", { email: email, password: password })
-    .then((response) => { return response })
-    .then((success) => {
-        if (success) {
-            document.cookie = `access_token=${success.token}`;
-            document.cookie = `user_id=${success.userId}`;
-            loginForm.reset();
-            registerForm.reset();
-            loadMainSection();
-        }
-    });
-}
-
-const logout = (token) => {
-    let success = apiCall("POST", "auth/logout", {}, token)
-    .then((response) => { return response })
-    .then((success) => {
-        if (success) {
-            landingSection.style.display = "block"
-            registerSection.style.display = "none";
-            mainSection.style.display = "none";
-
-            // Remove user cookie
-            document.cookie = '';
-        }
-    });
-}
-
-const register = (email, password, name) => {
-    let success = apiCall("POST", "auth/register", { email: email, password: password, name: name })
-    .then((response) => { return response })
-    .then((success) => {
-        if (success) {
-            document.cookie = `access_token=${success.token}`;
-            document.cookie = `user_id=${success.userId}`;
-            loginForm.reset();
-            registerForm.reset();
-            loadMainSection();
-        }
-    });
-}
-
-/*
-===============================
-===== Channel endpoints =======
-===============================
-*/
-
-const getChannels = (token) => {
-    let success = apiCall("GET", "channel", undefined, token)
-    .then((response) => {return response});
-    return success;
-}
-
-const createChannel = (token, name, isPrivate, description) => {
-    if (description === "") {
-        description = "A Slackr Channel";
-    }
-
-    let success = apiCall("POST", "channel", { name: name, private: isPrivate, description: description }, token)
-    .then((response) => {return response});
-    return success;
-}
-
-const getChannel = (token, channelId) => {
-    let success = apiCall("GET", `channel/${channelId}`, undefined, token)
-    .then((response) => {return response});
-    return success;
-}
-
-const updateChannel = (token, channelId, name, description) => {
-    let success = apiCall("PUT", `channel/${channelId}`, { name: name, description: description }, token)
-    .then((response) => {return response});
-    return success;
-}
-
-const joinChannel = (token, channelId) => {
-    let success = apiCall("POST", `channel/${channelId}/join`, {}, token)
-    .then((response) => {return response});
-    return success;
-}
-
-const leaveChannel = (token, channelId) => {
-    let success = apiCall("POST", `channel/${channelId}/leave`, {}, token)
-    .then((response) => {return response});
-    return success;
-}
-
-const inviteChannel = (token, channelId, userId) => {
-    let success = apiCall("POST", `channel/${channelId}/join`, {userId: userId}, token)
-    .then((response) => {return response})
-    .then((success) => {
-    });
-}
-
-/*
-===============================
-======= User endpoints ========
-===============================
-*/
-
-const getUsers = (token) => {
-    let success = apiCall("GET", "user", undefined, token)
-    .then((response) => {return response});
-    
-    return success;
-}
-
-const updateProfile = (token, email, password, name, bio, image) => {
-    let success = apiCall("PUT", "user", { 
-        token: token, 
-        email: email, 
-        password: password, 
-        name: name, 
-        bio: bio, 
-        image: image
-    }, token)
-    .then((response) => {return response})
-    .then((success) => {
-    });
-}
-
-const getUserDetails = (token, userId) => {
-    let success = apiCall("GET", `user/${userId}`, undefined, token)
-    .then((response) => {return response});
-
-    return success;
-}
-
-/*
-===============================
-===== Message endpoints =======
-===============================
-*/
-
-const getMessages = (token, channelId, start) => {
-    let success = apiCall("GET", `message/${channelId}?start=${start}`, undefined, token)
-    .then((response) => {return response});
-
-    return success;
-}
-
-const sendMessage = (token, channelId, message) => {
-    let success = apiCall("POST", `message/${channelId}`, { message: message }, token)
-    .then((response) => {return response});
-
-    return success;
-}
-
-const updateMessage = (token, channelId, messageId, message, image) => {
-    let success = apiCall("PUT", `message/${channelId}/${messageId}`, { message: message, image: image }, token)
-    .then((response) => {return response})
-    .then((success) => {
-    });
-}
-
-const deleteMessage = (token, channelId, messageId) => {
-    let success = apiCall("DELETE", `message/${channelId}/${messageId}`, {}, token)
-    .then((response) => {return response});
-
-    return success;
-}
-
-const pinMessage = (token, channelId, messageId) => {
-    let success = apiCall("POST", `message/pin/${channelId}/${messageId}`, {}, token)
-    .then((response) => {return response});
-
-    return success;
-}
-
-const unpinMessage = (token, channelId, messageId) => {
-    let success = apiCall("POST", `message/unpin/${channelId}/${messageId}`, {}, token)
-    .then((response) => {return response});
-
-    return success;
-}
-
-const reactMessage = (token, channelId, messageId, react) => {
-    let success = apiCall("POST", `message/react/${channelId}/${messageId}`, { react: react }, token)
-    .then((response) => {return response});
-    
-    return success;
-}
-
-const unreactMessage = (token, channelId, messageId, react) => {
-    let success = apiCall("POST", `message/unreact/${channelId}/${messageId}`, { react: react }, token)
-    .then((response) => {return response});
-
-    return success;
 }
