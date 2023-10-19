@@ -19,7 +19,7 @@ button:hover {
     opacity: 80%;
 }
 
-.channel-list {
+.unstyled-list {
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -142,9 +142,10 @@ button:hover {
 
 #sidebar {
     flex: 0.2;
-    border: 1px solid;
     display: flex;
     flex-direction: column;
+    background-color: #fff;
+    border-radius: 0 1rem 1rem 0;
 }
 
 #sidebar h1 {
@@ -181,27 +182,34 @@ button:hover {
 }
 
 #channel-view {
+    position: relative;
     display: flex;
     flex-direction: column;
     flex: 0.8;
-    border: 1px solid;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 #channel-header {
     display: flex;
     flex: 0.05;
-    border-bottom: 1px solid;
-    -webkit-box-shadow: 0 4px 6px -6px #222;
-    -moz-box-shadow: 0 4px 6px -6px #222;
-    box-shadow: 0 4px 6px -6px #222;
+    border-bottom: 1px solid #5a5a5a66;
+    -webkit-box-shadow: 0 4px 6px -6px #5a5a5a;
+    -moz-box-shadow: 0 4px 6px -6px #5a5a5a;
+    box-shadow: 0 4px 6px -6px #5a5a5a;
+    align-items: center;
+    justify-content: space-between;
 }
 
 #channel-name {
-
+    font-size: 2rem;
+    margin: 0 0 0 30px;
 }
 
 #channel-description {
-
+    font-size: 2rem;
+    font-style: italic;
+    margin: 0;
 }
 
 #channel-creation-time {
@@ -216,18 +224,117 @@ button:hover {
 
 }
 
-#leave-channel {
-    display: block;
+#header-buttons {
+    position: relative;
+    margin: 0 30px 0 0;
+}
+
+
+#header-buttons button {
+    align-items: center;
+    padding: 0;
+    display: inline-block;
     border: 0;
-    height: 50px;
-    width: 50px;
-    background-image: url("../assets/down-arrow.svg");
+    height: 30px;
+    width: 30px;
     background-color: transparent;
     background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    margin-left: 30px;
+}
+
+#view-members-button {
+    background-image: url("../assets/people-fill.svg");
+}
+
+#view-pinned-messages-button {
+    background-image: url("../assets/pin-icon-grey.svg");
+}
+
+#channel-actions-button {
+    background-image: url("../assets/down-arrow.svg");
+}
+
+#channel-members-list {
+    width: 100%
+}
+
+.channel-member-button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 40px;
+    border: none;
+    font-size: 1.2rem;
+    text-align: left;
+    line-height: 40px;
+    padding: 0;
+    background-color: #fff;
+}
+
+.channel-member-button:hover {
+    background-color: #d4d4d4; 
+}
+
+#channel-member-profile {
+    width: 30px;
+    height: 30px;
+    margin: 0 10px 0 10px;
+}
+
+.channel-dropdown {
+    z-index: 1;
+    position: absolute;
+    width: 250px;
+    height: fit-content;
+    top: 0%;
+    left: 100%;
+    background-color: white;
+    border: 1px solid;
+    border-radius: 1rem;
+    box-sizing: border-box;
+    padding: 15px 0 15px 0;
+
+}
+
+#channel-actions {
+    transform: translate(calc(-100% - 30px), calc(0% + 60px));
+}
+
+#pinned-messages {
+    transform: translate(calc(-100% - 80px), calc(0% + 60px));
+}
+
+#channel-members {
+    transform: translate(calc(-100% - 140px), calc(0% + 60px));
+}
+
+.action-button {
+    padding-left: 20px;
+    background: none;
+    border: none;
+    height: 40px;
+    font-size: 1rem;
+    text-align: left;
+}
+
+#about-channel {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#about-channel hr {
+    width: 80%;
+}
+
+#about-channel p {
+    text-align: left;
+    padding-left: 20px;
 }
 
 #channel-messages {
-    flex: 0.90;
+    flex: 0.9;
     overflow: scroll;
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -242,12 +349,12 @@ button:hover {
     justify-content: center;
     align-content: center;
     flex-direction: row;
-    flex: 0.05;
     border: none;
     border-radius: 2rem;
     background: white;
     margin: 1%;
     padding: auto 2% auto 2%;
+    flex: 0.05;
 }
 
 #message-text {
@@ -511,4 +618,16 @@ button:hover {
 
 textarea:focus, input:focus{
     outline: none;
+}
+
+.display-none {
+    display: none;
+}
+
+.display-block {
+    display: block;
+}
+
+.display-flex {
+    display: flex;
 }

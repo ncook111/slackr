@@ -1,7 +1,7 @@
 import { BACKEND_PORT } from './config.js';
 import { fileToDataUrl, isValueInArray, removeChildrenNodes, getToken, 
          getUserId, getIndexInArray, getHighestPriorityChannel, getPrivateChannels, 
-         getPublicChannels, createDynamicProfilePic, timestampToDateTime } from './helpers.js';
+         getPublicChannels, createDynamicProfilePic, timestampToDateTime, elementDisplayToggle, elementsDisplayClose } from './helpers.js';
 import { login, logout, register, getChannels, createChannel, getChannel, 
          updateChannel, joinChannel, leaveChannel, inviteChannel, getUsers, 
          updateProfile, getUserDetails, getMessages, sendMessage, updateMessage, 
@@ -51,6 +51,12 @@ const messages = new Map();
 const allUsers = new Map();
 const userDetails = new Map();
 let currentChannel = null;
+
+/*
+==================================
+===== Populate Map Functions =====
+==================================
+*/
 
 const populateChannelsMap = () => {
     const response = getChannels(getToken())
@@ -246,6 +252,7 @@ channelSettingsSaveButton.addEventListener('click', () => {
     const newName = document.getElementById("edit-channel-name").value;
     const newDescription = document.getElementById("edit-channel-description").value;
     if (newName.length >= 1) {
+        console.log(newDescription);
         updateChannel(getToken(), currentChannel.id, newName, newDescription)
         .then((response) => {
             document.getElementById("channel-settings-popup").style.display = "none";
@@ -257,6 +264,58 @@ channelSettingsSaveButton.addEventListener('click', () => {
     }
 });
 
+const channelActions = document.getElementById("channel-actions");
+const pinnedMessages = document.getElementById("pinned-messages");
+const channelMembers = document.getElementById("channel-members");
+
+const channelActionsButton = document.getElementById("channel-actions-button");
+const pinnedMessagesButton = document.getElementById("view-pinned-messages-button");
+const channelMembersButton = document.getElementById("view-members-button");
+
+channelActionsButton.addEventListener('click', () => {
+    elementDisplayToggle(channelActions, "display-none", "display-block");
+    elementsDisplayClose([pinnedMessages, channelMembers], "display-block");
+});
+
+pinnedMessagesButton.addEventListener('click', () => {
+    elementDisplayToggle(pinnedMessages, "display-none", "display-block");
+    elementsDisplayClose([channelActions, channelMembers], "display-block");
+});
+
+channelMembersButton.addEventListener('click', () => {
+    elementDisplayToggle(channelMembers, "display-none", "display-block");
+    elementsDisplayClose([channelActions, pinnedMessages], "display-block");
+});
+
+// Create channel leave event listener
+const channelLeaveButton = document.getElementById("leave-channel");
+channelLeaveButton.addEventListener('click', () => {
+    leaveChannel(getToken(), currentChannel.id)
+    .then((response) => {
+        const channelActions = document.getElementById("channel-actions");
+        channelActions.className = "channel-dropdown display-none";
+
+        const headerButtons = document.getElementById("header-buttons");
+        headerButtons.className = "channel-dropdown display-none";
+        loadMainSection();
+    });
+});
+
+// Create channel settings event listener
+const channelSettingsButton = document.getElementById("channel-settings");
+channelSettingsButton.addEventListener('click', () => {
+    document.getElementById("channel-settings-popup").style.display = "block";
+    document.getElementById("edit-channel-name").value = currentChannel.name;
+
+    // TODO: This kinda dumb way to do it
+    const channelDescription = document.getElementById("channel-description").textContent;
+    if (channelDescription === undefined)
+        document.getElementById("edit-channel-description").value = "";
+    else
+    document.getElementById("edit-channel-description").value = channelDescription;
+});
+
+
 const loadMainSection = () => {
 
     // Sidebar
@@ -266,13 +325,13 @@ const loadMainSection = () => {
     }).then(() => {
         populateMessagesMap();
     }).then(() => {
-        populateUsersMap();
+        setTimeout(populateUsersMap, 300);
     
     // Channel Section
     }).then(() => {
-        setTimeout(loadChannelHeader(), 1000);
+        setTimeout(loadChannelHeader, 600);
     }).then(() => {
-        setTimeout(loadChannelMessages, 500);
+        setTimeout(loadChannelMessages, 900);
     })
 
     landingSection.style.display = "none";
@@ -301,18 +360,9 @@ const loadChannelViewSection = () => {
 const loadChannelHeader = () => {
 
     // Remove old buttons if they still exist
-    if (document.getElementById("leave-channel")) {
-        document.getElementById("leave-channel").remove();   
-    }
-    
     if (document.getElementById("join-channel")) {
         document.getElementById("join-channel").remove();
     }
-    
-    if (document.getElementById("channel-settings")) {
-        document.getElementById("channel-settings").remove();
-    }
-
     
     if (currentChannel.userIsMember) {
         loadMemberChannelHeader();
@@ -331,41 +381,46 @@ const loadMemberChannelHeader = () => {
 
     getChannel(getToken(), currentChannel.id)
     .then((response) => {
-        channelName.textContent = response.name;
-        channelDescription.textContent = response.description;
+
+        if (response.description !== "") {
+            channelName.textContent = response.name + " - ";
+            channelName.style.display =  "inline-block";
+            
+            channelDescription.textContent = response.description;
+            channelDescription.style.display =  "inline-block";
+        } else {
+            channelName.textContent = response.name;
+            channelDescription.textContent = "";
+        }
+
+        // Show header buttons
+        const headerButtons = document.getElementById("header-buttons");
+        headerButtons.className = "display-flex";
+
+        // Generate channel users drop-down
+        generateChannelUsersDropdown();
 
         const dt = timestampToDateTime(response.createdAt);
         channelCreationTime.textContent = `Created On: ${dt.day}/${dt.month}/${dt.year}`;
-        console.log(userDetails.get(response.creator));
-        console.log(response.creator);
         channelCreator.textContent = `Created By: ${userDetails.get(response.creator).name}`;
+    });
+}
 
-        // Create channel settings button
-        const channelSettingsButton = document.createElement("button");
-        channelSettingsButton.id = "channel-settings";
-        channelSettingsButton.append(document.createTextNode("Channel Settings"));
-        channelHeader.appendChild(channelSettingsButton);
-
-        channelSettingsButton.addEventListener('click', () => {
-            document.getElementById("channel-settings-popup").style.display = "block";
-            document.getElementById("edit-channel-name").value = response.name;
-            document.getElementById("edit-channel-description").value = response.description;
-        });
-
-        // Create leave channel button
-        const leaveChannelButton = document.createElement("button");
-        leaveChannelButton.id = "leave-channel";
-        channelHeader.appendChild(leaveChannelButton);
-
-        leaveChannelButton.addEventListener('click', () => {
-            leaveChannel(getToken(), currentChannel.id)
-            .then((response) => { 
-                document.getElementById("leave-channel").remove();
-                loadMainSection();
-            });
-        })
+const generateChannelUsersDropdown = () => {
     
-        leaveChannelButton.style.display = "block";
+    currentChannel.members.forEach((member) => {
+        const name = userDetails.get(member).name;
+        const memberList = document.getElementById("channel-members-list");
+        const memberElement = document.createElement("li");
+        const button = document.createElement("button");
+        button.className = "channel-member-button"
+
+        const profile = createDynamicProfilePic(name)
+        profile.id = "channel-member-profile";
+        button.textContent = name;
+        button.insertBefore(profile, button.firstChild);
+        memberElement.appendChild(button);
+        memberList.appendChild(memberElement);     
     });
 }
 
@@ -381,6 +436,10 @@ const loadNonMemberChannelHeader = () => {
     channelCreationTime.textContent = "";
     channelCreator.textContent = "";
 
+    // Don't show header buttons
+    const headerButtons = document.getElementById("header-buttons");
+    headerButtons.className = "display-none";
+
     // Create join channel button
     const joinChannelButton = document.createElement("button");
     joinChannelButton.id = "join-channel";
@@ -391,6 +450,7 @@ const loadNonMemberChannelHeader = () => {
         joinChannel(getToken(), currentChannel.id)
         .then((response) => {
             document.getElementById("join-channel").remove();
+            headerButtons.className = "display-flex";
             loadMainSection();
         });
     })

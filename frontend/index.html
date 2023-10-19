@@ -66,13 +66,13 @@
         <section id="private-channels">
           <h1>Private Channels</h1>
           <hr>
-          <ul id="private-channels-list" class="channel-list">
+          <ul id="private-channels-list" class="unstyled-list">
           </ul>
         </section>
         <section id="public-channels">
           <h1>Public Channels</h1>
           <hr>
-          <ul id="public-channels-list" class="channel-list">
+          <ul id="public-channels-list" class="unstyled-list">
           </ul>
         </section>
         <section id="sidebar-buttons">
@@ -81,11 +81,33 @@
         </section>
       </section>
       <section id="channel-view">
+        <div id="channel-actions" class="channel-dropdown display-none">
+          <button id="channel-settings" class="action-button">Channel Settings</button>
+          <button id="leave-channel" class="action-button">Leave Channel</button>
+          <div id="about-channel">
+            <h1 id="about-channel">About Channel</h1>
+            <hr>
+            <p id="channel-creation-time"></p>
+            <p id="channel-creator"></p>
+          </div>
+        </div>
+        <div id="pinned-messages" class="channel-dropdown display-none">
+        </div>
+        <div id="channel-members" class="channel-dropdown display-none">
+          <ul id="channel-members-list" class="unstyled-list">
+
+          </ul>
+        </div>
         <section id="channel-header">
-          <h1 id="channel-name">Placeholder Name</h1>
-          <p id="channel-description">Placeholder Description</p>
-          <p id="channel-creation-time">Placeholder Creation Time</p>
-          <p id="channel-creator">Placeholder Creator</p>
+          <span>
+            <h1 id="channel-name"></h1>
+            <p id="channel-description"></p>
+          </span>
+          <span id="header-buttons">
+            <button id="view-members-button"></button>
+            <button id="view-pinned-messages-button"></button>
+            <button id="channel-actions-button"></button>
+          </span>
           <section id="channel-settings-popup">
             <section class="modal-content">
               <form id="channel-settings-form">
@@ -107,7 +129,6 @@
           <input type="text" id="message-text">
           <button id="message-send">Send</button>
         </section>
-
       </section>
     </section>
   </main>

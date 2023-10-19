@@ -178,3 +178,22 @@ export const timestampToDateTime = (timestamp) => {
 
     return dt;
 }
+
+export const elementDisplayToggle = (element, firstDisplay, secondDisplay) => {
+    if (element.classList.contains(firstDisplay)) {
+        element.classList.remove(firstDisplay);
+        element.classList.add(secondDisplay);
+    } else {
+        element.classList.remove(secondDisplay);
+        element.classList.add(firstDisplay);
+    }
+}
+
+export const elementsDisplayClose = (elements, currentDisplay) => {
+    elements.forEach((element) => {
+        if (element.classList.contains(currentDisplay)) {
+            element.classList.remove(currentDisplay);
+            element.classList.add("display-none");
+        }
+    })
+}

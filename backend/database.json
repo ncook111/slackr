@@ -16,6 +16,14 @@
       "image": null,
       "sessionActive": true
     },
+    "41045": {
+      "email": "1234",
+      "name": "Nathaniel",
+      "password": "1",
+      "bio": null,
+      "image": null,
+      "sessionActive": true
+    },
     "56422": {
       "email": "sebastian@email.com",
       "name": "Sebastian",
@@ -410,17 +418,41 @@
       "messages": []
     },
     "813580": {
-      "name": "public channel",
+      "name": "Public channel",
       "creator": 15272,
       "private": false,
-      "description": "",
+      "description": "The best channel on Slackr",
       "createdAt": "2021-09-13T08:00:03.220Z",
       "members": [
         15272,
         56422,
-        16914
+        16914,
+        41045
       ],
       "messages": [
+        {
+          "id": 78,
+          "message": "The quick brown fox jumps over the lazy dog",
+          "sender": 41045,
+          "sentAt": "2023-10-19T08:22:30.793Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": [
+            {
+              "user": 41045,
+              "react": "😆"
+            },
+            {
+              "user": 16914,
+              "react": "😆"
+            },
+            {
+              "user": 16914,
+              "react": "❤️"
+            }
+          ]
+        },
         {
           "id": 77,
           "message": "test",
@@ -429,7 +461,12 @@
           "edited": false,
           "editedAt": null,
           "pinned": false,
-          "reacts": []
+          "reacts": [
+            {
+              "user": 16914,
+              "react": "👍"
+            }
+          ]
         },
         {
           "id": 76,
@@ -439,7 +476,12 @@
           "edited": true,
           "editedAt": "2023-10-17T11:44:49.332Z",
           "pinned": false,
-          "reacts": []
+          "reacts": [
+            {
+              "user": 41045,
+              "react": "😀"
+            }
+          ]
         },
         {
           "id": 66,
@@ -478,7 +520,12 @@
           "edited": false,
           "editedAt": null,
           "pinned": false,
-          "reacts": []
+          "reacts": [
+            {
+              "user": 16914,
+              "react": "👍"
+            }
+          ]
         },
         {
           "id": 41,
@@ -992,5 +1039,5 @@
       "messages": []
     }
   },
-  "nextMessageId": 78
+  "nextMessageId": 79
 }
