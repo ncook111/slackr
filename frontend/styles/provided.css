@@ -96,16 +96,19 @@ button:hover {
     color: #707070;
 }
 
-.login-buttons {
-    display: block;
-    width: 250px;
-    height: 50px;
-    margin: 20px auto 0 auto;
+.standard-button {
     border: 0;
     border-radius: 10px;
     background-color: #838383;
     color: white;
     font-size: 1.5rem;
+}
+
+.login-buttons {
+    display: block;
+    width: 250px;
+    height: 50px;
+    margin: 20px auto 0 auto;
 }
 
 .form input {
@@ -141,10 +144,10 @@ button:hover {
 }
 
 #sidebar {
-    flex: 0.2;
+    flex: 0 0 350px;
     display: flex;
     flex-direction: column;
-    background-color: #fff;
+    background-color: #95DBFF;
     border-radius: 0 1rem 1rem 0;
 }
 
@@ -160,32 +163,68 @@ button:hover {
 }
 
 #private-channels {
-    flex: 0.45;
+    flex: 0 0 45%;
 }
 
 #public-channels {
-    flex: 0.45;
+    flex: 0 0 45%;
 }
 
-#sidebar-buttons {
+#create-channel-section {
+    flex: 0 0 5%;
+    margin: 0 15px;
+}
+
+#create-channel-button {
+    height: 80%;
+    width: 100%;
+}
+
+#user-section {
     display: flex;
-    flex-direction: column-reverse;
-    flex: 0.1;
-    margin-bottom: 10px;
-    
+    flex: 0 0 5%;
+    align-items: center;
+    margin: 0 15px;
 }
 
-#sidebar-buttons button {
-    display: block;
-    width: 80%;
-    margin: 1% 10% 1% 10%;
+#user-profile-popup {
 }
+
+#user-profile-button span {
+    display: inline-block;
+    font-size: 2rem;
+}
+
+#user-profile-button {
+    display: flex;
+    align-items: center;
+    height: 80%;
+    width: auto;
+    padding: 0;
+    color: #707070;
+    background: none;
+    border: none;
+}
+
+#user-profile-button svg {
+    height: 100%;
+    width: auto;
+    margin: 0;
+}
+
+#logout {
+    justify-self: flex-end;
+    margin: 0 0 0 auto;
+    height: 80%;
+    width: 40%;
+}
+
 
 #channel-view {
     position: relative;
     display: flex;
     flex-direction: column;
-    flex: 0.8;
+    flex: 1;
     height: 100%;
     box-sizing: border-box;
 }
@@ -291,10 +330,12 @@ button:hover {
     top: 0%;
     left: 100%;
     background-color: white;
-    border: 1px solid;
     border-radius: 1rem;
     box-sizing: border-box;
     padding: 15px 0 15px 0;
+    -moz-box-shadow: 0 0 4px #0000006f;
+    -webkit-box-shadow: 0 0 4px #0000006f;
+    box-shadow: 0 0 4px #0000006f;
 
 }
 
@@ -304,6 +345,23 @@ button:hover {
 
 #pinned-messages {
     transform: translate(calc(-100% - 80px), calc(0% + 60px));
+    width: 400px;
+    max-height: 500px;
+    overflow: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+#pinned-messages #message-profile {
+    transform: translateY(0);
+}
+
+#pinned-messages::-webkit-scrollbar {
+    display: none;
+}
+
+#pinned-messages-list {
+    margin: 0 15px 0 15px;
 }
 
 #channel-members {
@@ -311,6 +369,7 @@ button:hover {
 }
 
 .action-button {
+    display: block;
     padding-left: 20px;
     background: none;
     border: none;
@@ -582,20 +641,7 @@ button:hover {
     display: inline-block;
 }
 
-#create-channel-popup {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-}
-
-#channel-settings-popup {
+.modal-box {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */

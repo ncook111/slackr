@@ -169,7 +169,6 @@ export const timestampToDateTime = (timestamp) => {
         dt.hour = (parseInt(dt.hour) - 12).toString();
         dt.period = "PM";
     } else if (parseInt(dt.hour) < 10) {
-        console.log(dt.hour);
         dt.hour = dt.hour.split("0")[1];
         dt.period = "AM";
     } else {

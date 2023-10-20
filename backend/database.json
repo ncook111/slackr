@@ -48,6 +48,14 @@
       "image": null,
       "sessionActive": true
     },
+    "72780": {
+      "email": "Nathaniel.cook",
+      "name": "Nathaniel",
+      "password": "1",
+      "bio": null,
+      "image": null,
+      "sessionActive": true
+    },
     "82966": {
       "email": "123",
       "name": "123",
@@ -126,7 +134,9 @@
       "private": false,
       "description": "A Slackr Channel12",
       "createdAt": "2023-10-09T06:07:00.909Z",
-      "members": [],
+      "members": [
+        16914
+      ],
       "messages": []
     },
     "294042": {
@@ -135,7 +145,9 @@
       "private": false,
       "description": {},
       "createdAt": "2023-10-09T05:47:57.964Z",
-      "members": [],
+      "members": [
+        16914
+      ],
       "messages": []
     },
     "300160": {
@@ -390,6 +402,15 @@
       "members": [],
       "messages": []
     },
+    "743444": {
+      "name": "1",
+      "creator": 16914,
+      "private": true,
+      "description": "1",
+      "createdAt": "2023-10-20T05:54:39.641Z",
+      "members": [],
+      "messages": []
+    },
     "755686": {
       "name": "1",
       "creator": 16914,
@@ -427,9 +448,20 @@
         15272,
         56422,
         16914,
-        41045
+        41045,
+        72780
       ],
       "messages": [
+        {
+          "id": 79,
+          "message": "...",
+          "sender": 16914,
+          "sentAt": "2023-10-20T10:59:53.900Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
         {
           "id": 78,
           "message": "The quick brown fox jumps over the lazy dog",
@@ -437,7 +469,7 @@
           "sentAt": "2023-10-19T08:22:30.793Z",
           "edited": false,
           "editedAt": null,
-          "pinned": false,
+          "pinned": true,
           "reacts": [
             {
               "user": 41045,
@@ -534,7 +566,7 @@
           "sentAt": "2021-09-13T08:00:04.173Z",
           "edited": false,
           "editedAt": null,
-          "pinned": true,
+          "pinned": false,
           "reacts": [
             {
               "user": 16914,
@@ -569,7 +601,7 @@
           "sentAt": "2021-09-13T08:00:04.119Z",
           "edited": false,
           "editedAt": null,
-          "pinned": true,
+          "pinned": false,
           "reacts": []
         },
         {
@@ -1039,5 +1071,5 @@
       "messages": []
     }
   },
-  "nextMessageId": 79
+  "nextMessageId": 80
 }

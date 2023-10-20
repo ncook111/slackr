@@ -25,6 +25,7 @@ const logoutButton = document.getElementById("logout");
 const messageSendButton = document.getElementById("message-send");
 const channelSettingsSaveButton = document.getElementById("channel-settings-save");
 const channelSettingsCloseButton = document.getElementById("channel-settings-close");
+const userProfileButton = document.getElementById("user-profile-button");
 
 const loginForm = document.getElementById("login-form");
 const registerForm = document.getElementById("register-form");
@@ -152,6 +153,7 @@ loginSubmitButton.addEventListener('click', () => {
                 document.cookie = `user_id=${response.userId}`;
                 loginForm.reset();
                 registerForm.reset();
+                generateUserSection();
                 loadMainSection();
             }
         });
@@ -169,6 +171,7 @@ logoutButton.addEventListener('click', () => {
     
             // Remove user cookie
             document.cookie = '';
+            location.reload();
         }
     });
 })
@@ -252,7 +255,6 @@ channelSettingsSaveButton.addEventListener('click', () => {
     const newName = document.getElementById("edit-channel-name").value;
     const newDescription = document.getElementById("edit-channel-description").value;
     if (newName.length >= 1) {
-        console.log(newDescription);
         updateChannel(getToken(), currentChannel.id, newName, newDescription)
         .then((response) => {
             document.getElementById("channel-settings-popup").style.display = "none";
@@ -262,6 +264,12 @@ channelSettingsSaveButton.addEventListener('click', () => {
     } else {
         alert("Please enter a channel name");
     }
+});
+
+userProfileButton.addEventListener('click', () => {
+    const userProfile = document.getElementById("user-profile-popup");
+    console.log("here");
+    elementDisplayToggle(userProfile, "display-none", "display-block");
 });
 
 const channelActions = document.getElementById("channel-actions");
@@ -319,7 +327,7 @@ channelSettingsButton.addEventListener('click', () => {
 const loadMainSection = () => {
 
     // Sidebar
-    populateChannelsMap()
+   populateChannelsMap()
     .then(() => {
         populateChannelsMap();
     }).then(() => {
@@ -357,6 +365,23 @@ const loadChannelViewSection = () => {
     });
 }
 
+const generateUserSection = () => {
+    const container = document.getElementById("user-profile-button");
+
+    const success = getUserDetails(getToken(), getUserId()).then((response) => {
+        const profile = createDynamicProfilePic(response.name)
+        profile.id = "channel-member-profile";
+        container.appendChild(profile);
+        const name = document.createElement("span");
+        name.textContent = response.name;
+        container.appendChild(name);
+
+        return true;
+    });
+
+    return success;
+}
+
 const loadChannelHeader = () => {
 
     // Remove old buttons if they still exist
@@ -372,12 +397,10 @@ const loadChannelHeader = () => {
 }
 
 const loadMemberChannelHeader = () => {
-    const channelHeader = document.getElementById("channel-header");
     const channelName = document.getElementById("channel-name");
     const channelDescription = document.getElementById("channel-description");
     const channelCreationTime = document.getElementById("channel-creation-time");
     const channelCreator = document.getElementById("channel-creator");
-    const channelSettingsButton = document.getElementById("channel-settings");
 
     getChannel(getToken(), currentChannel.id)
     .then((response) => {
@@ -400,6 +423,8 @@ const loadMemberChannelHeader = () => {
         // Generate channel users drop-down
         generateChannelUsersDropdown();
 
+        generatePinnedMessagesDropdown();
+
         const dt = timestampToDateTime(response.createdAt);
         channelCreationTime.textContent = `Created On: ${dt.day}/${dt.month}/${dt.year}`;
         channelCreator.textContent = `Created By: ${userDetails.get(response.creator).name}`;
@@ -407,11 +432,19 @@ const loadMemberChannelHeader = () => {
 }
 
 const generateChannelUsersDropdown = () => {
+
+    // Remove previous list of users
+    // TODO: Needs to be done when navigating away from a channel
+    const memberList = document.getElementById("channel-members-list");
+    
+    while (memberList.firstChild) {
+        memberList.lastChild.remove();
+    }
     
     currentChannel.members.forEach((member) => {
         const name = userDetails.get(member).name;
-        const memberList = document.getElementById("channel-members-list");
         const memberElement = document.createElement("li");
+        memberElement.id = "channel-member"
         const button = document.createElement("button");
         button.className = "channel-member-button"
 
@@ -422,6 +455,77 @@ const generateChannelUsersDropdown = () => {
         memberElement.appendChild(button);
         memberList.appendChild(memberElement);     
     });
+}
+
+const generatePinnedMessagesDropdown = () => {
+
+    // Remove previous list of pinned messages
+    // TODO: Needs to be done when navigating away from a channel
+    const pinnedMessagesList = document.getElementById("pinned-messages-list");
+
+    while (pinnedMessagesList.firstChild) {
+        pinnedMessagesList.lastChild.remove();
+    }
+
+    messages.get(currentChannel.id).forEach((message) => {
+        if (message.pinned) {
+            const sender = userDetails.get(message.sender).name;
+            const li = document.createElement("li");
+            li.id = "message-list-element";
+
+            const profile = createDynamicProfilePic(sender)
+            profile.id = "message-profile";
+            li.appendChild(profile);
+
+            const messageBox = document.createElement("div");
+            messageBox.className = "message-box";
+
+            const messageElem = document.createElement("div");
+            messageElem.id = "message-message";
+
+            const messageHeader = document.createElement("div");
+            messageHeader.id = "message-header";
+
+            const messageSender = document.createElement("h1");
+            messageSender.id = "message-sender";
+            messageSender.appendChild(document.createTextNode(sender));
+            messageHeader.appendChild(messageSender);
+
+            const messageTimeSent = document.createElement("h1");
+            messageTimeSent.id = "message-time-sent";
+            const dt = timestampToDateTime(message.sentAt);
+
+            const formattedSentAt = `${dt.day}/${dt.month}, ${dt.hour}:${dt.minute} ${dt.period}`
+            messageTimeSent.appendChild(document.createTextNode(formattedSentAt));
+            messageHeader.appendChild(messageTimeSent);
+            
+            if (message.edited) {
+                const messageEdited = document.createElement("h1");
+                messageEdited.id = "message-edited";
+                messageEdited.appendChild(document.createTextNode(`(Edited)`));
+                messageHeader.appendChild(messageEdited);
+            }
+
+            const messageBody = document.createElement("p");
+            messageBody.className = "message-body";
+            messageBody.appendChild(document.createTextNode(`${message.message}`));
+
+            messageBox.appendChild(messageElem);
+            messageElem.appendChild(messageHeader);
+            messageElem.appendChild(messageBody);
+            li.appendChild(messageBox);
+            pinnedMessagesList.insertBefore(li, pinnedMessagesList.firstChild); // Prepend
+        }
+    });
+
+    // If no pinned messages, add element stating such
+    console.log(pinnedMessagesList.firstChild);
+    if (!pinnedMessagesList.firstChild) {
+        const li = document.createElement("li");
+        li.id = "message-list-element";
+        li.textContent = "This channel doesn't have any pinned messages...";
+        pinnedMessagesList.appendChild(li);
+    }
 }
 
 const loadNonMemberChannelHeader = () => {

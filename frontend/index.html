@@ -23,7 +23,7 @@
           <label for="login-password">Password:</label>
           <input type="password" id="login-password">
         </form>
-        <button id="login-submit" class="login-buttons">Login</button>
+        <button id="login-submit" class="login-buttons standard-button">Login</button>
         <button id="create-account"><u>Don't have an account? Register Now!</u></button>
       </section>
       <img id="logo-black" src="assets/logo-black.png" alt="Logo Black"/>
@@ -38,12 +38,12 @@
           <label for="register-password-confirm">Confirm Password:</label>
           <input type="password" id="register-password-confirm">
         </form>
-        <button id="register-submit" class="login-buttons">Submit</button>
-        <button id="register-go-back" class="login-buttons">Go Back</button>
+        <button id="register-submit" class="login-buttons standard-button">Submit</button>
+        <button id="register-go-back" class="login-buttons standard-button">Go Back</button>
       </section>
     </section>
     <section id="main-section">
-      <section id="create-channel-popup">
+      <section id="create-channel-popup" class="modal-box">
         <section class="modal-content">
           <form id="create-channel-form">
             <label for="form-channel-name">Channel Name:</label>
@@ -75,14 +75,19 @@
           <ul id="public-channels-list" class="unstyled-list">
           </ul>
         </section>
-        <section id="sidebar-buttons">
-          <button id="logout">Logout</button>
-          <button id="create-channel-button">Create a Channel</button>
+        <section id="create-channel-section">
+          <button id="create-channel-button" class="standard-button">Create a Channel</button>
+        </section>
+        <section id="user-section">
+          <button id="user-profile-button">
+          </button>
+          <button id="logout" class="standard-button">Logout</button>
         </section>
       </section>
       <section id="channel-view">
         <div id="channel-actions" class="channel-dropdown display-none">
           <button id="channel-settings" class="action-button">Channel Settings</button>
+          <button id="invite-users" class="action-button">Invite Users</button>
           <button id="leave-channel" class="action-button">Leave Channel</button>
           <div id="about-channel">
             <h1 id="about-channel">About Channel</h1>
@@ -92,6 +97,9 @@
           </div>
         </div>
         <div id="pinned-messages" class="channel-dropdown display-none">
+          <ul id="pinned-messages-list" class="unstyled-list">
+
+          </ul>
         </div>
         <div id="channel-members" class="channel-dropdown display-none">
           <ul id="channel-members-list" class="unstyled-list">
@@ -108,7 +116,7 @@
             <button id="view-pinned-messages-button"></button>
             <button id="channel-actions-button"></button>
           </span>
-          <section id="channel-settings-popup">
+          <section id="channel-settings-popup" class="modal-box">
             <section class="modal-content">
               <form id="channel-settings-form">
                 <label for="edit-channel-name">Channel Name:</label>
@@ -118,6 +126,14 @@
               </form>
               <button id="channel-settings-save">Save</button>
               <button id="channel-settings-close">Close</button>
+            </section>
+          </section>
+          <section id="user-profile-popup" class="modal-box display-none">
+            <section class="modal-content">
+              <div id="user-profile-picture">
+              </div>
+              <div id="user-profile-details">
+              </div>
             </section>
           </section>
         </section>
