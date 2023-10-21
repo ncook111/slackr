@@ -44,7 +44,7 @@
     </section>
     <section id="main-section">
       <section id="create-channel-popup" class="modal-box">
-        <section class="modal-content">
+        <section class="modal-content standard-drop-shadow">
           <form id="create-channel-form">
             <label for="form-channel-name">Channel Name:</label>
             <input type="text" id="form-channel-name"/> 
@@ -85,7 +85,7 @@
         </section>
       </section>
       <section id="channel-view">
-        <div id="channel-actions" class="channel-dropdown display-none">
+        <div id="channel-actions" class="channel-dropdown standard-drop-shadow display-none">
           <button id="channel-settings" class="action-button">Channel Settings</button>
           <button id="invite-users" class="action-button">Invite Users</button>
           <button id="leave-channel" class="action-button">Leave Channel</button>
@@ -96,12 +96,12 @@
             <p id="channel-creator"></p>
           </div>
         </div>
-        <div id="pinned-messages" class="channel-dropdown display-none">
+        <div id="pinned-messages" class="channel-dropdown standard-drop-shadow display-none">
           <ul id="pinned-messages-list" class="unstyled-list">
 
           </ul>
         </div>
-        <div id="channel-members" class="channel-dropdown display-none">
+        <div id="channel-members" class="channel-dropdown standard-drop-shadow display-none">
           <ul id="channel-members-list" class="unstyled-list">
 
           </ul>
@@ -117,7 +117,7 @@
             <button id="channel-actions-button"></button>
           </span>
           <section id="channel-settings-popup" class="modal-box">
-            <section class="modal-content">
+            <section class="modal-content standard-drop-shadow">
               <form id="channel-settings-form">
                 <label for="edit-channel-name">Channel Name:</label>
                 <input type="text" id="edit-channel-name">
@@ -129,10 +129,23 @@
             </section>
           </section>
           <section id="user-profile-popup" class="modal-box display-none">
-            <section class="modal-content">
+            <section class="modal-content standard-drop-shadow">
               <div id="user-profile-picture">
               </div>
               <div id="user-profile-details">
+                <p id="user-name">Name</p>
+                <p id="user-email">Email</p>
+                <p id="user-bio">Bio</p>
+                <p id="user-password">Password</p>
+              </div>
+            </section>
+          </section>
+          <section id="image-fullsize-popup" class="modal-box display-none">
+            <section class="modal-content-auto standard-drop-shadow">
+              <img id="image-fullsize">
+              <div id="image-navigation">
+                <button><</button>
+                <button>></button>
               </div>
             </section>
           </section>
@@ -143,6 +156,12 @@
         </section>
         <section id="message-text-box">
           <input type="text" id="message-text">
+          <label for="message-image" class="image-message"></label>
+          <input type="file"
+            id="message-image"
+            class="display-none"
+            accept="image/png, image/jpeg, image/jpg"
+          />
           <button id="message-send">Send</button>
         </section>
       </section>

@@ -126,14 +126,14 @@ export const getMessages = (token, channelId, start) => {
 }
 
 export const sendMessage = (token, channelId, message) => {
-    let success = apiCall("POST", `message/${channelId}`, { message: message }, token)
+    let success = apiCall("POST", `message/${channelId}`, message, token)
     .then((response) => {return response});
 
     return success;
 }
 
 export const updateMessage = (token, channelId, messageId, message, image) => {
-    let success = apiCall("PUT", `message/${channelId}/${messageId}`, { message: message, image: image }, token)
+    let success = apiCall("PUT", `message/${channelId}/${messageId}`, message, token)
     .then((response) => {return response});
 
     return success;

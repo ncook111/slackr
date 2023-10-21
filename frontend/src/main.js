@@ -51,6 +51,7 @@ const channels = new Map();
 const messages = new Map();
 const allUsers = new Map();
 const userDetails = new Map();
+let currentUser = null;
 let currentChannel = null;
 
 /*
@@ -106,6 +107,7 @@ const populateMessagesMap = () => {
             // TODO: Block continuation until for loop finished?? How??
             getMessages(getToken(), channel.id, 0)
             .then((response) => {
+                console.log(response);
                 messages.set(channel.id, response.messages);
             });
         } else {
@@ -238,12 +240,28 @@ createChannelCancelButton.addEventListener('click', () => {
 messageSendButton.addEventListener('click', () => {
     const messageText = document.getElementById("message-text");
 
-    if (messageText.value !== "" ||
-        messageText.value.trim() !== "") {
-        sendMessage(getToken(), currentChannel.id, messageText.value);
+    if (messageText.value !== "" &&
+        messageText.value.trim() !== "" &&
+        !messageText.disabled) {
+        sendMessage(getToken(), currentChannel.id, { message: messageText.value, image: "" });
         messageText.value = "";
-        loadMainSection();
+    } else if (messageImage.value !== "") {
+        fileToDataUrl(messageImage.files[0]).then((response) => {
+            sendMessage(getToken(), currentChannel.id, { message: "", image: response })
+            .then((response) => {
+            });
+        });
+    } else {
+        return;
     }
+
+    loadMainSection();
+});
+
+const messageImage = document.getElementById("message-image")
+messageImage.addEventListener('input', () => {
+    const messageText = document.getElementById("message-text");
+    messageText.disabled = "true";
 });
 
 channelSettingsCloseButton.addEventListener('click', () => {
@@ -268,7 +286,7 @@ channelSettingsSaveButton.addEventListener('click', () => {
 
 userProfileButton.addEventListener('click', () => {
     const userProfile = document.getElementById("user-profile-popup");
-    console.log("here");
+    generateUserProfilePopup();
     elementDisplayToggle(userProfile, "display-none", "display-block");
 });
 
@@ -337,9 +355,9 @@ const loadMainSection = () => {
     
     // Channel Section
     }).then(() => {
-        setTimeout(loadChannelHeader, 600);
+        setTimeout(loadChannelHeader, 800);
     }).then(() => {
-        setTimeout(loadChannelMessages, 900);
+        setTimeout(loadChannelMessages, 1200);
     })
 
     landingSection.style.display = "none";
@@ -375,6 +393,8 @@ const generateUserSection = () => {
         const name = document.createElement("span");
         name.textContent = response.name;
         container.appendChild(name);
+
+        currentUser = response;
 
         return true;
     });
@@ -455,6 +475,19 @@ const generateChannelUsersDropdown = () => {
         memberElement.appendChild(button);
         memberList.appendChild(memberElement);     
     });
+}
+
+const generateUserProfilePopup = () => {
+    const profilePicture = createDynamicProfilePic(currentUser.name);
+    document.getElementById("user-profile-picture").appendChild(profilePicture);
+
+    const name = document.getElementById("user-name");
+    const email = document.getElementById("user-email");
+    const bio = document.getElementById("user-bio");
+
+    name.textContent = `Name: ${currentUser.name}`;
+    email.textContent = `Email: ${currentUser.email}`;
+    bio.textContent = `Bio: ${currentUser.bio}`;
 }
 
 const generatePinnedMessagesDropdown = () => {
@@ -626,6 +659,7 @@ const loadChannelMessages = () => {
 
             const messageElem = document.createElement("div");
             messageElem.id = "message-message";
+            messageElem.className = "standard-drop-shadow";
 
             const messageHoverElement = createMessageHoverElement(message, messageElem);
             const reactHoverBox = createReactHoverBox(message.id, messageHoverElement);
@@ -666,10 +700,16 @@ const loadChannelMessages = () => {
                 messageEdited.appendChild(document.createTextNode(`(Edited)`));
                 messageHeader.appendChild(messageEdited);
             }
+            
+            console.log(message);
 
-            const messageBody = document.createElement("p");
-            messageBody.className = "message-body";
-            messageBody.appendChild(document.createTextNode(`${message.message}`));
+            let messageBody = null;
+
+            if (message.message !== "") {
+                messageBody = createMessageTextElement(message.message);
+            } else {
+                messageBody = createMessageImageElement(message.image);
+            }
 
             const messageReactBox = loadMessageReacts(message.reacts, message.id);
 
@@ -685,6 +725,30 @@ const loadChannelMessages = () => {
     // Set scroll position to bottom of messages section
     const messageSection = document.getElementById("channel-messages");
     messageSection.scrollTop = messageSection.scrollHeight;
+}
+
+const createMessageTextElement = (message) => {
+    const elem = document.createElement("p");
+    elem.className = "message-body";
+    elem.appendChild(document.createTextNode(`${message}`));
+
+    return elem;
+}
+
+const createMessageImageElement = (image) => {
+    const elem = document.createElement("img");
+    elem.className = "message-body image-thumbnail";
+    elem.src = image;
+
+    elem.addEventListener('click', () => {
+        const imageBig = document.getElementById("image-fullsize");
+        imageBig.src = image;
+
+        const imagePopup = document.getElementById("image-fullsize-popup");
+        elementDisplayToggle(imagePopup, "display-none", "display-block");
+    });
+
+    return elem;
 }
 
 const createMessageHoverElement = (message, messageElem) => {
@@ -731,22 +795,57 @@ const createEditDeleteHoverButtons = (messageId, hoverElem, vl) => {
         newBody.value = body.textContent;
         body.parentNode.replaceChild(newBody, body);
 
+
         const confirmTickButton = document.createElement("button");
         confirmTickButton.textContent = "✔️";
         confirmTickButton.className = "confirm-edit-message"
         newBody.after(confirmTickButton);
 
+        const imageLabel = document.createElement("label");
+        imageLabel.htmlFor = "change-message-image";
+        imageLabel.className = "image-message change-image-icon";
+        
+        const imageInput = document.createElement("input");
+        imageInput.type = "file";
+        imageInput.id = "change-message-image";
+        imageInput.className = "display-none";
+        imageInput.accept = "image/png, image/jpeg, image/jpg"
+
+        imageInput.addEventListener('input', () => {
+            newBody.disabled = "true";
+    
+        });
+
+        newBody.after(imageInput);
+        newBody.after(imageLabel);
+
         confirmTickButton.addEventListener('click', () => {
 
             // Update if text changed
-            if (body.textContent !== newBody.value) {
-                updateMessage(getToken(), currentChannel.id, messageId, newBody.value);
-                body.textContent = newBody.value;
-                loadMainSection();
+            // TODO: Not immediately changed values correctly of going from img -> text or vice versa
+            if (newBody.value && !newBody.disabled) {
+                if (body.textContent !== newBody.value) {
+                    updateMessage(getToken(), currentChannel.id, messageId, { message: newBody.value, image: "" });
+                    body.className = "message-body";
+                    body.textContent = newBody.value;
+                    body.src = "";
+                    loadMainSection();
+                }
+            } else if (imageInput.files[0]) {
+                fileToDataUrl(imageInput.files[0]).then((response) => {
+                    if (body.src !== response) {
+                        updateMessage(getToken(), currentChannel.id, messageId, { message: "", image: response });
+                        body.className = "message-body image-thumbnail";
+                        body.src = response;
+                        loadMainSection();
+                    }
+                });
             }
 
             // Otherwise revert back to old body node
             newBody.parentNode.replaceChild(body, newBody);
+            imageInput.remove();
+            imageLabel.remove();
             confirmTickButton.remove();
         })
 
