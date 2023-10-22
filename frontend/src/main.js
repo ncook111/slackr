@@ -1,7 +1,8 @@
 import { BACKEND_PORT } from './config.js';
 import { fileToDataUrl, isValueInArray, removeChildrenNodes, getToken, 
          getUserId, getIndexInArray, getHighestPriorityChannel, getPrivateChannels, 
-         getPublicChannels, createDynamicProfilePic, timestampToDateTime, elementDisplayToggle, elementsDisplayClose } from './helpers.js';
+         getPublicChannels, createDynamicProfilePic, timestampToDateTime, elementDisplayToggle,
+         getImage, elementsDisplayClose } from './helpers.js';
 import { login, logout, register, getChannels, createChannel, getChannel, 
          updateChannel, joinChannel, leaveChannel, inviteChannel, getUsers, 
          updateProfile, getUserDetails, getMessages, sendMessage, updateMessage, 
@@ -12,7 +13,6 @@ const loginSection = document.getElementById("login");
 const registerSection = document.getElementById("register");
 const landingSection = document.getElementById("landing-section")
 const mainSection = document.getElementById("main-section");
-const sideBarSection = document.getElementById("sidebar");
 const createChannelPopupSection = document.getElementById("create-channel-popup");
 const loginSubmitButton = document.getElementById("login-submit");
 const registerSubmitButton = document.getElementById("register-submit");
@@ -95,45 +95,70 @@ const populateChannelsMap = () => {
         removeChildrenNodes(publicChannelsList);
         generateChannelButtons(getPrivateChannels(channels), true);
         generateChannelButtons(getPublicChannels(channels), false); 
-    });
 
+        return true;
+    });
     return response;
 }
 
 const populateMessagesMap = () => {
-    channels.forEach((channel) => {
-        if (isValueInArray(channel.members, getUserId())) {
+    const success = new Promise((resolve) => {
 
-            // TODO: Block continuation until for loop finished?? How??
-            getMessages(getToken(), channel.id, 0)
-            .then((response) => {
-                console.log(response);
-                messages.set(channel.id, response.messages);
-            });
-        } else {
+        const promises = [new Promise((resolve) => { resolve(true)})];
+        channels.forEach((channel) => {
+            if (isValueInArray(channel.members, getUserId())) {
+    
+                // TODO: Block continuation until for loop finished?? How??
+                promises.push(getMessages(getToken(), channel.id, 0)
+                .then((response) => {
+                    messages.set(channel.id, response.messages);
 
-            // Remove messages if now not a channel member
-            if (messages.has(channel.id)) {
-                messages.set(channel.id, []);
+                    return response;
+                }));
+            } else {
+    
+                // Remove messages if now not a channel member
+                if (messages.has(channel.id)) {
+                    messages.set(channel.id, []);
+                }
             }
-        }
-    }); 
+        });
+
+        resolve(Promise.all(promises));
+    });
+
+    return success;
 }
 
-const populateUsersMap = () => {
-    const response = getUsers(getToken())
+const populateAllUsersMap = () => {
+    const success = getUsers(getToken())
     .then((users) => { 
         users.users.forEach((user) => {
             allUsers.set(user.id, user);
         });
-        
+
+        return true;
+    });
+
+    return success;
+}
+
+const populateUserDetailsMap = () => {
+    const success =  new Promise((resolve) => {
+        const promises = [new Promise((resolve) => { resolve(true)})];
         userDetails.forEach((user, value) => {
-            getUserDetails(getToken(), value)
+            promises.push(getUserDetails(getToken(), value)
             .then((details) => {
                 userDetails.set(value, details);
-            });
+
+                return details;
+            }));
         });
+
+        resolve(Promise.all(promises));
     });
+
+    return success;
 }
 
 /*
@@ -224,7 +249,34 @@ createChannelConfirmButton.addEventListener('click', () => {
     const isPrivate = document.getElementById("isPrivate").checked;
     if (channelName.length >= 1) {
         createChannel(getToken(), channelName, isPrivate, channelDescription)
-        .then(() => { loadSidebarSection(); });
+        .then((response) => { 
+
+            // Add channel to map without requiring fetch
+            const newChannel = {
+                id: parseInt(response.channelId),
+                name: channelName,
+                creator: parseInt(getUserId()),
+                private: isPrivate,
+                members: [parseInt(getUserId())],
+                userIsMember: true
+            }
+
+            channels.set(parseInt(response.channelId), newChannel);
+            messages.set(parseInt(response.channelId), []);
+
+            currentChannel = newChannel;
+
+            if (isPrivate) {
+                removeChildrenNodes(privateChannelsList);
+                generateChannelButtons(getPrivateChannels(channels), true);
+            } else {
+                removeChildrenNodes(publicChannelsList);
+                generateChannelButtons(getPublicChannels(channels), false); 
+            }
+
+            loadChannelHeader();
+        });
+
         createChannelPopupSection.style.display = "none";
         createChannelForm.reset();
     } else {
@@ -243,19 +295,26 @@ messageSendButton.addEventListener('click', () => {
     if (messageText.value !== "" &&
         messageText.value.trim() !== "" &&
         !messageText.disabled) {
-        sendMessage(getToken(), currentChannel.id, { message: messageText.value, image: "" });
+        sendMessage(getToken(), currentChannel.id, { message: messageText.value, image: "" })
+        .then((response) => {
+            populateMessagesMap().then(() => {
+                loadChannelMessages();
+            });
+        });
         messageText.value = "";
     } else if (messageImage.value !== "") {
         fileToDataUrl(messageImage.files[0]).then((response) => {
             sendMessage(getToken(), currentChannel.id, { message: "", image: response })
             .then((response) => {
+                //TODO: refreshChannelMessagesMap()
+                populateMessagesMap().then(() => {
+                    loadChannelMessages();
+                });
             });
         });
     } else {
         return;
     }
-
-    loadMainSection();
 });
 
 const messageImage = document.getElementById("message-image")
@@ -277,7 +336,8 @@ channelSettingsSaveButton.addEventListener('click', () => {
         .then((response) => {
             document.getElementById("channel-settings-popup").style.display = "none";
             document.getElementById("channel-settings-form").reset();
-            loadMainSection();
+            // TODO: refreshCurrentChannelButton();
+            loadChannelHeader();
         });
     } else {
         alert("Please enter a channel name");
@@ -323,7 +383,30 @@ channelLeaveButton.addEventListener('click', () => {
 
         const headerButtons = document.getElementById("header-buttons");
         headerButtons.className = "channel-dropdown display-none";
-        loadMainSection();
+
+        // Remove user from channel without requiring fetch
+        const channel = channels.get(currentChannel.id);
+        channel.userIsMember = false;
+        const index = getIndexInArray(parseInt(getUserId), channel.members);
+        channel.members.splice(index, 1);
+
+        if (channel.private) {
+            currentChannel = getHighestPriorityChannel(channels);
+        } else {
+            currentChannel = channel;
+        }
+
+        if (channel.private) {
+            removeChildrenNodes(privateChannelsList);
+            generateChannelButtons(getPrivateChannels(channels), true);
+        } else {
+            removeChildrenNodes(publicChannelsList);
+            generateChannelButtons(getPublicChannels(channels), false); 
+        }
+
+        loadChannelHeader().then(() => {
+            loadChannelMessages();
+        });
     });
 });
 
@@ -345,42 +428,23 @@ channelSettingsButton.addEventListener('click', () => {
 const loadMainSection = () => {
 
     // Sidebar
-   populateChannelsMap()
-    .then(() => {
-        populateChannelsMap();
-    }).then(() => {
-        populateMessagesMap();
-    }).then(() => {
-        setTimeout(populateUsersMap, 300);
-    
-    // Channel Section
-    }).then(() => {
-        setTimeout(loadChannelHeader, 800);
-    }).then(() => {
-        setTimeout(loadChannelMessages, 1200);
-    })
+   const success = populateChannelsMap().then(() => {
+        populateMessagesMap().then(() => {
+            populateAllUsersMap().then(() => {
+                populateUserDetailsMap().then(() => {
+                    loadChannelHeader().then(() => {
+                        loadChannelMessages();
+                    });
+                });
+            });
+        });
+    });
 
     landingSection.style.display = "none";
     mainSection.style.display = "flex"
     createChannelPopupSection.style.display = "none"
-}
 
-const loadSidebarSection = () => {
-    populateChannelsMap()
-    .then(() => {
-        populateChannelsMap();
-    }).then(() => {
-        populateMessagesMap();
-    }).then(() => {
-        populateUsersMap();
-    });
-}
-
-const loadChannelViewSection = () => {
-    loadChannelHeader()
-    .then(() => {
-        loadChannelMessages();
-    });
+    return success;
 }
 
 const generateUserSection = () => {
@@ -408,12 +472,17 @@ const loadChannelHeader = () => {
     if (document.getElementById("join-channel")) {
         document.getElementById("join-channel").remove();
     }
+
+    const success = new Promise((resolve => {
+        if (currentChannel.userIsMember) {
+            resolve(loadMemberChannelHeader());
+        } else {
+            loadNonMemberChannelHeader();
+            resolve(true);
+        } 
+    }));
     
-    if (currentChannel.userIsMember) {
-        loadMemberChannelHeader();
-    } else {
-        loadNonMemberChannelHeader();
-    } 
+    return success;
 }
 
 const loadMemberChannelHeader = () => {
@@ -514,10 +583,11 @@ const generatePinnedMessagesDropdown = () => {
             messageBox.className = "message-box";
 
             const messageElem = document.createElement("div");
-            messageElem.id = "message-message";
+            messageElem.id = `message-pin-${currentChannel.id}-${message.id}`;
+            messageElem.className = "message-message";
 
             const messageHeader = document.createElement("div");
-            messageHeader.id = "message-header";
+            messageHeader.className = "message-header";
 
             const messageSender = document.createElement("h1");
             messageSender.id = "message-sender";
@@ -539,9 +609,13 @@ const generatePinnedMessagesDropdown = () => {
                 messageHeader.appendChild(messageEdited);
             }
 
-            const messageBody = document.createElement("p");
-            messageBody.className = "message-body";
-            messageBody.appendChild(document.createTextNode(`${message.message}`));
+            let messageBody = null;
+
+            if (message.message !== "") {
+                messageBody = createMessageTextElement(message.message);
+            } else {
+                messageBody = createMessageImageElement(message.image, message.id);
+            }
 
             messageBox.appendChild(messageElem);
             messageElem.appendChild(messageHeader);
@@ -552,7 +626,6 @@ const generatePinnedMessagesDropdown = () => {
     });
 
     // If no pinned messages, add element stating such
-    console.log(pinnedMessagesList.firstChild);
     if (!pinnedMessagesList.firstChild) {
         const li = document.createElement("li");
         li.id = "message-list-element";
@@ -606,9 +679,19 @@ const generateChannelButtons = (chans, isPrivate) => {
         const buttonName = document.createTextNode(`${channel.name}`);
 
         button.addEventListener('click', () => {
+            const oldChannelId = currentChannel.id;
             currentChannel = channels.get(channel.id);
-            loadMainSection();
-        })
+            loadChannelHeader().then(() => {
+                loadChannelMessages();
+            });
+
+            // Change colour of old and new channel buttons
+            const oldChannelButton = document.getElementById(oldChannelId);
+            const newChannelButton = document.getElementById(currentChannel.id);
+
+            oldChannelButton.className = "channel-button background-color-white";
+            newChannelButton.className = "channel-button background-color-grey";
+        });
         
         button.appendChild(buttonName);
         li.appendChild(button);
@@ -630,7 +713,7 @@ const generateChannelButtons = (chans, isPrivate) => {
         
         // Colour if currently selected channel
         if (currentChannel !== null && currentChannel.id === channel.id) {
-            button.style.backgroundColor = "lightgrey";
+            button.className = "channel-button background-color-grey";
         }
 
         i++;
@@ -658,8 +741,8 @@ const loadChannelMessages = () => {
             messageBox.className = "message-box";
 
             const messageElem = document.createElement("div");
-            messageElem.id = "message-message";
-            messageElem.className = "standard-drop-shadow";
+            messageElem.id = `message-${currentChannel.id}-${message.id}`;
+            messageElem.className = "message-message standard-drop-shadow";
 
             const messageHoverElement = createMessageHoverElement(message, messageElem);
             const reactHoverBox = createReactHoverBox(message.id, messageHoverElement);
@@ -679,7 +762,7 @@ const loadChannelMessages = () => {
             messageBox.insertBefore(reactHoverBox, messageBox.firstChild);
 
             const messageHeader = document.createElement("div");
-            messageHeader.id = "message-header";
+            messageHeader.className = "message-header";
 
             const messageSender = document.createElement("h1");
             messageSender.id = "message-sender";
@@ -695,20 +778,15 @@ const loadChannelMessages = () => {
             messageHeader.appendChild(messageTimeSent);
             
             if (message.edited) {
-                const messageEdited = document.createElement("h1");
-                messageEdited.id = "message-edited";
-                messageEdited.appendChild(document.createTextNode(`(Edited)`));
-                messageHeader.appendChild(messageEdited);
+                createEditedElement(messageHeader);
             }
-            
-            console.log(message);
 
             let messageBody = null;
 
             if (message.message !== "") {
                 messageBody = createMessageTextElement(message.message);
             } else {
-                messageBody = createMessageImageElement(message.image);
+                messageBody = createMessageImageElement(message.image, message.id);
             }
 
             const messageReactBox = loadMessageReacts(message.reacts, message.id);
@@ -727,6 +805,13 @@ const loadChannelMessages = () => {
     messageSection.scrollTop = messageSection.scrollHeight;
 }
 
+const createEditedElement = (messageHeader) => {
+    const messageEdited = document.createElement("h1");
+    messageEdited.id = "message-edited";
+    messageEdited.appendChild(document.createTextNode(`(Edited)`));
+    messageHeader.appendChild(messageEdited);
+}
+
 const createMessageTextElement = (message) => {
     const elem = document.createElement("p");
     elem.className = "message-body";
@@ -735,10 +820,12 @@ const createMessageTextElement = (message) => {
     return elem;
 }
 
-const createMessageImageElement = (image) => {
+const createMessageImageElement = (image, messageId) => {
     const elem = document.createElement("img");
     elem.className = "message-body image-thumbnail";
     elem.src = image;
+
+    let currentMessageId = messageId;
 
     elem.addEventListener('click', () => {
         const imageBig = document.getElementById("image-fullsize");
@@ -746,6 +833,21 @@ const createMessageImageElement = (image) => {
 
         const imagePopup = document.getElementById("image-fullsize-popup");
         elementDisplayToggle(imagePopup, "display-none", "display-block");
+
+        const previousImage = document.getElementById("previous-image");
+        const nextImage = document.getElementById("next-image");
+
+        previousImage.addEventListener('click', () => {
+            const values = getImage(messages.get(currentChannel.id), currentMessageId, 0);
+            imageBig.src = values[0];
+            currentMessageId = values[1];   
+        });
+
+        nextImage.addEventListener('click', () => {
+            const values = getImage(messages.get(currentChannel.id), currentMessageId, 1);
+            imageBig.src = values[0];
+            currentMessageId = values[1];
+        })
     });
 
     return elem;
@@ -790,16 +892,16 @@ const createEditDeleteHoverButtons = (messageId, hoverElem, vl) => {
         if (body === undefined) {
             return;
         }
-        const newBody = document.createElement("input");
-        newBody.className = "message-body-edit";
-        newBody.value = body.textContent;
-        body.parentNode.replaceChild(newBody, body);
+        const inputBody = document.createElement("input");
+        inputBody.className = "message-body-edit";
+        inputBody.value = body.textContent;
+        body.parentNode.replaceChild(inputBody, body);
 
 
         const confirmTickButton = document.createElement("button");
         confirmTickButton.textContent = "✔️";
         confirmTickButton.className = "confirm-edit-message"
-        newBody.after(confirmTickButton);
+        inputBody.after(confirmTickButton);
 
         const imageLabel = document.createElement("label");
         imageLabel.htmlFor = "change-message-image";
@@ -812,42 +914,100 @@ const createEditDeleteHoverButtons = (messageId, hoverElem, vl) => {
         imageInput.accept = "image/png, image/jpeg, image/jpg"
 
         imageInput.addEventListener('input', () => {
-            newBody.disabled = "true";
+            inputBody.disabled = "true";
     
         });
 
-        newBody.after(imageInput);
-        newBody.after(imageLabel);
+        inputBody.after(imageInput);
+        inputBody.after(imageLabel);
 
         confirmTickButton.addEventListener('click', () => {
+            
+            // Get if message is pinned
+            const index = getIndexInArray(messageId, messages.get(currentChannel.id));
+            const msg = messages.get(currentChannel.id)[index];
 
             // Update if text changed
             // TODO: Not immediately changed values correctly of going from img -> text or vice versa
-            if (newBody.value && !newBody.disabled) {
-                if (body.textContent !== newBody.value) {
-                    updateMessage(getToken(), currentChannel.id, messageId, { message: newBody.value, image: "" });
-                    body.className = "message-body";
-                    body.textContent = newBody.value;
-                    body.src = "";
-                    loadMainSection();
+            if (inputBody.value && !inputBody.disabled) {
+                if (body.textContent !== inputBody.value) {
+                    updateMessage(getToken(), currentChannel.id, messageId, { message: inputBody.value, image: "" })
+                    .then(() => {
+
+                        const index = getIndexInArray(messageId, messages.get(currentChannel.id));
+                        const message = messages.get(currentChannel.id)[index];
+
+                        // Update body with new message
+                        body.replaceWith(createMessageTextElement(inputBody.value));
+
+                        // Update pinned body with new message if pinned
+                        if (msg.pinned) {
+                            const pinMessage = document.getElementById(`message-pin-${currentChannel.id}-${messageId}`);
+                            pinMessage.getElementsByClassName("message-body")[0]
+                            .replaceWith(createMessageTextElement(inputBody.value));
+
+                            if (!message.edited)
+                                createEditedElement(pinMessage.getElementsByClassName("message-header")[0]);
+                        }
+
+                        // Add edited header
+                        if (!message.edited) {
+                            const ms = document.getElementById(`message-${currentChannel.id}-${messageId}`);
+                            createEditedElement(ms.getElementsByClassName("message-header")[0]);
+                        }
+
+
+                        // Update message content in messages map
+                        message.message = inputBody.value;
+                        message.image = "";
+                        message.edited = true;
+                        message.editedAt = "";
+                    });
                 }
             } else if (imageInput.files[0]) {
                 fileToDataUrl(imageInput.files[0]).then((response) => {
                     if (body.src !== response) {
-                        updateMessage(getToken(), currentChannel.id, messageId, { message: "", image: response });
-                        body.className = "message-body image-thumbnail";
-                        body.src = response;
-                        loadMainSection();
+                        updateMessage(getToken(), currentChannel.id, messageId, { message: "", image: response })
+                        .then(() => {
+
+                            const index = getIndexInArray(messageId, messages.get(currentChannel.id));
+                            const message = messages.get(currentChannel.id)[index];
+
+                            // Update body with new message
+                            body.replaceWith(createMessageImageElement(response));
+
+                            // Update pinned body with new message
+                            if (msg.pinned) {
+                                const pinMessage = document.getElementById(`message-pin-${currentChannel.id}-${messageId}`);
+                                pinMessage.getElementsByClassName("message-body")[0]
+                                .replaceWith(createMessageImageElement(response));
+
+                                if (!message.edited)
+                                    createEditedElement(pinMessage.getElementsByClassName("message-header")[0]);
+                            }
+
+                            // Add edited header
+                            if (!message.edited) {
+                                const ms = document.getElementById(`message-${currentChannel.id}-${messageId}`);
+                                createEditedElement(ms.getElementsByClassName("message-header")[0]);
+                            }
+
+                            // Update message content in messages map
+                            message.message = "";
+                            message.image = response;
+                            message.edited = true;
+                            message.editedAt = "";
+                        });
                     }
                 });
             }
 
             // Otherwise revert back to old body node
-            newBody.parentNode.replaceChild(body, newBody);
+            inputBody.parentNode.replaceChild(body, inputBody);
             imageInput.remove();
             imageLabel.remove();
             confirmTickButton.remove();
-        })
+        });
 
     });
 
@@ -858,10 +1018,22 @@ const createEditDeleteHoverButtons = (messageId, hoverElem, vl) => {
     hoverElem.appendChild(vl.cloneNode());
 
     deleteButton.addEventListener('click', () => {
-        deleteMessage(getToken(), currentChannel.id, messageId);
+        deleteMessage(getToken(), currentChannel.id, messageId)
+        .then(() => {
+            document.getElementById(`message-${currentChannel.id}-${messageId}`)
+            .parentElement.parentElement.remove();
 
-        // TODO: Fix this
-        loadMainSection();
+            const pinMessage = document.getElementById(`message-pin-${currentChannel.id}-${messageId}`);
+
+            if (pinMessage) {
+                pinMessage.parentElement.parentElement.remove();
+            }
+
+            // Remove message from map
+            const index = getIndexInArray(messageId, messages.get(currentChannel.id));
+            messages.get(currentChannel.id).splice(index, 1);
+            console.log(messages.get(currentChannel.id));
+        });
     });
 }
 
@@ -882,7 +1054,12 @@ const createPinHoverButton = (message, hoverElem, messageElem) => {
 
     pinButton.addEventListener('click', () => {
         if (pinButton.textContent === "Pin") {
-            pinMessage(getToken(), currentChannel.id, message.id);
+            pinMessage(getToken(), currentChannel.id, message.id)
+            .then((response) => {
+                message.pinned = true;
+                generatePinnedMessagesDropdown();
+
+            });
             pinButton.textContent = "Unpin";
 
             const pinIcon = document.createElement("img");
@@ -891,7 +1068,11 @@ const createPinHoverButton = (message, hoverElem, messageElem) => {
             messageElem.appendChild(pinIcon);
         }
         else {
-            unpinMessage(getToken(), currentChannel.id, message.id);
+            unpinMessage(getToken(), currentChannel.id, message.id)
+            .then((response) => {
+                message.pinned = false;
+                generatePinnedMessagesDropdown();
+            });
             pinButton.textContent = "Pin";
             messageElem.getElementsByClassName("pin-icon")[0].remove();
         }
@@ -915,10 +1096,44 @@ const createReactHoverBox = (messageId, messageHoverElement) => {
         reactHoverBox.appendChild(button);
 
         button.addEventListener('click', () => {
-            reactMessage(getToken(), currentChannel.id, messageId, reaction);
+            // If user already reacted with reaction, unreact, else react
+            const index = getIndexInArray(messageId, messages.get(currentChannel.id));
+            const message = messages.get(currentChannel.id)[index];
+
+            let indexOfReaction = -1; // Set to index if user already reacted
+            for (let i = 0; i < message.reacts.length; i++) {
+                if (message.reacts[i].user === parseInt(getUserId()) &&
+                    message.reacts[i].react === reaction) {
+                        indexOfReaction = i;
+                    }
+            }
+
+            const messageElement = document.getElementById(`message-${currentChannel.id}-${messageId}`);
+            const pinnedMessageElement = document.getElementById(`message-pin-${currentChannel.id}-${messageId}`);
+            const messageReactBox = messageElement.getElementsByClassName("message-react-box")[0];
+            //const pinnedMessageReactBox = pinnedMessageElement.getElementsByClassName("message-react-box")[0];
+
+            if (indexOfReaction === -1) {
+                reactMessage(getToken(), currentChannel.id, messageId, reaction)
+                .then((response) => {
+                    message.reacts.push({ user: parseInt(getUserId()), react: reaction });
+
+                    const newReactBox = loadMessageReacts(message.reacts, message.id);
+                    messageReactBox.replaceWith(newReactBox);
+                    //pinnedMessageReactBox.replaceWith(newReactBox);
+                });
+            } else {
+                unreactMessage(getToken(), currentChannel.id, messageId, reaction)
+                .then((response) => {
+                    message.reacts.splice(indexOfReaction, 1);
+                    const newReactBox = loadMessageReacts(message.reacts, message.id);
+                    messageReactBox.replaceWith(newReactBox);
+                    //pinnedMessageReactBox.replaceWith(newReactBox);
+                });
+            }
+
             reactHoverBox.style.display = "none";
             messageHoverElement.style.display = "inline-block";
-            loadMainSection();
         });
     });
 
@@ -945,7 +1160,6 @@ const loadMessageReacts = (reactions, messageId) => {
         }
     });
 
-
     const messageReactBox = document.createElement("div");
     messageReactBox.className = "message-react-box";
 
@@ -958,6 +1172,15 @@ const loadMessageReacts = (reactions, messageId) => {
         if (react.users.includes(parseInt(getUserId()))) {
             messageReact.classList.remove("transparent-border");
             messageReact.classList.add("blue-border");
+        }
+
+        // TODO: Repeated, fix
+        let indexOfReaction = -1; // Set to index if user already reacted
+        for (let i = 0; i < reactions.length; i++) {
+            if (reactions[i].user === parseInt(getUserId()) &&
+                reactions[i].react === react) {
+                    indexOfReaction = i;
+                }
         }
 
         const reaction = document.createElement("div");
@@ -973,12 +1196,18 @@ const loadMessageReacts = (reactions, messageId) => {
                 messageReact.classList.remove("transparent-border");
                 messageReact.classList.add("blue-border");
                 reactionCount.textContent = (parseInt(reactionCount.textContent) + 1).toString();
-                reactMessage(getToken(), currentChannel.id, messageId, reaction.textContent);
+                reactMessage(getToken(), currentChannel.id, messageId, reaction.textContent)
+                .then(() => {
+                    reactions.push({ user: parseInt(getUserId()), react: reaction });
+                });
             } else {
                 messageReact.classList.remove("blue-border");
                 messageReact.classList.add("transparent-border");
                 reactionCount.textContent = (parseInt(reactionCount.textContent) - 1).toString();
-                unreactMessage(getToken(), currentChannel.id, messageId, reaction.textContent);
+                unreactMessage(getToken(), currentChannel.id, messageId, reaction.textContent)
+                .then(() => {
+                    reactions.splice(indexOfReaction, 1);
+                });
                 
                 if ((parseInt(reactionCount.textContent)) === 0) {
                     messageReact.remove();

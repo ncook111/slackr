@@ -196,3 +196,33 @@ export const elementsDisplayClose = (elements, currentDisplay) => {
         }
     })
 }
+
+// Finds and returns the next or previous image in the given messages array
+export const getImage = (messages, messageId, next) => {
+
+    let offset;
+    if (next)
+        offset = 1;
+    else
+        offset = -1;
+
+    let i;
+    for (i = 0; i < messages.length; i++) {
+        if (messages[i].id == messageId) {
+            i = mod((i + offset), messages.length);
+            break;
+        }
+    }
+
+    while (!messages[i].image) {
+        i = mod((i + offset), messages.length);
+    }
+
+    return [messages[i].image, messages[i].id];
+}
+
+// Provides mod over negative numbers aswell as positive
+// https://stackoverflow.com/questions/4467539/javascript-modulo-gives-a-negative-result-for-negative-numbers
+export const mod = (n, m) => {
+    return ((n % m) + m) % m;
+}

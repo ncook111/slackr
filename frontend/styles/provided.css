@@ -490,7 +490,7 @@ button:hover {
     visibility: visible;
 }
 
-#message-message {
+.message-message {
     position: relative;
     width: fit-content;
     background-color: white;
@@ -560,12 +560,12 @@ button:hover {
     line-height: 35px;
 }
 
-#message-header {
+.message-header {
     white-space: nowrap;
     margin-bottom: 5px;
 }
 
-#message-header h1 {
+.message-header h1 {
     display: inline;
     margin: 0;
     padding: 0;
@@ -718,12 +718,8 @@ button:hover {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     background-color: #fefefe;
-    margin: auto auto;
+    margin: 10vh auto;
     border-radius: 1rem;
     width: 80vw;
     height: 80vh;
@@ -753,4 +749,12 @@ textarea:focus, input:focus{
 
 .hidden {
     visibility: hidden;
+}
+
+.background-color-grey {
+    background-color: lightgrey;
+}
+
+.background-color-white {
+    background-color: white;
 }
