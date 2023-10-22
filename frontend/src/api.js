@@ -100,9 +100,9 @@ export const updateProfile = (token, email, password, name, bio, image) => {
         bio: bio, 
         image: image
     }, token)
-    .then((response) => {return response})
-    .then((success) => {
-    });
+    .then((response) => {return response});
+
+    return success;
 }
 
 export const getUserDetails = (token, userId) => {

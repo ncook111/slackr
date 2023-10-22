@@ -130,13 +130,28 @@
           </section>
           <section id="user-profile-popup" class="modal-box display-none">
             <section class="modal-content standard-drop-shadow">
-              <div id="user-profile-picture">
+              <div id="user-profile-header">
+                  <p id="user-name"></p>
+                  <input type="text" id="change-name" class="message-body-edit display-none">
+                  <button id="change-name-button" class="update-details-button display-none"></button>
               </div>
+              <hr>
               <div id="user-profile-details">
-                <p id="user-name">Name</p>
-                <p id="user-email">Email</p>
-                <p id="user-bio">Bio</p>
-                <p id="user-password">Password</p>
+                <div class="profile-detail">
+                  <p id="user-email"></p>
+                  <input type="email" id="change-email" class="message-body-edit display-none">
+                  <button id="change-email-button" class="update-details-button display-none"></button>
+                </div>
+                <div class="profile-detail">
+                  <p id="user-bio"></p>
+                  <input type="text" id="change-bio" class="message-body-edit display-none">
+                  <button id="change-bio-button" class="update-details-button display-none"></button>
+                </div>
+                <div class="profile-detail">
+                  <p id="user-password"></p>
+                  <input type="password" id="change-password" class="message-body-edit display-none">
+                  <button id="change-password-button" class="update-details-button display-none"></button>
+                </div>
               </div>
             </section>
           </section>

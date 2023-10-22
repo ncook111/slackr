@@ -446,6 +446,45 @@ button:hover {
     display: none;
 }
 
+.update-details-button {
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+    background: none;
+    border: none;
+    padding: none;
+    margin: auto 0 auto 20px;
+    background-image: url("../assets/pencil-square.svg");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+}
+
+#user-profile-header {
+    display: flex;
+    height: 75px;
+}
+
+.profile-details {
+    display: flex;
+}
+
+#user-profile-header button {
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+}
+
+#user-name {
+    margin: auto 20px;
+    font-size: 3rem;
+}
+
+
+.profile-detail {
+    display: flex;
+}
+
 .change-image-icon {
     display: inline-block;
     width: 20px;
@@ -574,8 +613,12 @@ button:hover {
     padding-right: 10px;
 }
 
-#message-sender {
+.message-sender {
     font-weight: bold;
+}
+
+.message-sender:hover {
+    text-decoration: underline;
 }
 
 #message-time-sent {
@@ -735,6 +778,10 @@ textarea:focus, input:focus{
 
 .display-block {
     display: block;
+}
+
+.display-inline-block {
+    display: inline-block;
 }
 
 .display-flex {

@@ -346,7 +346,8 @@ channelSettingsSaveButton.addEventListener('click', () => {
 
 userProfileButton.addEventListener('click', () => {
     const userProfile = document.getElementById("user-profile-popup");
-    generateUserProfilePopup();
+    generateProfilePopup(currentUser);
+    displayProfileEditElements(userProfile);
     elementDisplayToggle(userProfile, "display-none", "display-block");
 });
 
@@ -424,6 +425,45 @@ channelSettingsButton.addEventListener('click', () => {
     document.getElementById("edit-channel-description").value = channelDescription;
 });
 
+const changeNameButton = document.getElementById("change-name-button");
+changeNameButton.addEventListener('click', () => {
+    const nameInput = document.getElementById("change-name");
+    const name = document.getElementById("user-name");
+    name.classList.toggle("display-none");
+
+    changeNameButton.classList.toggle("display-none");
+    console.log(changeNameButton.className);
+
+    const confirmTickButton = document.createElement("button");
+    confirmTickButton.textContent = "✔️";
+    confirmTickButton.className = "confirm-edit-message";
+    console.log(confirmTickButton.className);
+    changeNameButton.parentElement.appendChild(confirmTickButton);
+
+    nameInput.value = name.textContent;
+    nameInput.classList.toggle("display-none")
+
+    confirmTickButton.addEventListener('click', () => {
+        if (name.textContent !== nameInput.value) {
+            updateProfile(
+                getToken(), 
+                "", 
+                currentUser.password, 
+                nameInput.value, 
+                currentUser.bio, 
+                currentUser.image
+            ).then(() => {
+                currentUser.name = nameInput.value;
+                name.textContent = nameInput.value;
+            });
+        }
+
+        name.classList.toggle("display-none");
+        confirmTickButton.classList.toggle("display-none")
+        changeNameButton.classList.toggle("display-none");
+        nameInput.classList.toggle("display-none");
+    });
+})
 
 const loadMainSection = () => {
 
@@ -546,17 +586,26 @@ const generateChannelUsersDropdown = () => {
     });
 }
 
-const generateUserProfilePopup = () => {
-    const profilePicture = createDynamicProfilePic(currentUser.name);
-    document.getElementById("user-profile-picture").appendChild(profilePicture);
+const generateProfilePopup = (user) => {
+    const profilePicture = createDynamicProfilePic(user.name);
+    const headerElement = document.getElementById("user-profile-header");
+    headerElement.insertBefore(profilePicture, headerElement.firstChild);
 
     const name = document.getElementById("user-name");
     const email = document.getElementById("user-email");
     const bio = document.getElementById("user-bio");
 
-    name.textContent = `Name: ${currentUser.name}`;
-    email.textContent = `Email: ${currentUser.email}`;
-    bio.textContent = `Bio: ${currentUser.bio}`;
+    name.textContent = `${user.name}`;
+    email.textContent = `Email: ${user.email}`;
+    bio.textContent = `Bio: ${user.bio}`;
+}
+
+const displayProfileEditElements = (userProfile) => {
+    const editButtons = userProfile.getElementsByClassName("update-details-button");
+
+    for (let button of editButtons) {
+        button.classList.toggle("display-none");
+    };
 }
 
 const generatePinnedMessagesDropdown = () => {
@@ -590,9 +639,15 @@ const generatePinnedMessagesDropdown = () => {
             messageHeader.className = "message-header";
 
             const messageSender = document.createElement("h1");
-            messageSender.id = "message-sender";
+            messageSender.className = "message-sender";
             messageSender.appendChild(document.createTextNode(sender));
             messageHeader.appendChild(messageSender);
+
+            messageSender.addEventListener('click', () => {
+                const userProfile = document.getElementById("user-profile-popup");
+                generateProfilePopup(userDetails.get(message.sender));
+                elementDisplayToggle(userProfile, "display-none", "display-block");
+            });
 
             const messageTimeSent = document.createElement("h1");
             messageTimeSent.id = "message-time-sent";
@@ -765,9 +820,15 @@ const loadChannelMessages = () => {
             messageHeader.className = "message-header";
 
             const messageSender = document.createElement("h1");
-            messageSender.id = "message-sender";
+            messageSender.className = "message-sender";
             messageSender.appendChild(document.createTextNode(sender));
             messageHeader.appendChild(messageSender);
+
+            messageSender.addEventListener('click', () => {
+                const userProfile = document.getElementById("user-profile-popup");
+                generateProfilePopup(userDetails.get(message.sender));
+                elementDisplayToggle(userProfile, "display-none", "display-block");
+            });
 
             const messageTimeSent = document.createElement("h1");
             messageTimeSent.id = "message-time-sent";
@@ -1032,7 +1093,6 @@ const createEditDeleteHoverButtons = (messageId, hoverElem, vl) => {
             // Remove message from map
             const index = getIndexInArray(messageId, messages.get(currentChannel.id));
             messages.get(currentChannel.id).splice(index, 1);
-            console.log(messages.get(currentChannel.id));
         });
     });
 }
