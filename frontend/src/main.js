@@ -54,111 +54,20 @@ const userDetails = new Map();
 let currentUser = null;
 let currentChannel = null;
 
-/*
-==================================
-===== Populate Map Functions =====
-==================================
-*/
-
-const populateChannelsMap = () => {
-    const response = getChannels(getToken())
-    .then((data) => {
-        if (data !== false) {
-            channels.clear();
-            userDetails.clear();
-            //messages.clear();
-            data.channels.forEach((channel) => {
-                if (isValueInArray(channel.members, getUserId())) {
-                    channel["userIsMember"] = true;
-
-                    // Populate userDetails with userid's of 
-                    // channels current user is a member of
-                    channel.members.forEach((user) => {
-                        userDetails.set(user, []);
-                    });
-                } else {
-                    channel["userIsMember"] = false;
-                }
-                channels.set(channel.id, channel);
-            }); 
-        }
-
-        // TODO: Will error if no channels exist serverside
-        if (currentChannel == null) {
-            currentChannel = getHighestPriorityChannel(channels);
-        } else {
-            currentChannel = channels.get(currentChannel.id); // Update currentChannel info
-        }
-
-        // Remove server buttons and regenerate list
-        removeChildrenNodes(privateChannelsList);
-        removeChildrenNodes(publicChannelsList);
-        generateChannelButtons(getPrivateChannels(channels), true);
-        generateChannelButtons(getPublicChannels(channels), false); 
-
-        return true;
-    });
-    return response;
+export const getChannelsMap = () => {
+    return channels;
 }
 
-const populateMessagesMap = () => {
-    const success = new Promise((resolve) => {
-
-        const promises = [new Promise((resolve) => { resolve(true)})];
-        channels.forEach((channel) => {
-            if (isValueInArray(channel.members, getUserId())) {
-    
-                // TODO: Block continuation until for loop finished?? How??
-                promises.push(getMessages(getToken(), channel.id, 0)
-                .then((response) => {
-                    messages.set(channel.id, response.messages);
-
-                    return response;
-                }));
-            } else {
-    
-                // Remove messages if now not a channel member
-                if (messages.has(channel.id)) {
-                    messages.set(channel.id, []);
-                }
-            }
-        });
-
-        resolve(Promise.all(promises));
-    });
-
-    return success;
+export const getMessagesMap = () => {
+    return messages;
 }
 
-const populateAllUsersMap = () => {
-    const success = getUsers(getToken())
-    .then((users) => { 
-        users.users.forEach((user) => {
-            allUsers.set(user.id, user);
-        });
-
-        return true;
-    });
-
-    return success;
+export const getAllUsersMap = () => {
+    return allUsers;
 }
 
-const populateUserDetailsMap = () => {
-    const success =  new Promise((resolve) => {
-        const promises = [new Promise((resolve) => { resolve(true)})];
-        userDetails.forEach((user, value) => {
-            promises.push(getUserDetails(getToken(), value)
-            .then((details) => {
-                userDetails.set(value, details);
-
-                return details;
-            }));
-        });
-
-        resolve(Promise.all(promises));
-    });
-
-    return success;
+export const getUserDetailsMap = () => {
+    return userDetails;
 }
 
 /*
@@ -175,22 +84,23 @@ loginSubmitButton.addEventListener('click', () => {
     } else {
         login(loginEmailInput.value, loginPasswordInput.value)
         .then((response) => {
+            if (!response) return false;
             if (response) {
                 document.cookie = `access_token=${response.token}`;
                 document.cookie = `user_id=${response.userId}`;
                 loginForm.reset();
                 registerForm.reset();
-                generateUserSection();
                 loadMainSection();
             }
         });
     }
-})
+});
 
 logoutButton.addEventListener('click', () => {
     // https://developer.mozilla.org/en-US/docs/Web/API/document/cookie#example_2_get_a_sample_cookie_named_test2
     logout(getToken())
     .then((response) => {
+        if (!response) return false;
         if (response) {
             landingSection.style.display = "block"
             registerSection.style.display = "none";
@@ -217,6 +127,7 @@ registerSubmitButton.addEventListener('click', () => {
     } else {
         register(registerEmailInput.value, registerPasswordInput.value, registerNameInput.value)
         .then((response) => {
+            if (!response) return false;
             if (response) {
                 document.cookie = `access_token=${response.token}`;
                 document.cookie = `user_id=${response.userId}`;
@@ -249,7 +160,8 @@ createChannelConfirmButton.addEventListener('click', () => {
     const isPrivate = document.getElementById("isPrivate").checked;
     if (channelName.length >= 1) {
         createChannel(getToken(), channelName, isPrivate, channelDescription)
-        .then((response) => { 
+        .then((response) => {
+            if (!response) return false;
 
             // Add channel to map without requiring fetch
             const newChannel = {
@@ -297,6 +209,7 @@ messageSendButton.addEventListener('click', () => {
         !messageText.disabled) {
         sendMessage(getToken(), currentChannel.id, { message: messageText.value, image: "" })
         .then((response) => {
+            if (!response) return false;
             populateMessagesMap().then(() => {
                 loadChannelMessages();
             });
@@ -307,6 +220,7 @@ messageSendButton.addEventListener('click', () => {
             sendMessage(getToken(), currentChannel.id, { message: "", image: response })
             .then((response) => {
                 //TODO: refreshChannelMessagesMap()
+                if (!response) return false;
                 populateMessagesMap().then(() => {
                     loadChannelMessages();
                 });
@@ -334,6 +248,7 @@ channelSettingsSaveButton.addEventListener('click', () => {
     if (newName.length >= 1) {
         updateChannel(getToken(), currentChannel.id, newName, newDescription)
         .then((response) => {
+            if (!response) return false;
             document.getElementById("channel-settings-popup").style.display = "none";
             document.getElementById("channel-settings-form").reset();
             // TODO: refreshCurrentChannelButton();
@@ -379,6 +294,8 @@ const channelLeaveButton = document.getElementById("leave-channel");
 channelLeaveButton.addEventListener('click', () => {
     leaveChannel(getToken(), currentChannel.id)
     .then((response) => {
+        if (!response) return false;
+
         const channelActions = document.getElementById("channel-actions");
         channelActions.className = "channel-dropdown display-none";
 
@@ -425,6 +342,7 @@ channelSettingsButton.addEventListener('click', () => {
     document.getElementById("edit-channel-description").value = channelDescription;
 });
 
+// TODO: Below listeners can be condensed into a single function
 const changeNameButton = document.getElementById("change-name-button");
 changeNameButton.addEventListener('click', () => {
     const nameInput = document.getElementById("change-name");
@@ -432,18 +350,21 @@ changeNameButton.addEventListener('click', () => {
     name.classList.toggle("display-none");
 
     changeNameButton.classList.toggle("display-none");
-    console.log(changeNameButton.className);
 
     const confirmTickButton = document.createElement("button");
     confirmTickButton.textContent = "✔️";
     confirmTickButton.className = "confirm-edit-message";
-    console.log(confirmTickButton.className);
     changeNameButton.parentElement.appendChild(confirmTickButton);
 
     nameInput.value = name.textContent;
     nameInput.classList.toggle("display-none")
 
     confirmTickButton.addEventListener('click', () => {
+        if (nameInput.value < 1) {
+            alert("Please enter a password");
+            return;
+        }
+
         if (name.textContent !== nameInput.value) {
             updateProfile(
                 getToken(), 
@@ -452,9 +373,26 @@ changeNameButton.addEventListener('click', () => {
                 nameInput.value, 
                 currentUser.bio, 
                 currentUser.image
-            ).then(() => {
+            ).then((response) => {
+                if (!response) return false;
+
+                // Update name
+                const elem = document.getElementById("user-profile-button");
+                elem.getElementsByTagName("span")[0].textContent = nameInput.value;
+
+                // Update default picture of no image set
+                const profile = document.getElementById("user-profile-picture")
+                                .getElementsByTagName("SVG")[0];
+
+                if (profile) {
+                    const newPicture = createDynamicProfilePic(nameInput.value).firstChild;
+                    profile.firstChild.remove();
+                    profile.appendChild(newPicture);
+                }
+
                 currentUser.name = nameInput.value;
                 name.textContent = nameInput.value;
+                loadMainSection();
             });
         }
 
@@ -463,17 +401,208 @@ changeNameButton.addEventListener('click', () => {
         changeNameButton.classList.toggle("display-none");
         nameInput.classList.toggle("display-none");
     });
+});
+
+const changeEmailButton = document.getElementById("change-email-button");
+changeEmailButton.addEventListener('click', () => {
+    const emailInput = document.getElementById("change-email");
+    const email = document.getElementById("user-email");
+    email.classList.toggle("display-none");
+
+    changeEmailButton.classList.toggle("display-none");
+
+    const confirmTickButton = document.createElement("button");
+    confirmTickButton.textContent = "✔️";
+    confirmTickButton.className = "confirm-edit-message";
+    changeEmailButton.parentElement.appendChild(confirmTickButton);
+
+    emailInput.value = email.textContent;
+    emailInput.classList.toggle("display-none")
+
+    confirmTickButton.addEventListener('click', () => {
+        if (emailInput.value < 1) {
+            alert("Please enter a password");
+            return;
+        }
+
+        if (email.textContent !== emailInput.value) {
+            updateProfile(
+                getToken(), 
+                emailInput.value, 
+                currentUser.password, 
+                currentUser.name, 
+                currentUser.bio, 
+                currentUser.image
+            ).then((response) => {
+                if (!response) return false;
+                currentUser.email = emailInput.value;
+                email.textContent = emailInput.value;
+            });
+        }
+
+        email.classList.toggle("display-none");
+        confirmTickButton.classList.toggle("display-none")
+        changeEmailButton.classList.toggle("display-none");
+        emailInput.classList.toggle("display-none");
+    });
+});
+
+const changeBioButton = document.getElementById("change-bio-button");
+changeBioButton.addEventListener('click', () => {
+    const bioInput = document.getElementById("change-bio");
+    const bio = document.getElementById("user-bio");
+    bio.classList.toggle("display-none");
+
+    changeBioButton.classList.toggle("display-none");
+
+    const confirmTickButton = document.createElement("button");
+    confirmTickButton.textContent = "✔️";
+    confirmTickButton.className = "confirm-edit-message";
+    changeBioButton.parentElement.appendChild(confirmTickButton);
+
+    bioInput.value = bio.textContent;
+    bioInput.classList.toggle("display-none")
+
+    confirmTickButton.addEventListener('click', () => {
+        if (bio.textContent !== bioInput.value) {
+            updateProfile(
+                getToken(), 
+                "", 
+                currentUser.password, 
+                currentUser.name, 
+                bioInput.value, 
+                currentUser.image
+            ).then((response) => {
+                if (!response) return false;
+                currentUser.bio = bioInput.value;
+                bio.textContent = bioInput.value;
+            });
+        }
+
+        bio.classList.toggle("display-none");
+        confirmTickButton.classList.toggle("display-none")
+        changeEmailButton.classList.toggle("display-none");
+        bioInput.classList.toggle("display-none");
+    });
+});
+
+const changePasswordButton = document.getElementById("change-password-button");
+changePasswordButton.addEventListener('click', () => {
+    const passwordInput = document.getElementById("change-password");
+
+    changePasswordButton.classList.toggle("display-none");
+
+    // Password visibility toggle
+    const visibilityToggle = document.getElementById("password-visibility-toggle");
+    visibilityToggle.classList.toggle("display-none");
+
+    const confirmTickButton = document.createElement("button");
+    confirmTickButton.textContent = "✔️";
+    confirmTickButton.className = "confirm-edit-message";
+    changePasswordButton.parentElement.appendChild(confirmTickButton);
+
+    passwordInput.classList.toggle("display-none")
+
+    confirmTickButton.addEventListener('click', () => {
+        if (passwordInput.value < 1) {
+            alert("Please enter a password");
+            return;
+        }
+
+        updateProfile(
+            getToken(), 
+            "", 
+            passwordInput.value, 
+            currentUser.name, 
+            currentUser.bio, 
+            currentUser.image
+        );
+
+        // Return password to hidden if its not already
+        if (passwordInput.type === "text") {
+            passwordInput.type = "password";
+            elementDisplayToggle(visibilityToggle, "password-hidden", "password-visible");
+        }
+
+        passwordInput.value = "";
+        confirmTickButton.classList.toggle("display-none")
+        changePasswordButton.classList.toggle("display-none");
+        passwordInput.classList.toggle("display-none");
+        visibilityToggle.classList.toggle("display-none");
+    });
+});
+
+const changeProfileImageButton = document.getElementById("change-profile-image");
+changeProfileImageButton.addEventListener('input', () => {
+    fileToDataUrl(changeProfileImageButton.files[0]).then((image) => {
+        updateProfile(
+            getToken(), 
+            "", 
+            currentUser.password, 
+            currentUser.name, 
+            currentUser.bio, 
+            image
+        ).then((response) => {
+            if (!response) return false;
+
+            // TOOD: Won't work if user doesnt have a profile picture set
+
+            // Elements with old profile picture
+            
+            /*
+            const elements = document.getElementsByClassName("user-profile-image");
+            
+            for (let element of elements) {
+                if (element.tagName === "IMG")
+                    element.src = image;
+            }
+
+            changeProfileImageButton.parentElement.getElementsByTagName("img")[0].src = image;
+            currentUser.image = image;
+            */
+            loadMainSection();
+
+            const profileElem = changeProfileImageButton.parentElement.getElementsByTagName("svg")[0];
+            if (profileElem) {
+                const newProfile = document.createElement("img");
+                newProfile.className = profileElem.className;
+                newProfile.src = image;
+                profileElem.replaceWith(newProfile);
+            } else {
+                changeProfileImageButton.parentElement
+                .getElementsByTagName("img")[0].src = image;
+            }
+
+            currentUser.image = image;
+        })
+    });
 })
+
+const visibilityToggle = document.getElementById("password-visibility-toggle");
+visibilityToggle.addEventListener("click", () => {
+    const passwordInput = document.getElementById("change-password");
+
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        elementDisplayToggle(visibilityToggle, "password-hidden", "password-visible");
+    } else {
+        passwordInput.type = "password";
+        elementDisplayToggle(visibilityToggle, "password-hidden", "password-visible");
+    }
+});
 
 const loadMainSection = () => {
 
-    // Sidebar
+    generateUserSection();
+
    const success = populateChannelsMap().then(() => {
-        populateMessagesMap().then(() => {
-            populateAllUsersMap().then(() => {
-                populateUserDetailsMap().then(() => {
-                    loadChannelHeader().then(() => {
-                        loadChannelMessages();
+        loadChannelDetails().then(() => {
+            populateMessagesMap().then(() => {
+                populateAllUsersMap().then(() => {
+                    populateUserDetailsMap().then(() => {
+                        loadChannelHeader().then(() => {
+                            loadChannelMessages();
+                        });
                     });
                 });
             });
@@ -483,16 +612,35 @@ const loadMainSection = () => {
     landingSection.style.display = "none";
     mainSection.style.display = "flex"
     createChannelPopupSection.style.display = "none"
-
     return success;
+}
+
+const createProfileElement = (user, userId) => {
+    let profile;
+        
+    if (!user.image) {
+        profile = createDynamicProfilePic(user.name);
+    } else {
+        profile = document.createElement("img");
+        profile.src = user.image;
+    }
+
+    profile.classList.add("profile-image");
+
+    return profile;
 }
 
 const generateUserSection = () => {
     const container = document.getElementById("user-profile-button");
 
+    while (container.firstChild)
+        container.removeChild(container.firstChild);
+
     const success = getUserDetails(getToken(), getUserId()).then((response) => {
-        const profile = createDynamicProfilePic(response.name)
-        profile.id = "channel-member-profile";
+        if (!response) return false;
+
+        const profile = createProfileElement(response, parseInt(getUserId()));
+        profile.classList.add("user-profile-image");
         container.appendChild(profile);
         const name = document.createElement("span");
         name.textContent = response.name;
@@ -531,33 +679,31 @@ const loadMemberChannelHeader = () => {
     const channelCreationTime = document.getElementById("channel-creation-time");
     const channelCreator = document.getElementById("channel-creator");
 
-    getChannel(getToken(), currentChannel.id)
-    .then((response) => {
+    const channelDetails = channels.get(currentChannel.id).details;
 
-        if (response.description !== "") {
-            channelName.textContent = response.name + " - ";
-            channelName.style.display =  "inline-block";
-            
-            channelDescription.textContent = response.description;
-            channelDescription.style.display =  "inline-block";
-        } else {
-            channelName.textContent = response.name;
-            channelDescription.textContent = "";
-        }
+    if (channelDetails.description !== "") {
+        channelName.textContent = channelDetails.name + " - ";
+        channelName.style.display =  "inline-block";
+        
+        channelDescription.textContent = channelDetails.description;
+        channelDescription.style.display =  "inline-block";
+    } else {
+        channelName.textContent = channelDetails.name;
+        channelDescription.textContent = "";
+    }
 
-        // Show header buttons
-        const headerButtons = document.getElementById("header-buttons");
-        headerButtons.className = "display-flex";
+    // Show header buttons
+    const headerButtons = document.getElementById("header-buttons");
+    headerButtons.className = "display-flex";
 
-        // Generate channel users drop-down
-        generateChannelUsersDropdown();
+    // Generate channel users drop-down
+    generateChannelUsersDropdown();
 
-        generatePinnedMessagesDropdown();
+    generatePinnedMessagesDropdown();
 
-        const dt = timestampToDateTime(response.createdAt);
-        channelCreationTime.textContent = `Created On: ${dt.day}/${dt.month}/${dt.year}`;
-        channelCreator.textContent = `Created By: ${userDetails.get(response.creator).name}`;
-    });
+    const dt = timestampToDateTime(channelDetails.createdAt);
+    channelCreationTime.textContent = `Created On: ${dt.day}/${dt.month}/${dt.year}`;
+    channelCreator.textContent = `Created By: ${userDetails.get(channelDetails.creator).name}`;
 }
 
 const generateChannelUsersDropdown = () => {
@@ -571,15 +717,15 @@ const generateChannelUsersDropdown = () => {
     }
     
     currentChannel.members.forEach((member) => {
-        const name = userDetails.get(member).name;
+        const user = userDetails.get(member);
         const memberElement = document.createElement("li");
         memberElement.id = "channel-member"
         const button = document.createElement("button");
         button.className = "channel-member-button"
 
-        const profile = createDynamicProfilePic(name)
-        profile.id = "channel-member-profile";
-        button.textContent = name;
+        const profile = createProfileElement(user, member);
+        profile.classList.add("channel-member-profile");
+        button.textContent = user.name;
         button.insertBefore(profile, button.firstChild);
         memberElement.appendChild(button);
         memberList.appendChild(memberElement);     
@@ -587,21 +733,22 @@ const generateChannelUsersDropdown = () => {
 }
 
 const generateProfilePopup = (user) => {
-    const profilePicture = createDynamicProfilePic(user.name);
-    const headerElement = document.getElementById("user-profile-header");
-    headerElement.insertBefore(profilePicture, headerElement.firstChild);
+    const profile = createProfileElement(user, null);
+    const profileElement = document.getElementById("user-profile-picture");
+
+    profileElement.insertBefore(profile, profileElement.firstChild);
 
     const name = document.getElementById("user-name");
     const email = document.getElementById("user-email");
     const bio = document.getElementById("user-bio");
 
     name.textContent = `${user.name}`;
-    email.textContent = `Email: ${user.email}`;
-    bio.textContent = `Bio: ${user.bio}`;
+    email.textContent = `${user.email}`;
+    bio.textContent = `${user.bio}`;
 }
 
 const displayProfileEditElements = (userProfile) => {
-    const editButtons = userProfile.getElementsByClassName("update-details-button");
+    const editButtons = userProfile.getElementsByClassName("update-details");
 
     for (let button of editButtons) {
         button.classList.toggle("display-none");
@@ -624,8 +771,8 @@ const generatePinnedMessagesDropdown = () => {
             const li = document.createElement("li");
             li.id = "message-list-element";
 
-            const profile = createDynamicProfilePic(sender)
-            profile.id = "message-profile";
+            const profile = createProfileElement(userDetails.get(message.sender), message.sender);
+            profile.classList.add("message-profile");
             li.appendChild(profile);
 
             const messageBox = document.createElement("div");
@@ -658,10 +805,7 @@ const generatePinnedMessagesDropdown = () => {
             messageHeader.appendChild(messageTimeSent);
             
             if (message.edited) {
-                const messageEdited = document.createElement("h1");
-                messageEdited.id = "message-edited";
-                messageEdited.appendChild(document.createTextNode(`(Edited)`));
-                messageHeader.appendChild(messageEdited);
+                //createEditedElement(messageHeader, message.editedAt);
             }
 
             let messageBody = null;
@@ -714,6 +858,7 @@ const loadNonMemberChannelHeader = () => {
     joinChannelButton.addEventListener('click', () => {
         joinChannel(getToken(), currentChannel.id)
         .then((response) => {
+            if (!response) return false;
             document.getElementById("join-channel").remove();
             headerButtons.className = "display-flex";
             loadMainSection();
@@ -788,8 +933,9 @@ const loadChannelMessages = () => {
             const li = document.createElement("li");
             li.id = "message-list-element";
 
-            const profile = createDynamicProfilePic(sender)
-            profile.id = "message-profile";
+            const profile = createProfileElement(userDetails.get(message.sender), message.sender);
+            profile.classList.add("message-profile");
+            profile.classList.add("transform-offset");
             li.appendChild(profile);
 
             const messageBox = document.createElement("div");
@@ -839,7 +985,7 @@ const loadChannelMessages = () => {
             messageHeader.appendChild(messageTimeSent);
             
             if (message.edited) {
-                createEditedElement(messageHeader);
+                createEditedElement(messageHeader, message.editedAt);
             }
 
             let messageBody = null;
@@ -866,10 +1012,20 @@ const loadChannelMessages = () => {
     messageSection.scrollTop = messageSection.scrollHeight;
 }
 
-const createEditedElement = (messageHeader) => {
+const createEditedElement = (messageHeader, editedTime) => {
+    const dt = timestampToDateTime(editedTime);
+    const now = timestampToDateTime(new Date().toISOString());
     const messageEdited = document.createElement("h1");
     messageEdited.id = "message-edited";
-    messageEdited.appendChild(document.createTextNode(`(Edited)`));
+
+    if (dt.year === now.year &&
+        dt.month === now.month &&
+        dt.day === now.day) {
+        messageEdited.appendChild(document.createTextNode(`(Edited At ${dt.hour}:${dt.minute} ${dt.period})`));
+    } else {
+        messageEdited.appendChild(document.createTextNode(`(Edited On ${dt.day}/${dt.month})`));
+    }
+
     messageHeader.appendChild(messageEdited);
 }
 
@@ -988,15 +1144,23 @@ const createEditDeleteHoverButtons = (messageId, hoverElem, vl) => {
             const index = getIndexInArray(messageId, messages.get(currentChannel.id));
             const msg = messages.get(currentChannel.id)[index];
 
+            if (inputBody.value < 1 && !imageInput.files[0]) {
+                alert("Please enter a message or add an image");
+                return;
+            }
+
             // Update if text changed
             // TODO: Not immediately changed values correctly of going from img -> text or vice versa
             if (inputBody.value && !inputBody.disabled) {
+
                 if (body.textContent !== inputBody.value) {
                     updateMessage(getToken(), currentChannel.id, messageId, { message: inputBody.value, image: "" })
-                    .then(() => {
+                    .then((response) => {
+                        if (!response) return false;
 
                         const index = getIndexInArray(messageId, messages.get(currentChannel.id));
                         const message = messages.get(currentChannel.id)[index];
+                        const editedTime = new Date().toISOString();
 
                         // Update body with new message
                         body.replaceWith(createMessageTextElement(inputBody.value));
@@ -1007,57 +1171,63 @@ const createEditDeleteHoverButtons = (messageId, hoverElem, vl) => {
                             pinMessage.getElementsByClassName("message-body")[0]
                             .replaceWith(createMessageTextElement(inputBody.value));
 
+                            /*
                             if (!message.edited)
-                                createEditedElement(pinMessage.getElementsByClassName("message-header")[0]);
+                                createEditedElement(pinMessage.getElementsByClassName("message-header")[0], editedTime);
+                            */
                         }
 
                         // Add edited header
                         if (!message.edited) {
+                            message.editedAt = new Date().toISOString();
                             const ms = document.getElementById(`message-${currentChannel.id}-${messageId}`);
-                            createEditedElement(ms.getElementsByClassName("message-header")[0]);
+                            createEditedElement(ms.getElementsByClassName("message-header")[0], editedTime);
                         }
-
 
                         // Update message content in messages map
                         message.message = inputBody.value;
                         message.image = "";
                         message.edited = true;
-                        message.editedAt = "";
+                        message.editedAt = editedTime;
                     });
                 }
             } else if (imageInput.files[0]) {
-                fileToDataUrl(imageInput.files[0]).then((response) => {
-                    if (body.src !== response) {
-                        updateMessage(getToken(), currentChannel.id, messageId, { message: "", image: response })
-                        .then(() => {
-
+                fileToDataUrl(imageInput.files[0]).then((image) => {
+                    console.log(image);
+                    if (body.src !== image) {
+                        updateMessage(getToken(), currentChannel.id, messageId, { message: "", image: image })
+                        .then((response) => {
+                            if (!response) return false;
                             const index = getIndexInArray(messageId, messages.get(currentChannel.id));
                             const message = messages.get(currentChannel.id)[index];
+                            const editedTime = new Date().toISOString();
 
                             // Update body with new message
-                            body.replaceWith(createMessageImageElement(response));
+                            body.replaceWith(createMessageImageElement(image));
 
                             // Update pinned body with new message
                             if (msg.pinned) {
                                 const pinMessage = document.getElementById(`message-pin-${currentChannel.id}-${messageId}`);
                                 pinMessage.getElementsByClassName("message-body")[0]
-                                .replaceWith(createMessageImageElement(response));
+                                .replaceWith(createMessageImageElement(image));
 
+                                /*
                                 if (!message.edited)
-                                    createEditedElement(pinMessage.getElementsByClassName("message-header")[0]);
+                                    createEditedElement(pinMessage.getElementsByClassName("message-header")[0], editedTime);
+                                */
                             }
 
                             // Add edited header
                             if (!message.edited) {
                                 const ms = document.getElementById(`message-${currentChannel.id}-${messageId}`);
-                                createEditedElement(ms.getElementsByClassName("message-header")[0]);
+                                createEditedElement(ms.getElementsByClassName("message-header")[0], editedTime);
                             }
 
                             // Update message content in messages map
                             message.message = "";
-                            message.image = response;
+                            message.image = image;
                             message.edited = true;
-                            message.editedAt = "";
+                            message.editedAt = editedTime;
                         });
                     }
                 });
@@ -1080,7 +1250,8 @@ const createEditDeleteHoverButtons = (messageId, hoverElem, vl) => {
 
     deleteButton.addEventListener('click', () => {
         deleteMessage(getToken(), currentChannel.id, messageId)
-        .then(() => {
+        .then((response) => {
+            if (!response) return false;
             document.getElementById(`message-${currentChannel.id}-${messageId}`)
             .parentElement.parentElement.remove();
 
@@ -1116,25 +1287,27 @@ const createPinHoverButton = (message, hoverElem, messageElem) => {
         if (pinButton.textContent === "Pin") {
             pinMessage(getToken(), currentChannel.id, message.id)
             .then((response) => {
+                if (!response) return false;
                 message.pinned = true;
+                pinButton.textContent = "Unpin";
+                const pinIcon = document.createElement("img");
+                pinIcon.className = "pin-icon";
+                pinIcon.src = "assets/pin-icon.svg";
+                messageElem.appendChild(pinIcon);
+
                 generatePinnedMessagesDropdown();
 
             });
-            pinButton.textContent = "Unpin";
-
-            const pinIcon = document.createElement("img");
-            pinIcon.className = "pin-icon";
-            pinIcon.src = "assets/pin-icon.svg";
-            messageElem.appendChild(pinIcon);
         }
         else {
             unpinMessage(getToken(), currentChannel.id, message.id)
             .then((response) => {
+                if (!response) return false;
                 message.pinned = false;
+                pinButton.textContent = "Pin";
+                messageElem.getElementsByClassName("pin-icon")[0].remove();
                 generatePinnedMessagesDropdown();
             });
-            pinButton.textContent = "Pin";
-            messageElem.getElementsByClassName("pin-icon")[0].remove();
         }
     });
 
@@ -1171,13 +1344,12 @@ const createReactHoverBox = (messageId, messageHoverElement) => {
             const messageElement = document.getElementById(`message-${currentChannel.id}-${messageId}`);
             const pinnedMessageElement = document.getElementById(`message-pin-${currentChannel.id}-${messageId}`);
             const messageReactBox = messageElement.getElementsByClassName("message-react-box")[0];
-            //const pinnedMessageReactBox = pinnedMessageElement.getElementsByClassName("message-react-box")[0];
 
             if (indexOfReaction === -1) {
                 reactMessage(getToken(), currentChannel.id, messageId, reaction)
                 .then((response) => {
+                    if (!response) return false;
                     message.reacts.push({ user: parseInt(getUserId()), react: reaction });
-
                     const newReactBox = loadMessageReacts(message.reacts, message.id);
                     messageReactBox.replaceWith(newReactBox);
                     //pinnedMessageReactBox.replaceWith(newReactBox);
@@ -1185,6 +1357,7 @@ const createReactHoverBox = (messageId, messageHoverElement) => {
             } else {
                 unreactMessage(getToken(), currentChannel.id, messageId, reaction)
                 .then((response) => {
+                    if (!response) return false;
                     message.reacts.splice(indexOfReaction, 1);
                     const newReactBox = loadMessageReacts(message.reacts, message.id);
                     messageReactBox.replaceWith(newReactBox);
@@ -1202,6 +1375,8 @@ const createReactHoverBox = (messageId, messageHoverElement) => {
 
 const loadMessageReacts = (reactions, messageId) => {
     const reacts = new Map();
+    const index = getIndexInArray(messageId, messages.get(currentChannel.id));
+    const message = messages.get(currentChannel.id)[index];
     
     reactions.forEach((reaction) => {
         if (reacts.has(reaction.react)) {
@@ -1253,25 +1428,31 @@ const loadMessageReacts = (reactions, messageId) => {
 
         messageReact.addEventListener('click', () => {
             if (messageReact.classList.contains("transparent-border")) {
-                messageReact.classList.remove("transparent-border");
-                messageReact.classList.add("blue-border");
-                reactionCount.textContent = (parseInt(reactionCount.textContent) + 1).toString();
                 reactMessage(getToken(), currentChannel.id, messageId, reaction.textContent)
-                .then(() => {
-                    reactions.push({ user: parseInt(getUserId()), react: reaction });
+                .then((response) => {
+                    if (!response) return false;
+
+                    messageReact.classList.remove("transparent-border");
+                    messageReact.classList.add("blue-border");
+                    reactionCount.textContent = (parseInt(reactionCount.textContent) + 1).toString();
+                    message.reacts.push({ user: parseInt(getUserId()), react: reaction.textContent });
                 });
             } else {
-                messageReact.classList.remove("blue-border");
-                messageReact.classList.add("transparent-border");
-                reactionCount.textContent = (parseInt(reactionCount.textContent) - 1).toString();
+
                 unreactMessage(getToken(), currentChannel.id, messageId, reaction.textContent)
-                .then(() => {
-                    reactions.splice(indexOfReaction, 1);
+                .then((response) => {
+                    if (!response) return false;
+
+                    messageReact.classList.remove("blue-border");
+                    messageReact.classList.add("transparent-border");
+                    reactionCount.textContent = (parseInt(reactionCount.textContent) - 1).toString();
+
+                    message.reacts.splice(indexOfReaction, 1);
+
+                    if ((parseInt(reactionCount.textContent)) === 0) {
+                        messageReact.remove();
+                    }
                 });
-                
-                if ((parseInt(reactionCount.textContent)) === 0) {
-                    messageReact.remove();
-                }
             }
         });
 

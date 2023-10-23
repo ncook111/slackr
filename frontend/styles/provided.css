@@ -323,10 +323,15 @@ button:hover {
     background-color: #d4d4d4; 
 }
 
-#channel-member-profile {
+.channel-member-profile {
     width: 30px;
     height: 30px;
-    margin: 0 10px 0 10px;
+    margin: 0 10px;
+}
+
+#user-profile-picture img {
+    width: 100%;
+    height: 100%;
 }
 
 .channel-dropdown {
@@ -446,7 +451,7 @@ button:hover {
     display: none;
 }
 
-.update-details-button {
+.small-icon-button {
     flex: 0 0 20px;
     width: 20px;
     height: 20px;
@@ -454,15 +459,61 @@ button:hover {
     border: none;
     padding: none;
     margin: auto 0 auto 20px;
-    background-image: url("../assets/pencil-square.svg");
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
 }
 
+.update-details-image {
+    background-image: url("../assets/pencil-square.svg");
+}
+
+.password-hidden {
+    background-image: url("../assets/eye-slash.svg");
+}
+
+.password-visible {
+    background-image: url("../assets/eye.svg");
+}
+
 #user-profile-header {
     display: flex;
     height: 75px;
+}
+
+#user-profile-picture {
+    position: relative;
+    width: 75px;
+    height: 75px;
+}
+
+.profile-image {
+    border-radius: 50%;
+}
+
+.user-profile-image {
+    width: 40px;
+    height: 40px;
+    margin: 0 10px;
+}
+
+#user-profile-picture label {
+    visibility: hidden;
+    width: 100%;
+    height: 100%;
+    line-height: 75px;
+    margin: 0;
+    position: absolute;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.461);
+    color: white;
+    border-radius: 50%;
+    top: 0;
+    left: 0;
+}
+
+#user-profile-picture:hover label {
+    visibility: visible;
 }
 
 .profile-details {
@@ -510,13 +561,19 @@ button:hover {
     padding: 0;
 }
 
-#message-profile {
+.message-profile {
+    margin: 0 10px;
     flex-grow: 0;
     flex-shrink: 0;  
     flex-basis: 40px;
     margin-right: 10px;
-    transform: translateY(17.5px);
+    width: 40px;
+    height: 40px;
     color: #6ec6ba;
+}
+
+.transform-offset {
+    transform: translateY(17.5px);
 }
 
 #message-list-element {
@@ -638,6 +695,7 @@ button:hover {
 }
 
 .image-thumbnail {
+    margin-top: 10px;
     max-width: 200px;
     max-height: 200px;
     

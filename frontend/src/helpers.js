@@ -125,6 +125,8 @@ export const createDynamicProfilePic = (name) => {
     // Pick colour based off first letter of name
     const colour = colours[name.charCodeAt(0) % colours.length];
 
+    const wrapper = document.createElement("svg");
+
     const profile = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     profile.setAttribute('viewBox', '0 0 40 40');
 
@@ -148,32 +150,36 @@ export const createDynamicProfilePic = (name) => {
     profile.appendChild(circle);
     profile.appendChild(text);
 
-    return profile;
+    wrapper.appendChild(profile);
+
+    return wrapper;
 }
 
 export const timestampToDateTime = (timestamp) => {
+    const date = new Date(Date.parse(timestamp) + 60 * 60 * 1000);
+
     const dt = {
-        year: timestamp.split('-')[0],
-        month: timestamp.split('-')[1],
-        day: timestamp.split('-')[2].split('T')[0],
-        hour: timestamp.split('T')[1].split(':')[0],
-        minute: timestamp.split('T')[1].split(':')[1],
-        second: timestamp.split('T')[1].split(':')[2],
+        year: date.getFullYear().toString(),
+        month: (date.getMonth() + 1).toString(),
+        day: date.getDate().toString(),
+        hour: date.getHours().toString(),
+        minute: date.getMinutes().toString(),
+        second: date.getSeconds().toString(),
         period: null
     };
 
-    if (parseInt(dt.hour) === 0) {
+    if (dt.hour === 0) {
         dt.hour = "12";
         dt.period = "AM";
-    } else if (parseInt(dt.hour) > 12) {
-        dt.hour = (parseInt(dt.hour) - 12).toString();
+    } else if (dt.hour > 12) {
+        dt.hour = (dt.hour - 12).toString();
         dt.period = "PM";
-    } else if (parseInt(dt.hour) < 10) {
-        dt.hour = dt.hour.split("0")[1];
-        dt.period = "AM";
-    } else {
+    } else if (dt.hour < 10) {
         dt.period = "AM";
     }
+
+    if (dt.minute.length === 1)
+        dt.minute = "0" + dt.minute;
 
     return dt;
 }
