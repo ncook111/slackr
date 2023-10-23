@@ -229,6 +229,24 @@ export const getImage = (messages, messageId, next) => {
 
 // Provides mod over negative numbers aswell as positive
 // https://stackoverflow.com/questions/4467539/javascript-modulo-gives-a-negative-result-for-negative-numbers
-export const mod = (n, m) => {
+const mod = (n, m) => {
     return ((n % m) + m) % m;
+}
+
+export const compareMessages = (firstMessages, secondMessages) => {
+
+    const firstKeys = firstMessages.keys();
+    const secondKeys = secondMessages.keys();
+
+    for (let key of firstKeys) {
+        if (!firstMessages.get(key)[0] || !secondMessages.get(key)[0]) continue;
+        if (firstMessages.get(key)[0].id > secondMessages.get(key)[0].id) {
+            console.log(firstMessages.get(key)[0]);
+            console.log(secondMessages.get(key)[0]);
+            return true;
+        }
+            
+    }
+
+    return false;
 }

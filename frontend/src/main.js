@@ -2,7 +2,7 @@ import { BACKEND_PORT } from './config.js';
 import { fileToDataUrl, isValueInArray, removeChildrenNodes, getToken, 
          getUserId, getIndexInArray, getHighestPriorityChannel, getPrivateChannels, 
          getPublicChannels, createDynamicProfilePic, timestampToDateTime, elementDisplayToggle,
-         getImage, elementsDisplayClose } from './helpers.js';
+         getImage, elementsDisplayClose, compareMessages } from './helpers.js';
 import { login, logout, register, getChannels, createChannel, getChannel, 
          updateChannel, joinChannel, leaveChannel, inviteChannel, getUsers, 
          updateProfile, getUserDetails, getMessages, sendMessage, updateMessage, 
@@ -14,23 +14,9 @@ const registerSection = document.getElementById("register");
 const landingSection = document.getElementById("landing-section")
 const mainSection = document.getElementById("main-section");
 const createChannelPopupSection = document.getElementById("create-channel-popup");
-const loginSubmitButton = document.getElementById("login-submit");
-const registerSubmitButton = document.getElementById("register-submit");
-const registerGoBackButton = document.getElementById("register-go-back");
-const createAccountButton = document.getElementById("create-account");
-const createChannelButton = document.getElementById("create-channel-button");
-const createChannelConfirmButton = document.getElementById("create-channel-confirm-button");
-const createChannelCancelButton = document.getElementById("create-channel-cancel-button");
-const logoutButton = document.getElementById("logout");
-const messageSendButton = document.getElementById("message-send");
-const channelSettingsSaveButton = document.getElementById("channel-settings-save");
-const channelSettingsCloseButton = document.getElementById("channel-settings-close");
-const userProfileButton = document.getElementById("user-profile-button");
-
 const loginForm = document.getElementById("login-form");
 const registerForm = document.getElementById("register-form");
 const createChannelForm = document.getElementById("create-channel-form")
-
 const loginEmailInput = document.getElementById("login-email");
 const loginPasswordInput = document.getElementById("login-password");
 const registerEmailInput = document.getElementById("register-email");
@@ -53,28 +39,183 @@ const allUsers = new Map();
 const userDetails = new Map();
 let currentUser = null;
 let currentChannel = null;
+let notifications = [];
 
-export const getChannelsMap = () => {
-    return channels;
+Notification.requestPermission((result) => {
+    console.log(result);
+});
+
+/*
+==================================
+===== Populate Map Functions =====
+==================================
+*/
+
+const populateChannelsMap = () => {
+    const response = getChannels(getToken())
+    .then((data) => {
+        if (!data) return false;
+        if (data !== false) {
+            channels.clear();
+            userDetails.clear();
+            data.channels.forEach((channel) => {
+
+                // Keep track of the amount of fetched messages
+                channel["timesFetched"] = 1;
+
+                if (isValueInArray(channel.members, getUserId())) {
+                    channel["userIsMember"] = true;
+
+                    // Populate userDetails with userid's of 
+                    // channels current user is a member of
+                    channel.members.forEach((user) => {
+                        userDetails.set(user, []);
+                    });
+                } else {
+                    channel["userIsMember"] = false;
+                }
+                channels.set(channel.id, channel);
+            }); 
+        }
+
+        // TODO: Will error if no channels exist serverside
+        if (currentChannel == null) {
+            currentChannel = getHighestPriorityChannel(channels);
+        } else {
+            currentChannel = channels.get(currentChannel.id); // Update currentChannel info
+        }
+
+        // Remove server buttons and regenerate list
+        removeChildrenNodes(privateChannelsList);
+        removeChildrenNodes(publicChannelsList);
+        generateChannelButtons(getPrivateChannels(channels), true);
+        generateChannelButtons(getPublicChannels(channels), false); 
+
+        return true;
+    });
+    return response;
 }
 
-export const getMessagesMap = () => {
-    return messages;
+const loadChannelDetails = () => {
+    const success = new Promise((resolve) => {
+        const promises = [new Promise((resolve) => { resolve(true)})];
+        channels.forEach((channel) => {
+            if (isValueInArray(channel.members, getUserId())) {
+                promises.push(getChannel(getToken(), channel.id)
+                .then((response) => {
+                    channel["details"] = response;
+
+                    return response;
+                }));
+            }
+        });
+
+        resolve(Promise.all(promises));
+    });
+
+    return success;
 }
 
-export const getAllUsersMap = () => {
-    return allUsers;
+const populateMessagesMap = (messages) => {
+    const success = new Promise((resolve) => {
+        const promises = [new Promise((resolve) => { resolve(true)})];
+        channels.forEach((channel) => {
+            messages.set(channel.id, []);
+            if (isValueInArray(channel.members, getUserId())) {
+                getAllMessages(messages, promises, channel.id, 0);
+            }
+        });
+
+        resolve(Promise.all(promises));
+    });
+
+    return success;
 }
 
-export const getUserDetailsMap = () => {
-    return userDetails;
+const getAllMessages = (messages, promises, channelId, i) => {
+    promises.push(getMessages(getToken(), channelId, i)
+    .then((response) => {
+        if (!response) return false;
+        if (messages.has(channelId)) {
+            const combinedMessages = messages.get(channelId).concat(response.messages);
+            messages.set(channelId, combinedMessages);
+        }
+        else
+            messages.set(channelId, response.messages);
+
+        if (response.messages.length !== 0) 
+            getAllMessages(messages, promises, channelId, i + 25);
+
+        return response;
+    }));
 }
 
+const populateAllUsersMap = () => {
+    const success = getUsers(getToken())
+    .then((users) => { 
+        if (!users) return false;
+        users.users.forEach((user) => {
+            allUsers.set(user.id, user);
+        });
+
+        return true;
+    });
+
+    return success;
+}
+
+const populateUserDetailsMap = () => {
+    const success =  new Promise((resolve) => {
+        const promises = [new Promise((resolve) => { resolve(true)})];
+        userDetails.forEach((user, value) => {
+            promises.push(getUserDetails(getToken(), value)
+            .then((details) => {
+                if (!details) return false;
+                userDetails.set(value, details);
+
+                return details;
+            }));
+        });
+
+        resolve(Promise.all(promises));
+    });
+
+    return success;
+}
 /*
 ===========================
 ===== Event Listeners =====
 ===========================
 */
+
+const loginSubmitButton = document.getElementById("login-submit");
+const logoutButton = document.getElementById("logout");
+const registerSubmitButton = document.getElementById("register-submit");
+const registerGoBackButton = document.getElementById("register-go-back");
+const createAccountButton = document.getElementById("create-account");
+const createChannelButton = document.getElementById("create-channel-button");
+const createChannelConfirmButton = document.getElementById("create-channel-confirm-button");
+const createChannelCancelButton = document.getElementById("create-channel-cancel-button");
+const messageSendButton = document.getElementById("message-send");
+const channelSettingsSaveButton = document.getElementById("channel-settings-save");
+const channelSettingsCloseButton = document.getElementById("channel-settings-close");
+const userProfileButton = document.getElementById("user-profile-button");
+const messageImage = document.getElementById("message-image");
+const channelActions = document.getElementById("channel-actions");
+const pinnedMessages = document.getElementById("pinned-messages");
+const channelMembers = document.getElementById("channel-members");
+const channelActionsButton = document.getElementById("channel-actions-button");
+const pinnedMessagesButton = document.getElementById("view-pinned-messages-button");
+const channelMembersButton = document.getElementById("view-members-button");
+const channelLeaveButton = document.getElementById("leave-channel");
+const channelSettingsButton = document.getElementById("channel-settings");
+const changeNameButton = document.getElementById("change-name-button");
+const changeEmailButton = document.getElementById("change-email-button");
+const changeBioButton = document.getElementById("change-bio-button");
+const changePasswordButton = document.getElementById("change-password-button");
+const changeProfileImageButton = document.getElementById("change-profile-image");
+const visibilityToggle = document.getElementById("password-visibility-toggle");
+const messageSection = document.getElementById("channel-messages");
 
 loginSubmitButton.addEventListener('click', () => {
     if (loginEmailInput.value.length < 1) { 
@@ -90,7 +231,9 @@ loginSubmitButton.addEventListener('click', () => {
                 document.cookie = `user_id=${response.userId}`;
                 loginForm.reset();
                 registerForm.reset();
-                loadMainSection();
+                loadMainSection().then(() => {
+                    watchForNotifications();
+                });
             }
         });
     }
@@ -133,7 +276,9 @@ registerSubmitButton.addEventListener('click', () => {
                 document.cookie = `user_id=${response.userId}`;
                 loginForm.reset();
                 registerForm.reset();
-                loadMainSection();
+                loadMainSection().then(() => {
+                    watchForNotifications();
+                });
             }
         }); 
     }
@@ -210,7 +355,7 @@ messageSendButton.addEventListener('click', () => {
         sendMessage(getToken(), currentChannel.id, { message: messageText.value, image: "" })
         .then((response) => {
             if (!response) return false;
-            populateMessagesMap().then(() => {
+            populateMessagesMap(messages).then(() => {
                 loadChannelMessages();
             });
         });
@@ -221,7 +366,7 @@ messageSendButton.addEventListener('click', () => {
             .then((response) => {
                 //TODO: refreshChannelMessagesMap()
                 if (!response) return false;
-                populateMessagesMap().then(() => {
+                populateMessagesMap(messages).then(() => {
                     loadChannelMessages();
                 });
             });
@@ -231,7 +376,6 @@ messageSendButton.addEventListener('click', () => {
     }
 });
 
-const messageImage = document.getElementById("message-image")
 messageImage.addEventListener('input', () => {
     const messageText = document.getElementById("message-text");
     messageText.disabled = "true";
@@ -266,14 +410,6 @@ userProfileButton.addEventListener('click', () => {
     elementDisplayToggle(userProfile, "display-none", "display-block");
 });
 
-const channelActions = document.getElementById("channel-actions");
-const pinnedMessages = document.getElementById("pinned-messages");
-const channelMembers = document.getElementById("channel-members");
-
-const channelActionsButton = document.getElementById("channel-actions-button");
-const pinnedMessagesButton = document.getElementById("view-pinned-messages-button");
-const channelMembersButton = document.getElementById("view-members-button");
-
 channelActionsButton.addEventListener('click', () => {
     elementDisplayToggle(channelActions, "display-none", "display-block");
     elementsDisplayClose([pinnedMessages, channelMembers], "display-block");
@@ -290,7 +426,6 @@ channelMembersButton.addEventListener('click', () => {
 });
 
 // Create channel leave event listener
-const channelLeaveButton = document.getElementById("leave-channel");
 channelLeaveButton.addEventListener('click', () => {
     leaveChannel(getToken(), currentChannel.id)
     .then((response) => {
@@ -329,7 +464,6 @@ channelLeaveButton.addEventListener('click', () => {
 });
 
 // Create channel settings event listener
-const channelSettingsButton = document.getElementById("channel-settings");
 channelSettingsButton.addEventListener('click', () => {
     document.getElementById("channel-settings-popup").style.display = "block";
     document.getElementById("edit-channel-name").value = currentChannel.name;
@@ -343,7 +477,6 @@ channelSettingsButton.addEventListener('click', () => {
 });
 
 // TODO: Below listeners can be condensed into a single function
-const changeNameButton = document.getElementById("change-name-button");
 changeNameButton.addEventListener('click', () => {
     const nameInput = document.getElementById("change-name");
     const name = document.getElementById("user-name");
@@ -403,7 +536,6 @@ changeNameButton.addEventListener('click', () => {
     });
 });
 
-const changeEmailButton = document.getElementById("change-email-button");
 changeEmailButton.addEventListener('click', () => {
     const emailInput = document.getElementById("change-email");
     const email = document.getElementById("user-email");
@@ -447,7 +579,6 @@ changeEmailButton.addEventListener('click', () => {
     });
 });
 
-const changeBioButton = document.getElementById("change-bio-button");
 changeBioButton.addEventListener('click', () => {
     const bioInput = document.getElementById("change-bio");
     const bio = document.getElementById("user-bio");
@@ -486,7 +617,6 @@ changeBioButton.addEventListener('click', () => {
     });
 });
 
-const changePasswordButton = document.getElementById("change-password-button");
 changePasswordButton.addEventListener('click', () => {
     const passwordInput = document.getElementById("change-password");
 
@@ -532,7 +662,6 @@ changePasswordButton.addEventListener('click', () => {
     });
 });
 
-const changeProfileImageButton = document.getElementById("change-profile-image");
 changeProfileImageButton.addEventListener('input', () => {
     fileToDataUrl(changeProfileImageButton.files[0]).then((image) => {
         updateProfile(
@@ -545,21 +674,6 @@ changeProfileImageButton.addEventListener('input', () => {
         ).then((response) => {
             if (!response) return false;
 
-            // TOOD: Won't work if user doesnt have a profile picture set
-
-            // Elements with old profile picture
-            
-            /*
-            const elements = document.getElementsByClassName("user-profile-image");
-            
-            for (let element of elements) {
-                if (element.tagName === "IMG")
-                    element.src = image;
-            }
-
-            changeProfileImageButton.parentElement.getElementsByTagName("img")[0].src = image;
-            currentUser.image = image;
-            */
             loadMainSection();
 
             const profileElem = changeProfileImageButton.parentElement.getElementsByTagName("svg")[0];
@@ -578,7 +692,6 @@ changeProfileImageButton.addEventListener('input', () => {
     });
 })
 
-const visibilityToggle = document.getElementById("password-visibility-toggle");
 visibilityToggle.addEventListener("click", () => {
     const passwordInput = document.getElementById("change-password");
 
@@ -591,13 +704,61 @@ visibilityToggle.addEventListener("click", () => {
     }
 });
 
+messageSection.addEventListener('scroll', () => {
+    const ul = document.getElementById("message-list");
+
+    if (!ul.firstChild) return;
+
+    if (messageSection.scrollTop === 0 &&
+        ul.firstChild.textContent !== "Loading..." &&
+        messages.get(currentChannel.id).length >= 25) {
+        const li = document.createElement("li");
+        li.textContent = "Loading...";
+
+        ul.insertBefore(li, ul.firstChild);
+        getMessages(getToken(), currentChannel.id, currentChannel.timesFetched * 25)
+        .then((response) => {
+            
+            // Insert in place into messages array
+            // This does nothing as messages array already has all channel messages.
+            // but is intended to show how I'd do it for the purposes of infinite scrolling...
+            const pre = messages.get(currentChannel.id).slice(0, currentChannel.timesFetched * 25);
+            const post = messages.get(currentChannel.id).slice(((currentChannel.timesFetched + 1) * 25));
+            const combined = pre.concat(response.messages).concat(post);
+
+            messages.set(currentChannel.id, combined);
+
+            li.remove();
+            currentChannel.timesFetched++;
+            loadChannelMessages();
+
+            return response;
+        });
+    }
+});
+
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" &&
+        notifications) {
+        notifications.forEach((notification) => {
+            notification.close();
+            console.log("here");
+        })
+    }
+});
+
 const loadMainSection = () => {
+
+    //const routingChannel = window.location.href.split("/#channel=")[1];
+    //const routingProfile = window.location.href.split("/#profile")[1];
+    //console.log(routingChannel);
+    //console.log(routingProfile);
 
     generateUserSection();
 
-   const success = populateChannelsMap().then(() => {
+    const success = populateChannelsMap().then(() => {
         loadChannelDetails().then(() => {
-            populateMessagesMap().then(() => {
+            populateMessagesMap(messages).then(() => {
                 populateAllUsersMap().then(() => {
                     populateUserDetailsMap().then(() => {
                         loadChannelHeader().then(() => {
@@ -608,11 +769,35 @@ const loadMainSection = () => {
             });
         });
     });
-
+    
     landingSection.style.display = "none";
-    mainSection.style.display = "flex"
-    createChannelPopupSection.style.display = "none"
+    mainSection.style.display = "flex";
+    createChannelPopupSection.style.display = "none";
+
     return success;
+}
+
+const watchForNotifications = () => {
+    setTimeout(() => {
+        if (mainSection.style.display === "flex")
+            watchForNotifications();
+        const newMessages = new Map();
+        populateMessagesMap(newMessages).then(() => {
+            if (compareMessages(newMessages, messages)) {
+                notifications.push(new Notification("New Message!"));
+                populateMessagesMap(messages).then(() => {
+                    populateAllUsersMap().then(() => {
+                        populateUserDetailsMap().then(() => {
+                            loadChannelHeader().then(() => {
+                                loadChannelMessages();
+                            });
+                        });
+                    });
+                });
+
+            }
+        });
+    }, 2000);
 }
 
 const createProfileElement = (user, userId) => {
@@ -921,14 +1106,21 @@ const generateChannelButtons = (chans, isPrivate) => {
 }
 
 const loadChannelMessages = () => {
+    const messageSection = document.getElementById("channel-messages");
     const ul = document.getElementById("message-list");
+    const currentScroll = messageSection.scrollHeight;
     while (ul.firstChild) {
         ul.firstChild.remove()
     }
 
     // Fix up this mess of code...
     if (messages.has(currentChannel.id) && currentChannel.userIsMember) {
-        messages.get(currentChannel.id).forEach((message) => {
+
+        // Slicing messages array in order to implement infinite scrolling correctly
+        // All messages are initially loaded by frontend in order to collect pinned messages
+        const messagesToLoad = currentChannel.timesFetched * 25;
+        const slicedMessages = messages.get(currentChannel.id).slice(0, messagesToLoad);
+        slicedMessages.forEach((message) => {
             const sender = userDetails.get(message.sender).name;
             const li = document.createElement("li");
             li.id = "message-list-element";
@@ -1007,9 +1199,12 @@ const loadChannelMessages = () => {
         });
     }
 
-    // Set scroll position to bottom of messages section
-    const messageSection = document.getElementById("channel-messages");
-    messageSection.scrollTop = messageSection.scrollHeight;
+    // Set scroll position to bottom of messages section if first load
+    if (currentChannel.timesFetched == 1) {
+        messageSection.scrollTop = messageSection.scrollHeight;
+    } else {
+        messageSection.scrollTop = messageSection.scrollHeight - currentScroll;
+    }
 }
 
 const createEditedElement = (messageHeader, editedTime) => {
@@ -1099,8 +1294,6 @@ const createEditDeleteHoverButtons = (messageId, hoverElem, vl) => {
     hoverElem.appendChild(editButton);
     hoverElem.appendChild(vl.cloneNode());
 
-
-    // TODO: Implement
     editButton.addEventListener('click', () => {
         const body = hoverElem.parentNode.getElementsByClassName("message-body")[0];
 
@@ -1193,7 +1386,6 @@ const createEditDeleteHoverButtons = (messageId, hoverElem, vl) => {
                 }
             } else if (imageInput.files[0]) {
                 fileToDataUrl(imageInput.files[0]).then((image) => {
-                    console.log(image);
                     if (body.src !== image) {
                         updateMessage(getToken(), currentChannel.id, messageId, { message: "", image: image })
                         .then((response) => {

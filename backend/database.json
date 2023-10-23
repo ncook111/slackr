@@ -291,8 +291,297 @@
       "private": false,
       "description": "ya",
       "createdAt": "2023-10-09T06:33:52.611Z",
-      "members": [],
-      "messages": []
+      "members": [
+        16914
+      ],
+      "messages": [
+        {
+          "id": 192,
+          "message": "26",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:50:16.546Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 191,
+          "message": "25",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:50:13.015Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 190,
+          "message": "24",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:50:10.640Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 189,
+          "message": "23",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:50:08.436Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 188,
+          "message": "22",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:50:06.291Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 187,
+          "message": "21",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:50:04.120Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 186,
+          "message": "20",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:50:01.612Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 185,
+          "message": "19",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:49:59.201Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 184,
+          "message": "18",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:49:57.226Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 183,
+          "message": "17",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:49:55.463Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 182,
+          "message": "16",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:49:53.585Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 181,
+          "message": "15",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:49:50.330Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 180,
+          "message": "14",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:49:48.273Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 179,
+          "message": "13",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:49:46.177Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 178,
+          "message": "12",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:49:44.124Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 177,
+          "message": "11",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:49:42.019Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 176,
+          "message": "10",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:49:40.163Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 175,
+          "message": "9",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:49:38.014Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 174,
+          "message": "8",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:49:36.302Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 173,
+          "message": "7",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:49:33.973Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 172,
+          "message": "6",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:45:49.521Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 171,
+          "message": "5",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:45:01.032Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 170,
+          "message": "4",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:44:08.929Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 169,
+          "message": "3",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:43:55.076Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 168,
+          "message": "2",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:43:52.586Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 167,
+          "message": "1",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T14:43:50.080Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        }
+      ]
     },
     "310247": {
       "name": "oknowplz",
@@ -397,6 +686,138 @@
         16914
       ],
       "messages": [
+        {
+          "id": 217,
+          "message": "hello",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T16:25:17.133Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 210,
+          "message": "hi",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T16:21:17.256Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 209,
+          "message": "testing",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T16:21:00.885Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 208,
+          "message": "hi",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T16:19:23.093Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 207,
+          "message": "hello",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T16:16:50.112Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 203,
+          "message": "hi",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T16:00:12.618Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 202,
+          "message": "hi",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T16:00:05.527Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 201,
+          "message": "11",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T15:59:16.167Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 200,
+          "message": "hi",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T15:57:40.567Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 195,
+          "message": "1",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T15:47:56.907Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 166,
+          "message": "wassup1",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T12:25:56.887Z",
+          "edited": true,
+          "editedAt": "2023-10-23T12:26:06.888Z",
+          "pinned": true,
+          "reacts": []
+        },
+        {
+          "id": 165,
+          "message": "hi",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T12:25:52.579Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
         {
           "id": 99,
           "message": "ts",
@@ -726,6 +1147,160 @@
         56368
       ],
       "messages": [
+        {
+          "id": 216,
+          "message": "he",
+          "image": "",
+          "sender": 56368,
+          "sentAt": "2023-10-23T16:24:13.369Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 215,
+          "message": "hi back",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T16:23:59.622Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 214,
+          "message": "hi",
+          "image": "",
+          "sender": 56368,
+          "sentAt": "2023-10-23T16:23:48.980Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": true,
+          "reacts": []
+        },
+        {
+          "id": 213,
+          "message": "yoo",
+          "image": "",
+          "sender": 56368,
+          "sentAt": "2023-10-23T16:23:36.561Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": true,
+          "reacts": []
+        },
+        {
+          "id": 212,
+          "message": "yo",
+          "image": "",
+          "sender": 56368,
+          "sentAt": "2023-10-23T16:23:00.548Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 211,
+          "message": "hi",
+          "image": "",
+          "sender": 56368,
+          "sentAt": "2023-10-23T16:22:21.835Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": true,
+          "reacts": []
+        },
+        {
+          "id": 206,
+          "message": "wassup",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T16:08:21.903Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 204,
+          "message": "plz",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T16:01:06.643Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 199,
+          "message": "hii",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T15:56:21.339Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 198,
+          "message": "yay",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T15:50:44.170Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 197,
+          "message": "hi",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T15:49:22.310Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 196,
+          "message": "hi",
+          "image": "",
+          "sender": 56368,
+          "sentAt": "2023-10-23T15:48:41.621Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 194,
+          "message": "plz",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T15:42:03.847Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
+        {
+          "id": 193,
+          "message": "hello",
+          "image": "",
+          "sender": 16914,
+          "sentAt": "2023-10-23T15:41:13.311Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": false,
+          "reacts": []
+        },
         {
           "id": 164,
           "message": "",
@@ -1380,7 +1955,7 @@
           "sentAt": "2021-09-13T08:00:03.296Z",
           "edited": false,
           "editedAt": null,
-          "pinned": false,
+          "pinned": true,
           "reacts": []
         }
       ]
@@ -1539,5 +2114,5 @@
       "messages": []
     }
   },
-  "nextMessageId": 165
+  "nextMessageId": 218
 }
