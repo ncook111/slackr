@@ -37,9 +37,13 @@ const channels = new Map();
 const messages = new Map();
 const allUsers = new Map();
 const userDetails = new Map();
+
+// Global variables
 let currentUser = null;
 let currentChannel = null;
 let notifications = [];
+let routedChannel = null;
+let routedProfile = null;
 
 Notification.requestPermission((result) => {
     console.log(result);
@@ -80,7 +84,7 @@ const populateChannelsMap = () => {
 
         // TODO: Will error if no channels exist serverside
         if (currentChannel == null) {
-            currentChannel = getHighestPriorityChannel(channels);
+            currentChannel = getHighestPriorityChannel(channels, routedChannel);
         } else {
             currentChannel = channels.get(currentChannel.id); // Update currentChannel info
         }
@@ -357,6 +361,7 @@ messageSendButton.addEventListener('click', () => {
             if (!response) return false;
             populateMessagesMap(messages).then(() => {
                 loadChannelMessages();
+                messageSection.scrollTop = messageSection.scrollHeight;
             });
         });
         messageText.value = "";
@@ -368,6 +373,7 @@ messageSendButton.addEventListener('click', () => {
                 if (!response) return false;
                 populateMessagesMap(messages).then(() => {
                     loadChannelMessages();
+                    messageSection.scrollTop = messageSection.scrollHeight;
                 });
             });
         });
@@ -444,7 +450,7 @@ channelLeaveButton.addEventListener('click', () => {
         channel.members.splice(index, 1);
 
         if (channel.private) {
-            currentChannel = getHighestPriorityChannel(channels);
+            currentChannel = getHighestPriorityChannel(channels, null);
         } else {
             currentChannel = channel;
         }
@@ -742,17 +748,25 @@ document.addEventListener("visibilitychange", () => {
         notifications) {
         notifications.forEach((notification) => {
             notification.close();
-            console.log("here");
         })
     }
 });
 
 const loadMainSection = () => {
 
-    //const routingChannel = window.location.href.split("/#channel=")[1];
-    //const routingProfile = window.location.href.split("/#profile")[1];
-    //console.log(routingChannel);
-    //console.log(routingProfile);
+    const routingChannel = window.location.href.split("/#channel=")[1];
+
+    if (!isNaN(routingChannel))
+        routedChannel = parseInt(routingChannel);
+
+    const routingProfile = window.location.href.split("/#profile")[1];
+    if (routingProfile === "") {
+        routedProfile = parseInt(getUserId());
+    } else if (routingProfile) {
+        if (!isNaN(routingProfile.substring(1)) &&
+            routingProfile[0] === "=")
+            routedProfile = parseInt(routingProfile.substring(1));
+    }
 
     generateUserSection();
 
@@ -761,6 +775,7 @@ const loadMainSection = () => {
             populateMessagesMap(messages).then(() => {
                 populateAllUsersMap().then(() => {
                     populateUserDetailsMap().then(() => {
+                        loadRoutedProfile();
                         loadChannelHeader().then(() => {
                             loadChannelMessages();
                         });
@@ -775,6 +790,24 @@ const loadMainSection = () => {
     createChannelPopupSection.style.display = "none";
 
     return success;
+}
+
+const loadRoutedProfile = () => {
+    const userProfile = document.getElementById("user-profile-popup");
+
+    if (routedProfile && allUsers.has(routedProfile)) {
+        // If map doesn't already have userDetails, fetch them
+        if (!userDetails.has(routedProfile)) {
+            const success = getUserDetails(getToken(), routedProfile).then((details) => {
+                userDetails.set(routedProfile, details); 
+                generateProfilePopup(details);
+                elementDisplayToggle(userProfile, "display-none", "display-block");
+            });
+        } else {
+            generateProfilePopup(userDetails.get(routedProfile)); 
+            elementDisplayToggle(userProfile, "display-none", "display-block");
+        }
+    }
 }
 
 const watchForNotifications = () => {
@@ -797,7 +830,7 @@ const watchForNotifications = () => {
 
             }
         });
-    }, 2000);
+    }, 1000);
 }
 
 const createProfileElement = (user, userId) => {
@@ -1074,8 +1107,10 @@ const generateChannelButtons = (chans, isPrivate) => {
             const oldChannelButton = document.getElementById(oldChannelId);
             const newChannelButton = document.getElementById(currentChannel.id);
 
-            oldChannelButton.className = "channel-button background-color-white";
-            newChannelButton.className = "channel-button background-color-grey";
+            if (oldChannelButton)
+                oldChannelButton.className = "channel-button background-color-white";
+            if (newChannelButton)
+                newChannelButton.className = "channel-button background-color-grey";
         });
         
         button.appendChild(buttonName);

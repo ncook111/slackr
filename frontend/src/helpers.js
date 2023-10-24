@@ -48,7 +48,13 @@ export const getIndexInArray = (id, array) => {
     return -1;
 }
 
-export const getHighestPriorityChannel = (channels) => {
+export const getHighestPriorityChannel = (channels, routedChannel) => {
+
+    // Return if routed channel is set and exists
+    if (routedChannel && channels.get(routedChannel)) {
+        console.log(routedChannel)
+        return channels.get(routedChannel);
+    }
 
     // Prioritise private channel
     for (let value of channels.values()) {
@@ -156,7 +162,7 @@ export const createDynamicProfilePic = (name) => {
 }
 
 export const timestampToDateTime = (timestamp) => {
-    const date = new Date(Date.parse(timestamp) + 60 * 60 * 1000);
+    const date = new Date(Date.parse(timestamp));
 
     const dt = {
         year: date.getFullYear().toString(),
@@ -172,9 +178,9 @@ export const timestampToDateTime = (timestamp) => {
         dt.hour = "12";
         dt.period = "AM";
     } else if (dt.hour > 12) {
-        dt.hour = (dt.hour - 12).toString();
+        dt.hour = parseInt(dt.hour - 12).toString();
         dt.period = "PM";
-    } else if (dt.hour < 10) {
+    } else if (dt.hour < 12) {
         dt.period = "AM";
     }
 
