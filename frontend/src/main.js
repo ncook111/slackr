@@ -319,23 +319,34 @@ createChannelConfirmButton.addEventListener('click', () => {
                 creator: parseInt(getUserId()),
                 private: isPrivate,
                 members: [parseInt(getUserId())],
-                userIsMember: true
+                userIsMember: true,
+                details: null
             }
+
+            // TODO: Alot of duplicated info, fix if have time
+            const details = {
+                createdAt: new Date().toISOString(),
+                creator: parseInt(getUserId()),
+                description: channelDescription,
+                members: [parseInt(getUserId())],
+                name: channelName,
+                private: isPrivate
+            }
+
+            newChannel.details = details;
 
             channels.set(parseInt(response.channelId), newChannel);
             messages.set(parseInt(response.channelId), []);
-
             currentChannel = newChannel;
 
-            if (isPrivate) {
-                removeChildrenNodes(privateChannelsList);
-                generateChannelButtons(getPrivateChannels(channels), true);
-            } else {
-                removeChildrenNodes(publicChannelsList);
-                generateChannelButtons(getPublicChannels(channels), false); 
-            }
+            removeChildrenNodes(privateChannelsList);
+            generateChannelButtons(getPrivateChannels(channels), true);
+            removeChildrenNodes(publicChannelsList);
+            generateChannelButtons(getPublicChannels(channels), false); 
+            
 
             loadChannelHeader();
+            loadChannelMessages();
         });
 
         createChannelPopupSection.style.display = "none";
@@ -402,6 +413,17 @@ channelSettingsSaveButton.addEventListener('click', () => {
             document.getElementById("channel-settings-popup").style.display = "none";
             document.getElementById("channel-settings-form").reset();
             // TODO: refreshCurrentChannelButton();
+
+            // Update details in maps
+            const channel = channels.get(currentChannel.id);
+            channel.name = newName;
+            channel.details.name = newName;
+            channel.details.description = newDescription;
+
+            // Change channel name in button
+            const channelElem = document.getElementById(currentChannel.id);
+            channelElem.textContent = newName;
+
             loadChannelHeader();
         });
     } else {
