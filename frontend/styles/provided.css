@@ -412,7 +412,6 @@ button:hover {
 }
 
 #message-text-box {
-    display: flex;
     justify-content: center;
     align-content: center;
     flex-direction: row;
@@ -862,4 +861,8 @@ textarea:focus, input:focus{
 
 .background-color-white {
     background-color: white;
+}
+
+.button-selected {
+    background-color: rgba(0, 128, 0, 0.505);
 }

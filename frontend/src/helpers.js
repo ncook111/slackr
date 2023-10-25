@@ -50,6 +50,10 @@ export const getIndexInArray = (id, array) => {
 
 export const getHighestPriorityChannel = (channels, routedChannel) => {
 
+    if (channels.size === 0)
+        return null;
+
+
     // Return if routed channel is set and exists
     if (routedChannel && channels.get(routedChannel)) {
         console.log(routedChannel)
@@ -76,6 +80,8 @@ export const getHighestPriorityChannel = (channels, routedChannel) => {
             return value;
         }
     }
+
+    return null;
 }
 
 // Get all private channels user is a member of
@@ -255,4 +261,39 @@ export const compareMessages = (firstMessages, secondMessages) => {
     }
 
     return false;
+}
+
+export const sortUserDetailsAlphabetically = (userDetails) => {
+
+}
+
+export const mapValuesToSortedArray = (map) => {
+    const array = [];
+
+    map.forEach((value) => {
+        array.push(value);
+    });
+
+    return array.sort();
+}
+
+export const removeAllChildren = (element) => {
+    while (element.firstChild) {
+        element.lastChild.remove();
+    }
+}
+
+export const getUserSubsetByName = (userDetails, userName) => {
+    const userDetailsSubset = new Map(userDetails);
+
+    if (userName === "")
+        return userDetailsSubset;
+
+    userDetailsSubset.forEach((user) => {
+        if (!user.name.toLowerCase().startsWith(userName.toLowerCase())) {
+            userDetailsSubset.delete(user.id);
+        }
+    });
+
+    return userDetailsSubset;
 }

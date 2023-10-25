@@ -72,10 +72,9 @@ export const leaveChannel = (token, channelId) => {
 }
 
 export const inviteChannel = (token, channelId, userId) => {
-    let success = apiCall("POST", `channel/${channelId}/join`, {userId: userId}, token)
-    .then((response) => {return response})
-    .then((success) => {
-    });
+    let success = apiCall("POST", `channel/${channelId}/invite`, {userId: userId}, token)
+    .then((response) => {return response});
+    return success;
 }
 
 /*

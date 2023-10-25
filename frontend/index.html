@@ -125,7 +125,18 @@
                 <input type="text" id="edit-channel-description">
               </form>
               <button id="channel-settings-save">Save</button>
-              <button id="channel-settings-close">Close</button>
+              <button class="modal-close-button">Close</button>
+            </section>
+          </section>
+          <section id="invite-users-popup" class="modal-box display-none">
+            <section class="modal-content standard-drop-shadow">
+              <input type="text" id="user-search-box">
+              <section id="invite-users-section">
+                <ul id="invite-users-list"></ul>
+              </section>
+              <p id="selected-users"></p>
+              <button id="invite-selected-users">Invite Selected Users</button>
+              <button class="modal-close-button">Close</button>
             </section>
           </section>
           <section id="user-profile-popup" class="modal-box display-none">
@@ -180,7 +191,7 @@
           <ul id="message-list">
           </ul>
         </section>
-        <section id="message-text-box">
+        <section id="message-text-box" class="display-none">
           <input type="text" id="message-text">
           <label for="message-image" class="image-message"></label>
           <input type="file"
