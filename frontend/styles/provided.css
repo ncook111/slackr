@@ -8,6 +8,11 @@ html, body {
     height: 100vh;
     font-family: -apple-system, 'Open Sans', 'Helvetica Neue', sans-serif;
     color: #707070;
+    font-size: 16px;
+}
+
+::-webkit-scrollbar {
+    display: none;
 }
 
 input {
@@ -39,7 +44,6 @@ button:hover {
     width: 100%;
     height: 100%;
     padding: 0 0 0 5%;
-    font-size: 2rem;
     color: #707070;
     border: none;
     text-align: left;
@@ -47,9 +51,18 @@ button:hover {
     background-color: white;
 }
 
-#li-channel-button-divider {
-
+@media (max-height: 1000px) {
+    .channel-button {
+        font-size: 1.5rem;
+    }
 }
+
+@media (min-height: 1001px) {
+    .channel-button {
+        font-size: 2rem;
+    }
+}
+
 
 #channel-button-divider {
     width: 60%;
@@ -105,10 +118,21 @@ button:hover {
 
 .standard-button {
     border: 0;
-    border-radius: 10px;
+    border-radius: 0.625rem;
     background-color: #838383;
     color: white;
-    font-size: 1.5rem;
+}
+
+@media (max-height: 1000px) {
+    .standard-button {
+        font-size: 1.25rem;
+    }
+}
+
+@media (min-height: 1001px) {
+    .standard-button {
+        font-size: 1.5rem;
+    }
 }
 
 .login-buttons {
@@ -151,13 +175,27 @@ button:hover {
 }
 
 #sidebar {
-    flex: 0 0 350px;
+    
     display: flex;
     flex-direction: column;
     background-color: #95DBFF;
     border-radius: 0 1rem 1rem 0;
     padding: 0 10px 10px 10px;
 }
+
+@media (max-width: 1000px) {
+    #sidebar {
+        flex: 0 0 0;
+        display: none;
+    }
+}
+
+@media (min-width: 1001px) {
+    #sidebar {
+        flex: 0 0 350px;
+    }
+}
+
 
 .sidebar-channels-header {
     position: relative;
@@ -172,8 +210,19 @@ button:hover {
     transform: translateX(-50%);
     text-wrap: nowrap;
     text-align: center;
-    font-size: 2rem;
     margin: 0;
+}
+
+@media (max-height: 1000px) {
+    #sidebar h1 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (min-height: 1001px) {
+    #sidebar h1 {
+        font-size: 2rem;
+    }
 }
 
 #sidebar hr {
@@ -184,10 +233,12 @@ button:hover {
 
 #private-channels {
     flex: 0 0 38%;
+    border-radius: 1rem;
 }
 
 #public-channels {
     flex: 0 0 38%;
+    border-radius: 1rem;
 }
 
 .scroll-overflow {
@@ -259,22 +310,39 @@ button:hover {
     flex: 1;
     height: 100%;
     box-sizing: border-box;
+    min-width: 0;
 }
 
 #channel-header {
     display: flex;
-    flex: 0.05;
+    flex: 0 0 5%;
     border-bottom: 1px solid #5a5a5a66;
     -webkit-box-shadow: 0 4px 6px -6px #5a5a5a;
     -moz-box-shadow: 0 4px 6px -6px #5a5a5a;
     box-shadow: 0 4px 6px -6px #5a5a5a;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
+}
+
+#hamburger {
+    display: none;
+    width: 40px;
+    height: 100%;
+    flex-grow: 0;
+    flex-shrink: 0;
+    border: 0;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    background-image: url("../assets/list.svg");
 }
 
 #channel-name {
     font-size: 2rem;
-    margin: 0 0 0 30px;
+    margin: 0 auto 0 0;
+    max-width: calc(100vw - 170px);
+    box-sizing: border-box;
 }
 
 #channel-description {
@@ -296,15 +364,18 @@ button:hover {
 }
 
 #header-buttons {
+    display: flex;
     position: relative;
-    margin: 0 30px 0 0;
+    justify-content: space-evenly;
+    width: 180px;
+    min-width: 130px;
 }
 
-
-#header-buttons button {
+.header-button {
+    flex-shrink: 1;
+    flex-grow: 0;
     align-items: center;
     padding: 0;
-    display: inline-block;
     border: 0;
     height: 30px;
     width: 30px;
@@ -312,7 +383,6 @@ button:hover {
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
-    margin-left: 30px;
 }
 
 #view-members-button {
@@ -360,45 +430,31 @@ button:hover {
 }
 
 .channel-dropdown {
-    z-index: 1;
+    z-index: 2;
     position: absolute;
     width: 250px;
     height: fit-content;
-    top: 0%;
+    top: 0;
     left: 100%;
+    transform: translate(-100%, 0);
     background-color: white;
     border-radius: 1rem;
     box-sizing: border-box;
     padding: 15px 0 15px 0;
 }
 
-#channel-actions {
-    transform: translate(calc(-100% - 30px), calc(0% + 60px));
-}
-
 #pinned-messages {
-    transform: translate(calc(-100% - 80px), calc(0% + 60px));
     width: 400px;
     max-height: 500px;
     overflow: scroll;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
 }
 
 #pinned-messages #message-profile {
     transform: translateY(0);
 }
 
-#pinned-messages::-webkit-scrollbar {
-    display: none;
-}
-
 #pinned-messages-list {
     margin: 0 15px 0 15px;
-}
-
-#channel-members {
-    transform: translate(calc(-100% - 140px), calc(0% + 60px));
 }
 
 .action-button {
@@ -426,14 +482,10 @@ button:hover {
 }
 
 #channel-messages {
-    flex: 0.9;
+    position: relative;
+    flex-shrink: 1;
+    flex-grow: 1;
     overflow: scroll;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-
-#channel-messages::-webkit-scrollbar {
-    display: none;
 }
 
 #message-text-box {
@@ -445,18 +497,56 @@ button:hover {
     background: white;
     margin: 1% 1% 10px 1%;
     padding: auto 2% auto 2%;
-    flex: 0.05;
+    flex: 0 0 5%;
+    max-height: 5%;
+    min-height: 40px;
 }
 
 #message-text {
     display: inline;
-    flex: 1;
+    flex-shrink: 1;
+    flex-grow: 1;
     height: 70%;
     margin: auto 2% auto 2%;
     border: none;
     background: none;
-    font-size: 2rem;
     color: #707070;
+    min-width: 0;
+}
+
+@media (max-width: 600px) {
+    #message-text {
+        font-size: 1.25rem;
+    }
+}
+
+@media (min-width: 601px) {
+    #message-text {
+        font-size: 2rem;
+    }
+}
+
+#message-send {
+    margin: auto 10px auto 10px;
+    display: inline;
+    height: 70%;
+    border: none;
+    background: #42a3e0;
+    color: white;
+    font-size: 1.5rem;
+    border-radius: 2rem;
+}
+
+@media (max-width: 600px) {
+    #message-send {
+        flex: 0 0 33%;
+    }
+}
+
+@media (min-width: 601px) {
+    #message-send {
+        flex: 0 0 200px;
+    }
 }
 
 .image-message {
@@ -566,17 +656,10 @@ button:hover {
     height: 20px;
 }
 
+#change-password-button {
+    font-size: 1rem;
+    background-color: #838383;
 
-#message-send {
-    margin: auto 10px auto 20px;
-    display: inline;
-    flex: 0 0 200px;
-    height: 70%;
-    border: none;
-    background: #42a3e0;
-    color: white;
-    font-size: 1.5rem;
-    border-radius: 2rem;
 }
 
 #message-list {
@@ -848,10 +931,10 @@ button:hover {
 .modal-content {
     position: relative;
     background-color: #fefefe;
-    margin: 15% auto; /* 15% from the top and centered */
+    margin: 15vh auto; /* 15% from the top and centered */
     padding: 20px;
+    width: 300px;
     border-radius: 1rem;
-    width: 500px; /* Could be more or less, depending on screen size */
 }
 
 .modal-content-auto {
@@ -906,4 +989,15 @@ textarea:focus, input:focus{
 
 .button-selected {
     background-color: rgba(0, 128, 0, 0.505);
+}
+
+.text-overflow-ellipsis {
+    display: inline-block;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    white-space:nowrap;
+}
+
+.relative {
+    position: relative;
 }
