@@ -87,13 +87,36 @@
         </section>
       </section>
       <section id="channel-view">
+        <div id="channel-actions" class="channel-dropdown standard-drop-shadow display-none">
+          <button id="channel-settings" class="action-button">Channel Settings</button>
+          <button id="invite-users" class="action-button">Invite Users</button>
+          <button id="leave-channel" class="action-button">Leave Channel</button>
+          <div id="about-channel">
+            <h1 id="about-channel">About Channel</h1>
+            <hr>
+            <p id="channel-creation-time"></p>
+            <p id="channel-creator"></p>
+          </div>
+        </div>
+        <div id="pinned-messages" class="channel-dropdown standard-drop-shadow display-none">
+          <ul id="pinned-messages-list" class="unstyled-list">
+
+          </ul>
+        </div>
+        <div id="channel-members" class="channel-dropdown standard-drop-shadow display-none">
+          <ul id="channel-members-list" class="unstyled-list">
+
+          </ul>
+        </div>
         <section id="channel-header">
-          <button id="hamburger"></button>
-          <h1 id="channel-name" class="text-overflow-ellipsis"></h1>
+          <span>
+            <h1 id="channel-name"></h1>
+            <p id="channel-description"></p>
+          </span>
           <span id="header-buttons">
-            <button id="view-members-button" class="header-button"></button>
-            <button id="view-pinned-messages-button" class="header-button"></button>
-            <button id="channel-actions-button" class="header-button"></button>
+            <button id="view-members-button"></button>
+            <button id="view-pinned-messages-button"></button>
+            <button id="channel-actions-button"></button>
           </span>
           <section id="channel-settings-popup" class="modal-box">
             <section class="modal-content standard-drop-shadow">
@@ -107,18 +130,18 @@
               <button id="channel-settings-save">Save</button>
             </section>
           </section>
-          <section id="invite-users-popup" class="modal-box">
+          <section id="invite-users-popup" class="modal-box display-none">
             <section class="modal-content standard-drop-shadow">
               <button class="modal-close-button"></button>
               <input type="text" id="user-search-box">
               <section id="invite-users-section">
-                <ul id="invite-users-list" class="unstyled-list"></ul>
+                <ul id="invite-users-list"></ul>
               </section>
               <p id="selected-users"></p>
-              <button id="invite-selected-users" class="standard-button">Invite Selected Users</button>
+              <button id="invite-selected-users">Invite Selected Users</button>
             </section>
           </section>
-          <section id="user-profile-popup" class="modal-box">
+          <section id="user-profile-popup" class="modal-box display-none">
             <section class="modal-content standard-drop-shadow">
               <button class="modal-close-button"></button>
               <div id="user-profile-header">
@@ -152,7 +175,7 @@
                 <div class="profile-detail">
                   <input type="password" id="change-password" class="message-body-edit display-none">
                   <button id="password-visibility-toggle" class="small-icon-button password-hidden display-none"></button>
-                  <button id="change-password-button" class="update-details standard-button display-none">Change Password</button>
+                  <button id="change-password-button" class="update-details small-icon-button display-none">Change Password</button>
                 </div>
               </div>
             </section>
@@ -169,26 +192,6 @@
           </section>
         </section>
         <section id="channel-messages">
-          <div id="channel-members" class="channel-dropdown standard-drop-shadow display-none">
-            <ul id="channel-members-list" class="unstyled-list">
-            </ul>
-          </div>
-          <div id="pinned-messages" class="channel-dropdown standard-drop-shadow display-none">
-            <ul id="pinned-messages-list" class="unstyled-list">
-            </ul>
-          </div>
-          <div id="channel-actions" class="channel-dropdown standard-drop-shadow display-none">
-            <button id="channel-settings" class="action-button">Channel Settings</button>
-            <button id="invite-users" class="action-button">Invite Users</button>
-            <button id="leave-channel" class="action-button">Leave Channel</button>
-            <div id="about-channel">
-              <h1 id="about-channel">About Channel</h1>
-              <hr>
-              <p id="channel-creation-time"></p>
-              <p id="channel-creator"></p>
-              <p id="channel-description"></p>
-            </div>
-          </div>
           <ul id="message-list">
           </ul>
         </section>

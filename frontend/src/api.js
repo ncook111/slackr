@@ -191,7 +191,7 @@ export const apiCall = (method, path, body, token) => {
     let success;
 
     if (body === undefined) {
-        success = fetch('http://122.106.44.88:25555' + path, {
+        success = fetch('http://122.106.44.88:25555/' + path, {
             method: method,
             headers: header,
             })
@@ -209,7 +209,7 @@ export const apiCall = (method, path, body, token) => {
                     //alert("Network error")
             });
     } else {
-        success = fetch('http://122.106.44.88:25555' + path, {
+        success = fetch('http://122.106.44.88:25555/' + path, {
             method: method,
             headers: header,
             body: JSON.stringify(body)
