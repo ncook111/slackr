@@ -205,8 +205,8 @@ export const apiCall = (method, path, body, token) => {
                 }
             })
             .catch((error) => {
-                if (error.message === "Failed to fetch")
-                    alert("Network error")
+                //if (error.message === "Failed to fetch")
+                    //alert("Network error")
             });
     } else {
         success = fetch('http://122.106.44.88:25555/' + path, {
@@ -224,8 +224,8 @@ export const apiCall = (method, path, body, token) => {
                 }
             })
             .catch((error) => {
-                if (error.message === "Failed to fetch")
-                    alert("Network error")
+                //if (error.message === "Failed to fetch")
+                    //alert("Network error")
             });
     }
 
