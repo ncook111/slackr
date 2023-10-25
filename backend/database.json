@@ -7,8 +7,327 @@
       "bio": null,
       "image": null,
       "sessionActive": true
+    },
+    "94740": {
+      "email": "1",
+      "name": "1",
+      "password": "1",
+      "bio": null,
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAMAAADDpiTIAAAAA3NCSVQICAjb4U/gAAAACXBIWXMAAITSAACE0gGc+HGgAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAv1QTFRF////AQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQACAQAC9p0ocAAAAP50Uk5TAAECAwQFBgcI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",
+      "sessionActive": true
     }
   },
-  "channels": {},
-  "nextMessageId": 1
+  "channels": {
+    "126575": {
+      "name": "13 a a aa a a aa a aa a aa a aa a aa a a aa aa a",
+      "creator": 94740,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:16.888Z",
+      "members": [
+        94740,
+        13319
+      ],
+      "messages": [
+        {
+          "id": 1,
+          "message": "hi",
+          "image": "",
+          "sender": 94740,
+          "sentAt": "2023-10-25T15:40:35.048Z",
+          "edited": false,
+          "editedAt": null,
+          "pinned": true,
+          "reacts": []
+        }
+      ]
+    },
+    "132045": {
+      "name": "1",
+      "creator": 94740,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:14:37.431Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "180028": {
+      "name": "12",
+      "creator": 94740,
+      "private": false,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:17:01.756Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "214666": {
+      "name": "9",
+      "creator": 94740,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:05.360Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "219194": {
+      "name": "14",
+      "creator": 94740,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:20.241Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "281055": {
+      "name": "10",
+      "creator": 94740,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:08.388Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "282824": {
+      "name": "6",
+      "creator": 94740,
+      "private": false,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:43.454Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "304294": {
+      "name": "4",
+      "creator": 94740,
+      "private": false,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:34.458Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "317681": {
+      "name": "1",
+      "creator": 94740,
+      "private": false,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:23.652Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "332890": {
+      "name": "3",
+      "creator": 94740,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:15:45.692Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "355182": {
+      "name": "5",
+      "creator": 94740,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:15:51.654Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "376245": {
+      "name": "14",
+      "creator": 94740,
+      "private": false,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:17:09.757Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "423457": {
+      "name": "13",
+      "creator": 94740,
+      "private": false,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:17:05.852Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "424284": {
+      "name": "7",
+      "creator": 94740,
+      "private": false,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:46.898Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "427276": {
+      "name": "8",
+      "creator": 94740,
+      "private": false,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:49.969Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "470476": {
+      "name": "3",
+      "creator": 94740,
+      "private": false,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:30.247Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "496538": {
+      "name": "4",
+      "creator": 94740,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:15:48.711Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "507054": {
+      "name": "7",
+      "creator": 94740,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:15:58.000Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "556133": {
+      "name": "2",
+      "creator": 94740,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:14:40.686Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "609856": {
+      "name": "9",
+      "creator": 94740,
+      "private": false,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:53.384Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "645992": {
+      "name": "5",
+      "creator": 94740,
+      "private": false,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:38.685Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "675084": {
+      "name": "6",
+      "creator": 94740,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:15:54.739Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "815476": {
+      "name": "12",
+      "creator": 94740,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:13.953Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "838205": {
+      "name": "8",
+      "creator": 94740,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:01.472Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "902572": {
+      "name": "2",
+      "creator": 94740,
+      "private": false,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:26.809Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "917072": {
+      "name": "11",
+      "creator": 94740,
+      "private": true,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:11.125Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    },
+    "946657": {
+      "name": "10",
+      "creator": 94740,
+      "private": false,
+      "description": "A Slackr Channel",
+      "createdAt": "2023-10-25T10:16:57.175Z",
+      "members": [
+        94740
+      ],
+      "messages": []
+    }
+  },
+  "nextMessageId": 2
 }
