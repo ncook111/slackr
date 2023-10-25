@@ -219,14 +219,6 @@ const changeProfileImageButton = document.getElementById("change-profile-image")
 const visibilityToggle = document.getElementById("password-visibility-toggle");
 const messageSection = document.getElementById("channel-messages");
 
-window.onload = () => {
-    if (getToken()) {
-        loadMainSection().then(() => {
-            watchForNotifications();
-        });
-    } 
-}
-
 loginSubmitButton.addEventListener('click', () => {
     if (loginEmailInput.value.length < 1) { 
         alert("Please enter your email")
@@ -260,8 +252,7 @@ logoutButton.addEventListener('click', () => {
             mainSection.style.display = "none";
     
             // Remove user cookie
-            document.cookie = "access_token=";
-            document.cookie = "user_id=";
+            document.cookie = '';
             location.reload();
         }
     });
@@ -442,9 +433,9 @@ channelSettingsSaveButton.addEventListener('click', () => {
 
 userProfileButton.addEventListener('click', () => {
     const userProfile = document.getElementById("user-profile-popup");
-    generateProfilePopup(userDetails.get(parseInt(getUserId())));
-    userProfile.classList.remove("display-none");
-    userProfile.classList.add("display-block");
+    generateProfilePopup(currentUser);
+    displayProfileEditElements(userProfile);
+    elementDisplayToggle(userProfile, "display-none", "display-block");
 });
 
 channelActionsButton.addEventListener('click', () => {
@@ -869,17 +860,13 @@ const loadRoutedProfile = () => {
         // If map doesn't already have userDetails, fetch them
         if (!userDetails.has(routedProfile)) {
             const success = getUserDetails(getToken(), routedProfile).then((details) => {
-                details["id"] = routedProfile;
-                console.log(details);
                 userDetails.set(routedProfile, details); 
                 generateProfilePopup(details);
-                userProfile.classList.remove("display-none");
-                userProfile.classList.add("display-block");
+                elementDisplayToggle(userProfile, "display-none", "display-block");
             });
         } else {
             generateProfilePopup(userDetails.get(routedProfile)); 
-            userProfile.classList.remove("display-none");
-            userProfile.classList.add("display-block");
+            elementDisplayToggle(userProfile, "display-none", "display-block");
         }
     }
 }
@@ -975,7 +962,7 @@ const loadMemberChannelSection = () => {
     const channelDetails = channels.get(currentChannel.id).details;
 
     if (channelDetails.description !== "") {
-        channelName.textContent = channelDetails.name;
+        channelName.textContent = channelDetails.name + " - ";
         channelName.style.display =  "inline-block";
         
         channelDescription.textContent = channelDetails.description;
@@ -1019,14 +1006,7 @@ const generateChannelUsersDropdown = () => {
         const memberElement = document.createElement("li");
         memberElement.id = "channel-member"
         const button = document.createElement("button");
-        button.className = "channel-member-button";
-
-        button.addEventListener("click", () => {
-            const userProfile = document.getElementById("user-profile-popup");
-            generateProfilePopup(user);
-            userProfile.classList.add("display-block");
-            userProfile.classList.remove("display-none");
-        });
+        button.className = "channel-member-button"
 
         const profile = createProfileElement(user, member);
         profile.classList.add("channel-member-profile");
@@ -1038,12 +1018,8 @@ const generateChannelUsersDropdown = () => {
 }
 
 const generateProfilePopup = (user) => {
-    console.log(user);
     const profile = createProfileElement(user, null);
     const profileElement = document.getElementById("user-profile-picture");
-
-    if (profileElement.firstChild.tagName !== "LABEL")
-        profileElement.firstChild.remove();
 
     profileElement.insertBefore(profile, profileElement.firstChild);
 
@@ -1054,21 +1030,13 @@ const generateProfilePopup = (user) => {
     name.textContent = `${user.name}`;
     email.textContent = `${user.email}`;
     bio.textContent = `${user.bio}`;
-
-    displayProfileEditElements(user.id);
 }
 
-const displayProfileEditElements = (userId) => {
-    const profile = document.getElementById("user-profile-popup");
-    const editButtons = profile.getElementsByClassName("update-details");
+const displayProfileEditElements = (userProfile) => {
+    const editButtons = userProfile.getElementsByClassName("update-details");
 
     for (let button of editButtons) {
-        console.log(userId);
-        console.log(parseInt(getUserId()));
-        if (userId === parseInt(getUserId()))  
-            button.classList.remove("display-none");
-        else
-            button.classList.add("display-none");
+        button.classList.toggle("display-none");
     };
 }
 
@@ -1110,8 +1078,7 @@ const generatePinnedMessagesDropdown = () => {
             messageSender.addEventListener('click', () => {
                 const userProfile = document.getElementById("user-profile-popup");
                 generateProfilePopup(userDetails.get(message.sender));
-                userProfile.classList.add("display-block");
-                userProfile.classList.remove("display-none");
+                elementDisplayToggle(userProfile, "display-none", "display-block");
             });
 
             const messageTimeSent = document.createElement("h1");
@@ -1335,8 +1302,7 @@ const loadChannelMessages = () => {
             messageSender.addEventListener('click', () => {
                 const userProfile = document.getElementById("user-profile-popup");
                 generateProfilePopup(userDetails.get(message.sender));
-                userProfile.classList.add("display-block");
-                userProfile.classList.remove("display-none");
+                elementDisplayToggle(userProfile, "display-none", "display-block");
             });
 
             const messageTimeSent = document.createElement("h1");
@@ -1887,6 +1853,8 @@ const generateInvitableUserButtons = (invitableUsers) => {
                 selectedUsers.set(user.id, user.name);
                 button.classList.add("button-selected");
             }
+            console.log(selectedUsers);
+                
             
             const selectedText = document.getElementById("selected-users");
             selectedText.textContent = "";
