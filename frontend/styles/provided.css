@@ -38,8 +38,11 @@ button:hover {
 .channel-button {
     width: 100%;
     height: 100%;
-    padding: 0;
+    padding: 0 0 0 5%;
+    font-size: 2rem;
+    color: #707070;
     border: none;
+    text-align: left;
     box-sizing: border-box;
     background-color: white;
 }
@@ -153,11 +156,19 @@ button:hover {
     flex-direction: column;
     background-color: #95DBFF;
     border-radius: 0 1rem 1rem 0;
+    padding: 0 10px 10px 10px;
+}
+
+.sidebar-channels-header {
+    flex: 0 0 6%;
+    box-sizing: border-box;
 }
 
 #sidebar h1 {
     text-align: center;
-    margin-bottom: 2%;
+    font-size: 2rem;
+    margin: 0;
+    align-self: end;
 }
 
 #sidebar hr {
@@ -167,28 +178,37 @@ button:hover {
 }
 
 #private-channels {
-    flex: 0 0 45%;
+    flex: 0 0 38%;
 }
 
 #public-channels {
-    flex: 0 0 45%;
+    flex: 0 0 38%;
+}
+
+.scroll-overflow {
+    overflow: scroll;
 }
 
 #create-channel-section {
-    flex: 0 0 5%;
-    margin: 0 15px;
+    position: relative;
+    flex: 0 0 7%;
+    margin: 0 0;
 }
 
 #create-channel-button {
-    height: 80%;
+    position: absolute;
+    height: 70%;
     width: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: auto auto;
 }
 
 #user-section {
     display: flex;
     flex: 0 0 5%;
     align-items: center;
-    margin: 0 15px;
+    margin: 0 0;
     padding: 0 15px;
     border-radius: 1rem;
     background-color: white;
@@ -418,7 +438,7 @@ button:hover {
     border: none;
     border-radius: 2rem;
     background: white;
-    margin: 1%;
+    margin: 1% 1% 10px 1%;
     padding: auto 2% auto 2%;
     flex: 0.05;
 }
@@ -792,6 +812,21 @@ button:hover {
     display: inline-block;
 }
 
+.modal-close-button {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: 0%;
+    left: 100%;
+    transform: translate(calc(-100% - 5px), 5px);
+    background-image: url("../assets/x-circle-fill.svg");
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    border: none;
+}
+
 .modal-box {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
@@ -806,6 +841,7 @@ button:hover {
 }
 
 .modal-content {
+    position: relative;
     background-color: #fefefe;
     margin: 15% auto; /* 15% from the top and centered */
     padding: 20px;

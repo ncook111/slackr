@@ -1212,20 +1212,22 @@ const generateChannelButtons = (chans, isPrivate) => {
         
         button.appendChild(buttonName);
         li.appendChild(button);
-
+        
+        /*
         // Add hr inbetween buttons
         const liHr = document.createElement("li");
         liHr.id = "li-channel-button-divider"
         const hr = document.createElement("hr");
         hr.id = "channel-button-divider"
         liHr.appendChild(hr);
+        */
 
         if (isPrivate) {
             privateChannelsList.appendChild(li);
-            if (i < map.size - 1) privateChannelsList.appendChild(liHr);
+            //if (i < map.size - 1) privateChannelsList.appendChild(liHr);
         } else {
             publicChannelsList.appendChild(li);
-            if (i < map.size - 1)  publicChannelsList.appendChild(liHr);
+            //if (i < map.size - 1)  publicChannelsList.appendChild(liHr);
         }
         
         // Colour if currently selected channel

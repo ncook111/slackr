@@ -63,17 +63,19 @@
         </section>
       </section>
       <section id="sidebar">
-        <section id="private-channels">
+        <section class="sidebar-channels-header">
           <h1>Private Channels</h1>
-          <hr>
-          <ul id="private-channels-list" class="unstyled-list">
-          </ul>
         </section>
-        <section id="public-channels">
+        <section id="private-channels" class="scroll-overflow">
+            <ul id="private-channels-list" class="unstyled-list">
+            </ul>
+        </section>
+        <section class="sidebar-channels-header">
           <h1>Public Channels</h1>
-          <hr>
-          <ul id="public-channels-list" class="unstyled-list">
-          </ul>
+        </section>
+        <section id="public-channels" class="scroll-overflow">
+            <ul id="public-channels-list" class="unstyled-list">
+            </ul>
         </section>
         <section id="create-channel-section">
           <button id="create-channel-button" class="standard-button">Create a Channel</button>
@@ -118,6 +120,7 @@
           </span>
           <section id="channel-settings-popup" class="modal-box">
             <section class="modal-content standard-drop-shadow">
+              <button class="modal-close-button"></button>
               <form id="channel-settings-form">
                 <label for="edit-channel-name">Channel Name:</label>
                 <input type="text" id="edit-channel-name">
@@ -125,22 +128,22 @@
                 <input type="text" id="edit-channel-description">
               </form>
               <button id="channel-settings-save">Save</button>
-              <button class="modal-close-button">Close</button>
             </section>
           </section>
           <section id="invite-users-popup" class="modal-box display-none">
             <section class="modal-content standard-drop-shadow">
+              <button class="modal-close-button"></button>
               <input type="text" id="user-search-box">
               <section id="invite-users-section">
                 <ul id="invite-users-list"></ul>
               </section>
               <p id="selected-users"></p>
               <button id="invite-selected-users">Invite Selected Users</button>
-              <button class="modal-close-button">Close</button>
             </section>
           </section>
           <section id="user-profile-popup" class="modal-box display-none">
             <section class="modal-content standard-drop-shadow">
+              <button class="modal-close-button"></button>
               <div id="user-profile-header">
                   <div id="user-profile-picture">
                     <label for="change-profile-image">Change</label>
@@ -179,6 +182,7 @@
           </section>
           <section id="image-fullsize-popup" class="modal-box display-none">
             <section class="modal-content-auto standard-drop-shadow">
+              <button class="modal-close-button">Close</button>
               <img id="image-fullsize">
               <div id="image-navigation">
                 <button id="previous-image"><</button>
