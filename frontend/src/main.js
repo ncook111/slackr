@@ -2,11 +2,11 @@ import { BACKEND_PORT } from './config.js';
 import { fileToDataUrl, isValueInArray, removeChildrenNodes, getToken, 
          getUserId, getIndexInArray, getHighestPriorityChannel, getPrivateChannels, 
          getPublicChannels, createDynamicProfilePic, timestampToDateTime, elementDisplayToggle,
-         getImage, elementsDisplayClose, compareMessages, mapValuesToSortedArray, removeAllChildren, getUserSubsetByName, hamburgerHelper, errorPopup } from './helpers.js';
+         getImage, elementsDisplayClose, compareMessages, mapValuesToSortedArray, removeAllChildren, getUserSubsetByName, hamburgerHelper, errorPopup, getColorPreference } from './helpers.js';
 import { login, logout, register, getChannels, createChannel, getChannel, 
          updateChannel, joinChannel, leaveChannel, inviteChannel, getUsers, 
          updateProfile, getUserDetails, getMessages, sendMessage, updateMessage, 
-         deleteMessage, pinMessage, unpinMessage, reactMessage, unreactMessage, apiCall } from './api.js';
+         deleteMessage, pinMessage, unpinMessage, reactMessage, unreactMessage } from './api.js';
 
 // HTML elements
 const loginSection = document.getElementById("login");
@@ -225,11 +225,10 @@ const sidebar = document.getElementById("sidebar");
 const textbar = document.getElementById("message-text-box");
 
 window.onload = () => {
+    document.firstElementChild.setAttribute('data-theme', getColorPreference());
+
     if (getToken()) {
         loadMainSection().then(() => {
-            // Ensures hamburger menu opens on first click
-            if (!hamburgerOpenButton.classList.contains("display-none"))
-                sidebar.classList.add("display-none");
             watchForNotifications();
         });
     } 
@@ -339,7 +338,6 @@ hamburgerOpenButton.addEventListener('click', () => {
 });
 
 hamburgerCloseButton.addEventListener('click', () => {
-    console.log("here");
     hamburgerHelper();
 });
 
@@ -908,7 +906,6 @@ const loadRoutedProfile = () => {
         if (!userDetails.has(routedProfile)) {
             const success = getUserDetails(getToken(), routedProfile).then((details) => {
                 details["id"] = routedProfile;
-                console.log(details);
                 userDetails.set(routedProfile, details); 
                 generateProfilePopup(details);
                 userProfile.classList.remove("display-none");
@@ -924,24 +921,35 @@ const loadRoutedProfile = () => {
 
 const watchForNotifications = () => {
     setTimeout(() => {
-        if (mainSection.style.display === "flex")
-            watchForNotifications();
-        const newMessages = new Map();
-        populateMessagesMap(newMessages).then(() => {
-            if (compareMessages(newMessages, messages)) {
-                notifications.push(new Notification("New Message!"));
-                populateMessagesMap(messages).then(() => {
-                    populateAllUsersMap().then(() => {
-                        populateUserDetailsMap().then(() => {
-                            loadChannelSection().then(() => {
-                                loadChannelMessages();
+        getUserDetails(getToken(), parseInt(getUserId()))
+        .then((response) => {
+            if (!response) {
+                return;
+            }
+            if (mainSection.style.display === "flex")
+                watchForNotifications();
+
+            const newMessages = new Map();
+            populateMessagesMap(newMessages).then((response) => {
+                if (response.error) return;
+                if (compareMessages(newMessages, messages)) {
+                    notifications.push(new Notification("New Message!"));
+                    populateMessagesMap(messages).then((response) => {
+                        if (response.error) return;
+                        populateAllUsersMap().then((response) => {
+                            if (response.error) return;
+                            populateUserDetailsMap().then((response) => {
+                                if (response.error) return;
+                                loadChannelSection().then((response) => {
+                                    if (response.error) return;
+                                    loadChannelMessages();
+                                });
                             });
                         });
                     });
-                });
-
-            }
-        });
+                }
+            });
+        });     
     }, 1500);
 }
 
@@ -1075,7 +1083,6 @@ const generateChannelUsersDropdown = () => {
 }
 
 const generateProfilePopup = (user) => {
-    console.log(user);
     const profile = createProfileElement(user, null);
     const profileElement = document.getElementById("user-profile-picture");
 
@@ -1100,8 +1107,6 @@ const displayProfileEditElements = (userId) => {
     const editButtons = profile.getElementsByClassName("update-details");
 
     for (let button of editButtons) {
-        console.log(userId);
-        console.log(parseInt(getUserId()));
         if (userId === parseInt(getUserId()))  
             button.classList.remove("display-none");
         else
@@ -1860,12 +1865,10 @@ const loadMessageReacts = (reactions, messageId) => {
 
 const generateUserInviteSection = () => {
     let searchValue = userSearchBox.value;
-    console.log(searchValue);
 
     const memberList = document.getElementById("invite-users-list");
 
     const invitableUsers = getUserSubsetByName(userDetails, searchValue);
-    console.log(invitableUsers);
 
     // Remove any users that are already in the channel
     currentChannel.members.forEach((member) => {

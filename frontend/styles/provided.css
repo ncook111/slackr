@@ -1,9 +1,21 @@
+:root[data-theme="dark"] {
+    --background: #626262;
+    --sidebar: #292929;
+    --heading-color: #ffffff;
+    --border-color: #ececec;
+}
 
-/* base styles, feel free to edit */
+:root[data-theme="light"] {
+    --background: #B9E7FF;
+    --sidebar: #95DBFF;
+    --heading-color: #707070;
+    --border-color: #5a5a5a;
+}
+
 html, body {
     margin: 0;
     padding: 0;
-    background-color: #B9E7FF;
+    background-color: var(--background);
     width: 100vw;
     height: 100vh;
     font-family: -apple-system, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -213,7 +225,7 @@ button:hover {
 #sidebar {
     flex: 0 0 350px;
     flex-direction: column;
-    background-color: #95DBFF;
+    background-color: var(--sidebar);
     border-radius: 0 1rem 1rem 0;
     padding: 0 10px 10px 10px;
 }
@@ -235,6 +247,7 @@ button:hover {
     position: relative;
     flex: 0 0 6%;
     box-sizing: border-box;
+    color: var(--heading-color);
 }
 
 #sidebar h1 {
@@ -350,12 +363,13 @@ button:hover {
 #channel-header {
     display: flex;
     flex: 0 0 5%;
-    border-bottom: 1px solid #5a5a5a66;
-    -webkit-box-shadow: 0 4px 6px -6px #5a5a5a;
-    -moz-box-shadow: 0 4px 6px -6px #5a5a5a;
-    box-shadow: 0 4px 6px -6px #5a5a5a;
+    border-bottom: 1px solid var(--border-color)66;
+    -webkit-box-shadow: 0 4px 6px -6px var(--border-color);;
+    -moz-box-shadow: 0 4px 6px -6px var(--border-color);;
+    box-shadow: 0 4px 6px -6px var(--border-color);
     justify-content: space-between;
     align-items: center;
+    color: var(--heading-color);
 }
 
 .hamburger {

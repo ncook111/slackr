@@ -338,3 +338,14 @@ export const errorPopup = (message) => {
     content.textContent = message;
     popup.classList.add("display-block");
 }
+
+export const getColorPreference = () => {
+    if (localStorage.getItem("theme-preference")) {
+        return localStorage.getItem("theme-preference")
+     }  else {
+        if(window.matchMedia("(prefers-color-scheme: dark)").matches)
+            return "dark";
+        else
+            return "light";
+     }
+}

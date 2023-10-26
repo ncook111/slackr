@@ -208,8 +208,7 @@ export const apiCall = (method, path, body, token) => {
             })
             .catch((error) => {
                 errorPopup(error.message);
-                //if (error.message === "Failed to fetch")
-                    //alert("Network error")
+                return false;
             });
     } else {
         success = fetch('http://localhost:5005/' + path, {
@@ -228,8 +227,7 @@ export const apiCall = (method, path, body, token) => {
             })
             .catch((error) => {
                 errorPopup(error.message);
-                //if (error.message === "Failed to fetch")
-                    //alert("Network error")
+                return false;
             });
     }
 
