@@ -15,6 +15,12 @@
 
 <body>
   <main role="main">
+    <section id="error-popup" class="modal-box priority">
+      <section class="modal-content standard-drop-shadow">
+        <button class="modal-close-button"></button>
+        <h1></h1>
+      </section>
+    </section>
     <section id="landing-section">
       <section id="login" class="form">
         <form id="login-form">
@@ -62,7 +68,8 @@
           <button id="create-channel-cancel-button">Cancel</button>
         </section>
       </section>
-      <section id="sidebar">
+      <section id="sidebar" class="dynamic-display">
+        <button id="hamburger-close" class="hamburger"></button>
         <section class="sidebar-channels-header">
           <h1>Private Channels</h1>
         </section>
@@ -88,7 +95,7 @@
       </section>
       <section id="channel-view">
         <section id="channel-header">
-          <button id="hamburger"></button>
+          <button id="hamburger-open" class="hamburger"></button>
           <h1 id="channel-name" class="text-overflow-ellipsis"></h1>
           <span id="header-buttons">
             <button id="view-members-button" class="header-button"></button>
@@ -159,7 +166,7 @@
           </section>
           <section id="image-fullsize-popup" class="modal-box display-none">
             <section class="modal-content-auto standard-drop-shadow">
-              <button class="modal-close-button">Close</button>
+              <button class="modal-close-button auto-position"></button>
               <img id="image-fullsize">
               <div id="image-navigation">
                 <button id="previous-image"><</button>

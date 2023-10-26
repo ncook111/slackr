@@ -2,7 +2,7 @@ import { BACKEND_PORT } from './config.js';
 import { fileToDataUrl, isValueInArray, removeChildrenNodes, getToken, 
          getUserId, getIndexInArray, getHighestPriorityChannel, getPrivateChannels, 
          getPublicChannels, createDynamicProfilePic, timestampToDateTime, elementDisplayToggle,
-         getImage, elementsDisplayClose, compareMessages, mapValuesToSortedArray, removeAllChildren, getUserSubsetByName } from './helpers.js';
+         getImage, elementsDisplayClose, compareMessages, mapValuesToSortedArray, removeAllChildren, getUserSubsetByName, hamburgerHelper, errorPopup } from './helpers.js';
 import { login, logout, register, getChannels, createChannel, getChannel, 
          updateChannel, joinChannel, leaveChannel, inviteChannel, getUsers, 
          updateProfile, getUserDetails, getMessages, sendMessage, updateMessage, 
@@ -192,6 +192,8 @@ const logoutButton = document.getElementById("logout");
 const registerSubmitButton = document.getElementById("register-submit");
 const registerGoBackButton = document.getElementById("register-go-back");
 const createAccountButton = document.getElementById("create-account");
+const hamburgerOpenButton = document.getElementById("hamburger-open");
+const hamburgerCloseButton = document.getElementById("hamburger-close");
 const createChannelButton = document.getElementById("create-channel-button");
 const createChannelConfirmButton = document.getElementById("create-channel-confirm-button");
 const createChannelCancelButton = document.getElementById("create-channel-cancel-button");
@@ -218,10 +220,16 @@ const changePasswordButton = document.getElementById("change-password-button");
 const changeProfileImageButton = document.getElementById("change-profile-image");
 const visibilityToggle = document.getElementById("password-visibility-toggle");
 const messageSection = document.getElementById("channel-messages");
+const channelView = document.getElementById("channel-view");
+const sidebar = document.getElementById("sidebar");
+const textbar = document.getElementById("message-text-box");
 
 window.onload = () => {
     if (getToken()) {
         loadMainSection().then(() => {
+            // Ensures hamburger menu opens on first click
+            if (!hamburgerOpenButton.classList.contains("display-none"))
+                sidebar.classList.add("display-none");
             watchForNotifications();
         });
     } 
@@ -229,9 +237,9 @@ window.onload = () => {
 
 loginSubmitButton.addEventListener('click', () => {
     if (loginEmailInput.value.length < 1) { 
-        alert("Please enter your email")
+        errorPopup("Please enter your email")
     } else if (loginPasswordInput.value.length < 1) { 
-        alert("Please enter your password")
+        errorPopup("Please enter your password")
     } else {
         login(loginEmailInput.value, loginPasswordInput.value)
         .then((response) => {
@@ -269,15 +277,15 @@ logoutButton.addEventListener('click', () => {
 
 registerSubmitButton.addEventListener('click', () => {
     if (registerEmailInput.value.length < 1) { 
-        alert("Please enter your email")
+        errorPopup("Please enter your email")
     } else if (registerNameInput.value.length < 1) { 
-        alert("Please enter your name")
+        errorPopup("Please enter your name")
     } else if (registerPasswordInput.value.length < 1) { 
-        alert("Please enter a password")
+        errorPopup("Please enter a password")
     } else if (registerPasswordConfirmInput.value.length < 1) { 
-        alert("Please confirm your password")
+        errorPopup("Please confirm your password")
     } else if (registerPasswordInput.value !== registerPasswordConfirmInput.value) {
-        alert("Passwords do not match!")
+        errorPopup("Passwords do not match!")
     } else {
         register(registerEmailInput.value, registerPasswordInput.value, registerNameInput.value)
         .then((response) => {
@@ -299,16 +307,45 @@ registerGoBackButton.addEventListener('click', () => {
     loginSection.style.display = "block";
     registerSection.style.display = "none";
     registerForm.reset();
-})
+});
 
 createAccountButton.addEventListener('click', () => {
     loginSection.style.display = "none";
     registerSection.style.display = "block";
-})
+});
+
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 1000) {
+        sidebar.classList.remove("display-none");
+        sidebar.classList.add("display-flex");
+        textbar.classList.remove("display-none");
+        textbar.classList.add("display-flex");
+    } else {
+        sidebar.classList.add("display-none");
+        sidebar.classList.remove("display-flex");
+        hamburgerOpenButton.classList.remove("display-none"); 
+    }
+
+    if (sidebar.classList.contains("display-flex") && 
+        window.innerWidth <= 800) {
+        channelView.classList.add("section-disabled");
+    } else {
+        channelView.classList.remove("section-disabled");
+    }
+});
+
+hamburgerOpenButton.addEventListener('click', () => {
+    hamburgerHelper();
+});
+
+hamburgerCloseButton.addEventListener('click', () => {
+    console.log("here");
+    hamburgerHelper();
+});
 
 createChannelButton.addEventListener('click', () => {
     createChannelPopupSection.style.display = "block";
-})
+});
 
 createChannelConfirmButton.addEventListener('click', () => {
     const channelName = document.getElementById("form-channel-name").value;
@@ -331,7 +368,6 @@ createChannelConfirmButton.addEventListener('click', () => {
                 timesFetched: 1
             }
 
-            // TODO: Alot of duplicated info, fix if have time
             const details = {
                 createdAt: new Date().toISOString(),
                 creator: parseInt(getUserId()),
@@ -360,7 +396,7 @@ createChannelConfirmButton.addEventListener('click', () => {
         createChannelPopupSection.style.display = "none";
         createChannelForm.reset();
     } else {
-        alert("Please enter a channel name");
+        errorPopup("Please enter a channel name");
     }
 });
 
@@ -421,7 +457,6 @@ channelSettingsSaveButton.addEventListener('click', () => {
             if (!response) return false;
             document.getElementById("channel-settings-popup").classList.toggle("display-block");
             document.getElementById("channel-settings-form").reset();
-            // TODO: refreshCurrentChannelButton();
 
             // Update details in maps
             const channel = channels.get(currentChannel.id);
@@ -436,7 +471,7 @@ channelSettingsSaveButton.addEventListener('click', () => {
             loadChannelSection();
         });
     } else {
-        alert("Please enter a channel name");
+        errorPopup("Please enter a channel name");
     }
 });
 
@@ -503,10 +538,9 @@ channelLeaveButton.addEventListener('click', () => {
 // Create channel settings event listener
 channelSettingsButton.addEventListener('click', () => {
     document.getElementById("channel-settings-form").reset();
-    document.getElementById("channel-settings-popup").classList.toggle("display-block")
+    document.getElementById("channel-settings-popup").classList.toggle("display-block");
     document.getElementById("edit-channel-name").value = currentChannel.name;
 
-    // TODO: This kinda dumb way to do it
     const channelDescription = document.getElementById("channel-description").textContent;
     if (channelDescription === undefined)
         document.getElementById("edit-channel-description").value = "";
@@ -570,7 +604,7 @@ changeNameButton.addEventListener('click', () => {
 
     confirmTickButton.addEventListener('click', () => {
         if (nameInput.value < 1) {
-            alert("Please enter a password");
+            errorPopup("Please enter a password");
             return;
         }
 
@@ -629,7 +663,7 @@ changeEmailButton.addEventListener('click', () => {
 
     confirmTickButton.addEventListener('click', () => {
         if (emailInput.value < 1) {
-            alert("Please enter a password");
+            errorPopup("Please enter a password");
             return;
         }
 
@@ -711,7 +745,7 @@ changePasswordButton.addEventListener('click', () => {
 
     confirmTickButton.addEventListener('click', () => {
         if (passwordInput.value < 1) {
-            alert("Please enter a password");
+            errorPopup("Please enter a password");
             return;
         }
 
@@ -757,6 +791,7 @@ changeProfileImageButton.addEventListener('input', () => {
                 const newProfile = document.createElement("img");
                 newProfile.className = profileElem.className;
                 newProfile.src = image;
+                newProfile.alt = "profile image";
                 profileElem.replaceWith(newProfile);
             } else {
                 changeProfileImageButton.parentElement
@@ -786,10 +821,14 @@ messageSection.addEventListener('scroll', () => {
     if (!ul.firstChild) return;
 
     if (messageSection.scrollTop === 0 &&
-        ul.firstChild.textContent !== "Loading..." &&
+        ul.firstChild.tagName !== "SVG" &&
         messages.get(currentChannel.id).length >= 25) {
         const li = document.createElement("li");
-        li.textContent = "Loading...";
+        const loadingAnimation = document.createElement("img");
+        loadingAnimation.src = "assets/loading-animation.svg";
+        loadingAnimation.className = "loading-animation"
+        loadingAnimation.alt = "loading";
+        li.appendChild(loadingAnimation)
 
         ul.insertBefore(li, ul.firstChild);
         getMessages(getToken(), currentChannel.id, currentChannel.timesFetched * 25)
@@ -803,7 +842,6 @@ messageSection.addEventListener('scroll', () => {
             const combined = pre.concat(response.messages).concat(post);
 
             messages.set(currentChannel.id, combined);
-
             li.remove();
             currentChannel.timesFetched++;
             loadChannelMessages();
@@ -904,7 +942,7 @@ const watchForNotifications = () => {
 
             }
         });
-    }, 1000);
+    }, 1500);
 }
 
 const createProfileElement = (user, userId) => {
@@ -915,6 +953,7 @@ const createProfileElement = (user, userId) => {
     } else {
         profile = document.createElement("img");
         profile.src = user.image;
+        profile.alt = "profile picture"
     }
 
     profile.classList.add("profile-image");
@@ -977,9 +1016,7 @@ const loadMemberChannelSection = () => {
     if (channelDetails.description !== "") {
         channelName.textContent = channelDetails.name;
         channelName.style.display =  "inline-block";
-        
-        channelDescription.textContent = channelDetails.description;
-        channelDescription.style.display =  "inline-block";
+        channelDescription.textContent = `Description: ${channelDetails.description}`;
     } else {
         channelName.textContent = channelDetails.name;
         channelDescription.textContent = "";
@@ -1245,23 +1282,11 @@ const generateChannelButtons = (chans, isPrivate) => {
         
         button.appendChild(buttonName);
         li.appendChild(button);
-        
-        /*
-        // Add hr inbetween buttons
-        const liHr = document.createElement("li");
-        liHr.id = "li-channel-button-divider"
-        const hr = document.createElement("hr");
-        hr.id = "channel-button-divider"
-        liHr.appendChild(hr);
-        */
 
-        if (isPrivate) {
+        if (isPrivate)
             privateChannelsList.appendChild(li);
-            //if (i < map.size - 1) privateChannelsList.appendChild(liHr);
-        } else {
+        else
             publicChannelsList.appendChild(li);
-            //if (i < map.size - 1)  publicChannelsList.appendChild(liHr);
-        }
         
         // Colour if currently selected channel
         if (currentChannel !== null && currentChannel.id === channel.id) {
@@ -1276,9 +1301,8 @@ const loadChannelMessages = () => {
     const messageSection = document.getElementById("channel-messages");
     const ul = document.getElementById("message-list");
     const currentScroll = messageSection.scrollHeight;
-    while (ul.firstChild) {
+    while (ul.firstChild)
         ul.firstChild.remove()
-    }
 
     if (currentChannel === null)
         return;
@@ -1407,6 +1431,7 @@ const createMessageImageElement = (image, messageId) => {
     const elem = document.createElement("img");
     elem.className = "message-body image-thumbnail";
     elem.src = image;
+    elem.alt = "image in message"
 
     let currentMessageId = messageId;
 
@@ -1415,7 +1440,10 @@ const createMessageImageElement = (image, messageId) => {
         imageBig.src = image;
 
         const imagePopup = document.getElementById("image-fullsize-popup");
-        elementDisplayToggle(imagePopup, "display-none", "display-block");
+        if (imagePopup.classList.contains("display-block"))
+            imagePopup.classList.remove("display-block");   
+        else
+            imagePopup.classList.add("display-block");
 
         const previousImage = document.getElementById("previous-image");
         const nextImage = document.getElementById("next-image");
@@ -1443,6 +1471,7 @@ const createMessageHoverElement = (message, messageElem) => {
     const addReact = document.createElement("img");
     addReact.className = "add-react-icon";
     addReact.src = "assets/add-react.svg"
+    addReact.alt = "react icon";
     hoverElem.appendChild(addReact);
 
     const vl = document.createElement("div");
@@ -1509,7 +1538,7 @@ const createEditDeleteHoverButtons = (messageId, hoverElem, vl) => {
             const msg = messages.get(currentChannel.id)[index];
 
             if (inputBody.value < 1 && !imageInput.files[0]) {
-                alert("Please enter a message or add an image");
+                errorPopup("Please enter a message or add an image");
                 return;
             }
 
@@ -1639,6 +1668,7 @@ const createPinHoverButton = (message, hoverElem, messageElem) => {
         const pinIcon = document.createElement("img");
         pinIcon.className = "pin-icon";
         pinIcon.src = "assets/pin-icon.svg";
+        pinIcon.alt = "pin icon";
         messageElem.appendChild(pinIcon);
     } else {
         pinButton.textContent = "Pin";
@@ -1656,6 +1686,7 @@ const createPinHoverButton = (message, hoverElem, messageElem) => {
                 const pinIcon = document.createElement("img");
                 pinIcon.className = "pin-icon";
                 pinIcon.src = "assets/pin-icon.svg";
+                pinIcon.className = "pin-icon";
                 messageElem.appendChild(pinIcon);
 
                 generatePinnedMessagesDropdown();

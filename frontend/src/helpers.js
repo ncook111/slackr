@@ -297,3 +297,44 @@ export const getUserSubsetByName = (userDetails, userName) => {
 
     return userDetailsSubset;
 }
+
+export const hamburgerHelper = () => {
+    const hamburgerOpenButton = document.getElementById("hamburger-open");
+    const hamburgerCloseButton = document.getElementById("hamburger-close");
+    const channelView = document.getElementById("channel-view");
+    const sidebar = document.getElementById("sidebar");
+    const textBox = document.getElementById("message-text-box");
+    console.log(textBox);
+
+    // Open sidebar
+    if (sidebar.classList.contains("display-none")) {
+        sidebar.classList.remove("display-none");
+        sidebar.classList.add("display-flex");   
+        hamburgerOpenButton.classList.add("display-none");    
+        hamburgerCloseButton.classList.remove("display-none");
+    } else {
+        sidebar.classList.add("display-none");
+        sidebar.classList.remove("display-flex");
+        hamburgerOpenButton.classList.remove("display-none"); 
+        hamburgerCloseButton.classList.add("display-none");
+    };
+
+    // Close sidebar
+    if (sidebar.classList.contains("display-flex") && 
+        window.innerWidth <= 800) {
+        channelView.classList.add("section-disabled");
+        textBox.classList.add("display-none");
+        textBox.classList.remove("display-flex");
+    } else {
+        channelView.classList.remove("section-disabled");
+        textBox.classList.remove("display-none");
+        textBox.classList.add("display-flex");
+    }
+}
+
+export const errorPopup = (message) => {
+    const popup = document.getElementById("error-popup");
+    const content = popup.getElementsByTagName("h1")[0];
+    content.textContent = message;
+    popup.classList.add("display-block");
+}

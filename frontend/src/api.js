@@ -1,3 +1,5 @@
+import { errorPopup } from './helpers.js';
+
 /*
 ===============================
 ======= Auth endpoints ========
@@ -198,13 +200,14 @@ export const apiCall = (method, path, body, token) => {
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
-                    alert(data.error)
+                    errorPopup(data.error)
                     return false;
                 } else {
                     return data;
                 }
             })
             .catch((error) => {
+                errorPopup(error.message);
                 //if (error.message === "Failed to fetch")
                     //alert("Network error")
             });
@@ -217,13 +220,14 @@ export const apiCall = (method, path, body, token) => {
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
-                    alert(data.error)
+                    errorPopup(data.error)
                     return false;
                 } else {
                     return data;
                 }
             })
             .catch((error) => {
+                errorPopup(error.message);
                 //if (error.message === "Failed to fetch")
                     //alert("Network error")
             });

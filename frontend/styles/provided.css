@@ -75,13 +75,29 @@ button:hover {
     display: block;
     position: absolute;
     box-sizing: border-box;
-    top: 50%;
-    transform: translate(0, -50%);
+    top: 0%;
     background-color: #95DBFF;
     border-radius: 3rem;
-    width: 35vw;
-    height: 65vh;
-    margin-left: 10vw;
+    min-width: 350px;
+    height: fit-content;
+    
+}
+
+@media (max-width: 1000px) {
+    .form {
+        top: 90%;
+        left: 50%;
+        transform: translate(-50%, -90%);
+    }
+}
+
+@media (min-width: 1001px) {
+    .form {
+        top: 50%;
+        transform: translate(0, -50%);
+        margin-left: 10vw;
+        width: 35vw;
+    }
 }
 
 #login {
@@ -96,18 +112,36 @@ button:hover {
     display: block;
     position: absolute;
     box-sizing: border-box;
-    top: 50%;
-    left: 80%;
-    transform: translate(-80%, -50%);
-    height: 55vh;
+
+    object-fit: contain;
+}
+
+@media (max-width: 1000px) {
+    #logo-black {
+        top: 5%;
+        left: 50%;
+        transform: translate(-50%, 0%);
+        width: fit-content;
+        height: 20vh;
+    }
+}
+
+@media (min-width: 1001px) {
+    #logo-black {
+        top: 50%;
+        left: 80%;
+        transform: translate(-80%, -50%);
+        width: 30vw;
+        height: 55vh;
+        min-height: 400px;
+    }
 }
 
 #create-account {
     display: block;
     background: none;
     border: none;
-    position: absolute;
-    bottom: 8vh;
+    padding-top: 30px;
     width: 100%;
     text-align: center;
     margin: 0 auto 0 auto;
@@ -143,11 +177,11 @@ button:hover {
 }
 
 .form input {
-    width: 25vw;
+    width: 80%;
     height: 50px;
     border: none;
     background-color: white;
-    margin: 5px 5vw 40px 5vw;
+    margin: 5px auto 40px auto;
     border-radius: 2rem;
     padding: 0 5% 0 5%;
     font-size: 1.5rem;
@@ -157,7 +191,9 @@ button:hover {
 .form label {
     font-size: 1.5rem;
     font-weight: 500;
-    margin-left: 6vw;
+    width: 80%;
+    display: block;
+    margin: 0 auto 0 auto;
 
 }
 
@@ -175,8 +211,7 @@ button:hover {
 }
 
 #sidebar {
-    
-    display: flex;
+    flex: 0 0 350px;
     flex-direction: column;
     background-color: #95DBFF;
     border-radius: 0 1rem 1rem 0;
@@ -184,15 +219,14 @@ button:hover {
 }
 
 @media (max-width: 1000px) {
-    #sidebar {
-        flex: 0 0 0;
+    .dynamic-display {
         display: none;
     }
 }
 
 @media (min-width: 1001px) {
-    #sidebar {
-        flex: 0 0 350px;
+    .dynamic-display {
+        display: flex;
     }
 }
 
@@ -324,8 +358,7 @@ button:hover {
     align-items: center;
 }
 
-#hamburger {
-    display: none;
+.hamburger {
     width: 40px;
     height: 100%;
     flex-grow: 0;
@@ -338,29 +371,26 @@ button:hover {
     background-image: url("../assets/list.svg");
 }
 
+#hamburger-close {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    height: 40px;
+}
+
+@media (min-width: 1001px) {
+    #hamburger-open, #hamburger-close {
+        display: none;
+    }
+}
+
 #channel-name {
     font-size: 2rem;
     margin: 0 auto 0 0;
     max-width: calc(100vw - 170px);
     box-sizing: border-box;
-}
-
-#channel-description {
-    font-size: 2rem;
-    font-style: italic;
-    margin: 0;
-}
-
-#channel-creation-time {
-
-}
-
-#channel-creator {
-
-}
-
-#channel-settings {
-
+    margin-left: 20px;
 }
 
 #header-buttons {
@@ -431,10 +461,9 @@ button:hover {
 
 .channel-dropdown {
     z-index: 2;
-    position: absolute;
+    position: fixed;
     width: 250px;
     height: fit-content;
-    top: 0;
     left: 100%;
     transform: translate(-100%, 0);
     background-color: white;
@@ -801,6 +830,12 @@ button:hover {
     font-size: 1.1rem;
 }
 
+.loading-animation {
+    margin-top: 10%;
+    height: 50px;
+    width: 100%;
+}
+
 .image-thumbnail {
     margin-top: 10px;
     max-width: 200px;
@@ -1000,4 +1035,19 @@ textarea:focus, input:focus{
 
 .relative {
     position: relative;
+}
+
+.section-disabled {
+    pointer-events: none;
+    opacity: 50%;
+}
+
+.auto-position {
+    top: 50%;
+    left: 50%;
+    transform: translate(calc(-50% + 38.5vw), calc(-50% - 37.5vh));
+}
+
+.priority {
+    z-index: 99;
 }
