@@ -77,7 +77,7 @@ const populateChannelsMap = () => {
             }); 
         }
 
-        if (currentChannel == null)
+        if (currentChannel === null)
             currentChannel = getHighestPriorityChannel(channels, routedChannel);
         else
             currentChannel = channels.get(currentChannel.id); // Update currentChannel info
@@ -238,6 +238,9 @@ window.onload = () => {
     const colorPreference = getColorPreference();
     document.firstElementChild.setAttribute('data-theme', colorPreference);
 
+    if (window.innerWidth <= 1000)
+        sidebar.classList.add("display-none");
+
     if (colorPreference === "dark")
         colorMode.checked = true;
 
@@ -271,7 +274,6 @@ loginSubmitButton.addEventListener('click', () => {
 });
 
 logoutButton.addEventListener('click', () => {
-    // https://developer.mozilla.org/en-US/docs/Web/API/document/cookie#example_2_get_a_sample_cookie_named_test2
     logout(getToken())
     .then((response) => {
         if (!response) return false;
@@ -293,6 +295,8 @@ registerSubmitButton.addEventListener('click', () => {
         errorPopup("Please enter your email")
     } else if (registerNameInput.value.length < 1) { 
         errorPopup("Please enter your name")
+    } else if (!registerNameInput.value.match(/^[0-9a-z]+$/)) {
+        errorPopup("Name can only contain letters and numbers")
     } else if (registerPasswordInput.value.length < 1) { 
         errorPopup("Please enter a password")
     } else if (registerPasswordConfirmInput.value.length < 1) { 
@@ -939,7 +943,6 @@ const loadRoutedProfile = () => {
 
 const watchForNotifications = () => {
     setTimeout(() => {
-        console.log("running")
         getUserDetails(getToken(), parseInt(getUserId()))
         .then((response) => {
             if (!response) {
@@ -1247,6 +1250,7 @@ const loadNonMemberChannelSection = () => {
     channelCreator.textContent = "";
 
     // Don't show header buttons
+    console.log("here");
     const headerButtons = document.getElementById("header-buttons");
     headerButtons.className = "display-none";
 
@@ -1255,10 +1259,19 @@ const loadNonMemberChannelSection = () => {
     sendMessageElement.classList.add("display-none");
     sendMessageElement.classList.remove("display-flex");
 
+    // Close dropdowns if they are open
+    channelActions.classList.remove("display-block");
+    pinnedMessages.classList.remove("display-block");
+    channelMembers.classList.remove("display-block");
+    channelActions.classList.add("display-none");
+    pinnedMessages.classList.add("display-none");
+    channelMembers.classList.add("display-none");
+
     // Create join channel button
     const joinChannelButton = document.createElement("button");
     joinChannelButton.id = "join-channel";
     joinChannelButton.append(document.createTextNode("Join Channel"))
+    joinChannelButton.className = "standard-button color-dynamic";
     channelHeader.appendChild(joinChannelButton);
 
     joinChannelButton.addEventListener('click', () => {
@@ -1418,7 +1431,7 @@ const loadChannelMessages = () => {
     }
 
     // Set scroll position to bottom of messages section if first load
-    if (currentChannel.timesFetched == 1) {
+    if (currentChannel.timesFetched === 1) {
         messageSection.scrollTop = messageSection.scrollHeight;
     } else {
         messageSection.scrollTop = messageSection.scrollHeight - currentScroll;
@@ -1769,7 +1782,6 @@ const createReactHoverBox = (messageId, messageHoverElement) => {
                     message.reacts.push({ user: parseInt(getUserId()), react: reaction });
                     const newReactBox = loadMessageReacts(message.reacts, message.id);
                     messageReactBox.replaceWith(newReactBox);
-                    //pinnedMessageReactBox.replaceWith(newReactBox);
                 });
             } else {
                 unreactMessage(getToken(), currentChannel.id, messageId, reaction)
@@ -1778,7 +1790,6 @@ const createReactHoverBox = (messageId, messageHoverElement) => {
                     message.reacts.splice(indexOfReaction, 1);
                     const newReactBox = loadMessageReacts(message.reacts, message.id);
                     messageReactBox.replaceWith(newReactBox);
-                    //pinnedMessageReactBox.replaceWith(newReactBox);
                 });
             }
 
@@ -1826,7 +1837,6 @@ const loadMessageReacts = (reactions, messageId) => {
             messageReact.classList.add("blue-border");
         }
 
-        // TODO: Repeated, fix
         let indexOfReaction = -1; // Set to index if user already reacted
         for (let i = 0; i < reactions.length; i++) {
             if (reactions[i].user === parseInt(getUserId()) &&
@@ -1944,9 +1954,17 @@ const generateInvitableUserButtons = (invitableUsers) => {
             selectedText.textContent = "";
 
             const sortedUsers = mapValuesToSortedArray(selectedUsers);
-            sortedUsers.forEach((user) => {
-                selectedText.textContent += user + " ";
-            });
+
+            let i = 0;
+            for (let user of sortedUsers) {
+                if (i !== sortedUsers.length - 1)
+                    selectedText.textContent += user + ", ";
+                else
+                    selectedText.textContent += user
+
+                i++;
+            }
+
         });
 
         const profile = createProfileElement(user, user.id);

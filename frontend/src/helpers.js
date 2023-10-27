@@ -225,7 +225,7 @@ export const getImage = (messages, messageId, next) => {
 
     let i;
     for (i = 0; i < messages.length; i++) {
-        if (messages[i].id == messageId) {
+        if (messages[i].id === messageId) {
             i = mod((i + offset), messages.length);
             break;
         }
