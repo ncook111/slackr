@@ -56,7 +56,6 @@ export const getHighestPriorityChannel = (channels, routedChannel) => {
 
     // Return if routed channel is set and exists
     if (routedChannel && channels.get(routedChannel)) {
-        console.log(routedChannel)
         return channels.get(routedChannel);
     }
 
@@ -253,8 +252,6 @@ export const compareMessages = (firstMessages, secondMessages) => {
     for (let key of firstKeys) {
         if (!firstMessages.get(key)[0] || !secondMessages.get(key)[0]) continue;
         if (firstMessages.get(key)[0].id > secondMessages.get(key)[0].id) {
-            console.log(firstMessages.get(key)[0]);
-            console.log(secondMessages.get(key)[0]);
             return true;
         }
             
@@ -304,7 +301,6 @@ export const hamburgerHelper = () => {
     const channelView = document.getElementById("channel-view");
     const sidebar = document.getElementById("sidebar");
     const textBox = document.getElementById("message-text-box");
-    console.log(textBox);
 
     // Open sidebar
     if (sidebar.classList.contains("display-none")) {
@@ -348,4 +344,8 @@ export const getColorPreference = () => {
         else
             return "light";
      }
+}
+
+export const saveColorMode = (mode) => {
+    localStorage.setItem("theme-preference", mode);
 }

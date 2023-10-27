@@ -3,6 +3,10 @@
     --sidebar: #292929;
     --heading-color: #ffffff;
     --border-color: #ececec;
+    --people-fill: url("../assets/people-fill-white.svg");
+    --pin-icon: url("../assets/pin-icon-white.svg");
+    --arrow-down: url("../assets/down-arrow-white.svg");
+    --hamburger: url("../assets/list-white.svg");
 }
 
 :root[data-theme="light"] {
@@ -10,6 +14,10 @@
     --sidebar: #95DBFF;
     --heading-color: #707070;
     --border-color: #5a5a5a;
+    --people-fill: url("../assets/people-fill.svg");
+    --pin-icon: url("../assets/pin-icon-grey.svg");
+    --arrow-down: url("../assets/down-arrow.svg");
+    --hamburger: url("../assets/list.svg");
 }
 
 html, body {
@@ -88,11 +96,19 @@ button:hover {
     position: absolute;
     box-sizing: border-box;
     top: 0%;
-    background-color: #95DBFF;
+    background-color: var(--sidebar);
     border-radius: 3rem;
     min-width: 350px;
     height: fit-content;
     
+}
+
+.form label {
+    color: var(--heading-color);
+}
+
+.form u {
+    color: var(--heading-color);
 }
 
 @media (max-width: 1000px) {
@@ -382,7 +398,7 @@ button:hover {
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
-    background-image: url("../assets/list.svg");
+    background-image: var(--hamburger);
 }
 
 #hamburger-close {
@@ -430,15 +446,15 @@ button:hover {
 }
 
 #view-members-button {
-    background-image: url("../assets/people-fill.svg");
+    background-image: var(--people-fill);
 }
 
 #view-pinned-messages-button {
-    background-image: url("../assets/pin-icon-grey.svg");
+    background-image: var(--pin-icon);
 }
 
 #channel-actions-button {
-    background-image: url("../assets/down-arrow.svg");
+    background-image: var(--arrow-down);
 }
 
 #channel-members-list {
@@ -471,6 +487,15 @@ button:hover {
 #user-profile-picture img {
     width: 100%;
     height: 100%;
+}
+
+#theme-checkbox {
+    display: inline-block;
+}
+
+.dark-checkbox {
+    text-align: left;
+    padding-left: 20px;
 }
 
 .channel-dropdown {
@@ -675,6 +700,10 @@ button:hover {
 
 .profile-details {
     display: flex;
+}
+
+.profile-detail p {
+    margin-right: 5px;
 }
 
 #user-profile-header button {

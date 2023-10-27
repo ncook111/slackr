@@ -19,8 +19,9 @@
     - Pinned messages will display an icon at the top right
 
 6. UI
-    - Care has been taken to make the UI visually appealing and polished
+    - Care has been taken to make the UI visually appealing and polished, in particular the sidebar and channel sections
+    - I ran out of time so some of the modals are missing styling
 
 7. Light/Dark Mode
     - Dark and light mode which queries the users default color preference
-    - User can also set a color preference within the site, which is given priority
+    - User can also set a color preference within the site, which is given priority and persists across sessions

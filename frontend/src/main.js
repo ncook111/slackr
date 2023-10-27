@@ -2,7 +2,7 @@ import { BACKEND_PORT } from './config.js';
 import { fileToDataUrl, isValueInArray, removeChildrenNodes, getToken, 
          getUserId, getIndexInArray, getHighestPriorityChannel, getPrivateChannels, 
          getPublicChannels, createDynamicProfilePic, timestampToDateTime, elementDisplayToggle,
-         getImage, elementsDisplayClose, compareMessages, mapValuesToSortedArray, removeAllChildren, getUserSubsetByName, hamburgerHelper, errorPopup, getColorPreference } from './helpers.js';
+         getImage, elementsDisplayClose, compareMessages, mapValuesToSortedArray, removeAllChildren, getUserSubsetByName, hamburgerHelper, errorPopup, getColorPreference, saveColorMode } from './helpers.js';
 import { login, logout, register, getChannels, createChannel, getChannel, 
          updateChannel, joinChannel, leaveChannel, inviteChannel, getUsers, 
          updateProfile, getUserDetails, getMessages, sendMessage, updateMessage, 
@@ -223,9 +223,23 @@ const messageSection = document.getElementById("channel-messages");
 const channelView = document.getElementById("channel-view");
 const sidebar = document.getElementById("sidebar");
 const textbar = document.getElementById("message-text-box");
+const colorMode = document.getElementById("theme-checkbox");
+
+colorMode.addEventListener('click', () => {
+    if (colorMode.checked)
+        saveColorMode("dark");
+    else
+        saveColorMode("light");
+    
+    document.firstElementChild.setAttribute('data-theme', getColorPreference());
+});
 
 window.onload = () => {
-    document.firstElementChild.setAttribute('data-theme', getColorPreference());
+    const colorPreference = getColorPreference();
+    document.firstElementChild.setAttribute('data-theme', colorPreference);
+
+    if (colorPreference === "dark")
+        colorMode.checked = true;
 
     if (getToken()) {
         loadMainSection().then(() => {
@@ -676,6 +690,7 @@ changeEmailButton.addEventListener('click', () => {
             ).then((response) => {
                 if (!response) return false;
                 currentUser.email = emailInput.value;
+                userDetails.get(parseInt(getUserId())).email = emailInput.value;
                 email.textContent = emailInput.value;
             });
         }
@@ -699,7 +714,9 @@ changeBioButton.addEventListener('click', () => {
     confirmTickButton.className = "confirm-edit-message";
     changeBioButton.parentElement.appendChild(confirmTickButton);
 
-    bioInput.value = bio.textContent;
+    if (bio.textContent)
+        bioInput.value = bio.textContent;
+    
     bioInput.classList.toggle("display-none")
 
     confirmTickButton.addEventListener('click', () => {
@@ -714,13 +731,14 @@ changeBioButton.addEventListener('click', () => {
             ).then((response) => {
                 if (!response) return false;
                 currentUser.bio = bioInput.value;
-                bio.textContent = bioInput.value;
+                userDetails.get(parseInt(getUserId())).bio = bioInput.value;
+                bio.textContent = ` ${bioInput.value}`;
             });
         }
 
         bio.classList.toggle("display-none");
         confirmTickButton.classList.toggle("display-none")
-        changeEmailButton.classList.toggle("display-none");
+        changeBioButton.classList.toggle("display-none");
         bioInput.classList.toggle("display-none");
     });
 });
@@ -921,6 +939,7 @@ const loadRoutedProfile = () => {
 
 const watchForNotifications = () => {
     setTimeout(() => {
+        console.log("running")
         getUserDetails(getToken(), parseInt(getUserId()))
         .then((response) => {
             if (!response) {
@@ -931,17 +950,12 @@ const watchForNotifications = () => {
 
             const newMessages = new Map();
             populateMessagesMap(newMessages).then((response) => {
-                if (response.error) return;
                 if (compareMessages(newMessages, messages)) {
                     notifications.push(new Notification("New Message!"));
                     populateMessagesMap(messages).then((response) => {
-                        if (response.error) return;
                         populateAllUsersMap().then((response) => {
-                            if (response.error) return;
                             populateUserDetailsMap().then((response) => {
-                                if (response.error) return;
                                 loadChannelSection().then((response) => {
-                                    if (response.error) return;
                                     loadChannelMessages();
                                 });
                             });
@@ -1097,7 +1111,11 @@ const generateProfilePopup = (user) => {
 
     name.textContent = `${user.name}`;
     email.textContent = `${user.email}`;
-    bio.textContent = `${user.bio}`;
+
+    if (user.bio)
+        bio.textContent = `${user.bio}`;
+    else
+        bio.textContent = "";
 
     displayProfileEditElements(user.id);
 }

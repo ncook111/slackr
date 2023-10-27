@@ -207,7 +207,10 @@ export const apiCall = (method, path, body, token) => {
                 }
             })
             .catch((error) => {
-                errorPopup(error.message);
+                if (error.message === "Failed to fetch")
+                    errorPopup("Network Error");
+                else
+                    errorPopup(error.message);
                 return false;
             });
     } else {
@@ -226,7 +229,10 @@ export const apiCall = (method, path, body, token) => {
                 }
             })
             .catch((error) => {
-                errorPopup(error.message);
+                if (error.message === "Failed to fetch")
+                    errorPopup("Network Error");
+                else
+                    errorPopup(error.message);
                 return false;
             });
     }

@@ -68,6 +68,45 @@
           <button id="create-channel-cancel-button">Cancel</button>
         </section>
       </section>
+      <section id="user-profile-popup" class="modal-box">
+        <section class="modal-content standard-drop-shadow">
+          <button class="modal-close-button"></button>
+          <div id="user-profile-header">
+              <div id="user-profile-picture">
+                <label for="change-profile-image">Change</label>
+                <input
+                  type="file"
+                  id="change-profile-image"
+                  class="display-none" 
+                  accept="image/png, image/jpeg, image/jpg"
+                >
+              </div>
+              <p id="user-name"></p>
+              <input type="text" id="change-name" class="message-body-edit display-none">
+              <button id="change-name-button" class="update-details small-icon-button update-details-image display-none"></button>
+          </div>
+          <hr>
+          <div id="user-profile-details">
+            <div class="profile-detail">
+              <p>Email:</p>
+              <p id="user-email"></p>
+              <input type="text" id="change-email" class="message-body-edit display-none">
+              <button id="change-email-button" class="update-details small-icon-button update-details-image display-none"></button>
+            </div>
+            <div class="profile-detail">
+              <p>Bio:</p>
+              <p id="user-bio"></p>
+              <input type="text" id="change-bio" class="message-body-edit display-none">
+              <button id="change-bio-button" class="update-details small-icon-button update-details-image display-none"></button>
+            </div>
+            <div class="profile-detail">
+              <input type="password" id="change-password" class="message-body-edit display-none">
+              <button id="password-visibility-toggle" class="small-icon-button password-hidden display-none"></button>
+              <button id="change-password-button" class="update-details standard-button display-none">Change Password</button>
+            </div>
+          </div>
+        </section>
+      </section>
       <section id="sidebar" class="dynamic-display">
         <button id="hamburger-close" class="hamburger"></button>
         <section class="sidebar-channels-header">
@@ -94,6 +133,30 @@
         </section>
       </section>
       <section id="channel-view">
+        <section id="channel-settings-popup" class="modal-box">
+          <section class="modal-content standard-drop-shadow">
+            <button class="modal-close-button"></button>
+            <form id="channel-settings-form">
+              <label for="edit-channel-name">Channel Name:</label>
+              <input type="text" id="edit-channel-name">
+              <label for="edit-channel-description">Channel Description:</label>
+              <input type="text" id="edit-channel-description">
+            </form>
+            <button id="channel-settings-save">Save</button>
+          </section>
+        </section>
+        <section id="invite-users-popup" class="modal-box">
+          <section class="modal-content standard-drop-shadow">
+            <button class="modal-close-button"></button>
+            <label for="user-search-box">Search User</label>
+            <input type="text" id="user-search-box">
+            <section id="invite-users-section">
+              <ul id="invite-users-list" class="unstyled-list"></ul>
+            </section>
+            <p id="selected-users"></p>
+            <button id="invite-selected-users" class="standard-button">Invite Selected Users</button>
+          </section>
+        </section>
         <section id="channel-header">
           <button id="hamburger-open" class="hamburger"></button>
           <h1 id="channel-name" class="text-overflow-ellipsis"></h1>
@@ -102,68 +165,8 @@
             <button id="view-pinned-messages-button" class="header-button"></button>
             <button id="channel-actions-button" class="header-button"></button>
           </span>
-          <section id="channel-settings-popup" class="modal-box">
-            <section class="modal-content standard-drop-shadow">
-              <button class="modal-close-button"></button>
-              <form id="channel-settings-form">
-                <label for="edit-channel-name">Channel Name:</label>
-                <input type="text" id="edit-channel-name">
-                <label for="edit-channel-description">Channel Description:</label>
-                <input type="text" id="edit-channel-description">
-              </form>
-              <button id="channel-settings-save">Save</button>
-            </section>
-          </section>
-          <section id="invite-users-popup" class="modal-box">
-            <section class="modal-content standard-drop-shadow">
-              <button class="modal-close-button"></button>
-              <input type="text" id="user-search-box">
-              <section id="invite-users-section">
-                <ul id="invite-users-list" class="unstyled-list"></ul>
-              </section>
-              <p id="selected-users"></p>
-              <button id="invite-selected-users" class="standard-button">Invite Selected Users</button>
-            </section>
-          </section>
-          <section id="user-profile-popup" class="modal-box">
-            <section class="modal-content standard-drop-shadow">
-              <button class="modal-close-button"></button>
-              <div id="user-profile-header">
-                  <div id="user-profile-picture">
-                    <label for="change-profile-image">Change</label>
-                    <input
-                      type="file"
-                      id="change-profile-image"
-                      class="display-none" 
-                      accept="image/png, image/jpeg, image/jpg"
-                    >
-                  </div>
-                  <p id="user-name"></p>
-                  <input type="text" id="change-name" class="message-body-edit display-none">
-                  <button id="change-name-button" class="update-details small-icon-button update-details-image display-none"></button>
-              </div>
-              <hr>
-              <div id="user-profile-details">
-                <div class="profile-detail">
-                  <p>Email:</p>
-                  <p id="user-email"></p>
-                  <input type="text" id="change-email" class="message-body-edit display-none">
-                  <button id="change-email-button" class="update-details small-icon-button update-details-image display-none"></button>
-                </div>
-                <div class="profile-detail">
-                  <p>Bio:</p>
-                  <p id="user-bio"></p>
-                  <input type="text" id="change-bio" class="message-body-edit display-none">
-                  <button id="change-bio-button" class="update-details small-icon-button update-details-image display-none"></button>
-                </div>
-                <div class="profile-detail">
-                  <input type="password" id="change-password" class="message-body-edit display-none">
-                  <button id="password-visibility-toggle" class="small-icon-button password-hidden display-none"></button>
-                  <button id="change-password-button" class="update-details standard-button display-none">Change Password</button>
-                </div>
-              </div>
-            </section>
-          </section>
+        </section>
+        <section id="channel-messages">
           <section id="image-fullsize-popup" class="modal-box display-none">
             <section class="modal-content-auto standard-drop-shadow">
               <button class="modal-close-button auto-position"></button>
@@ -174,8 +177,6 @@
               </div>
             </section>
           </section>
-        </section>
-        <section id="channel-messages">
           <div id="channel-members" class="channel-dropdown standard-drop-shadow display-none">
             <ul id="channel-members-list" class="unstyled-list">
             </ul>
@@ -194,6 +195,12 @@
               <p id="channel-creation-time"></p>
               <p id="channel-creator"></p>
               <p id="channel-description"></p>
+              <div class="dark-checkbox">
+                <label for="theme-checkbox">
+                  <input type="checkbox" id="theme-checkbox">Enable Dark Mode?
+                </label>
+                
+              </div>
             </div>
           </div>
           <ul id="message-list">
